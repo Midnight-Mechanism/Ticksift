@@ -27,7 +27,15 @@ class SecurityController extends Controller
      */
     public function prices($id)
     {
-        $prices = Security::findOrFail($id)->prices;
+        $prices = Security::findOrFail($id)
+            ->prices()
+            ->select(
+                'date',
+                'open',
+                'high',
+                'low',
+                'close',
+            )->get();
         return response()->json($prices);
     }
 }
