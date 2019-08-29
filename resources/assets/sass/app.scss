@@ -1,0 +1,33 @@
+// Fonts
+@import url('https://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic');
+
+// Variables
+@import "variables";
+
+// Bootstrap
+@import '~bootstrap/scss/bootstrap';
+
+// Font Awesome
+@import '~@fortawesome/fontawesome-free/scss/fontawesome';
+@import '~@fortawesome/fontawesome-free/scss/regular';
+@import '~@fortawesome/fontawesome-free/scss/solid';
+@import '~@fortawesome/fontawesome-free/scss/brands';
+
+// Dropzone
+@import "~dropzone/dist/basic";
+@import "~dropzone/dist/dropzone";
+@import "~@yaireo/tagify/src/tagify";
+
+@import "mixins";
+@import "margins";
+@import "helpers";
+@import "typography";
+@import "buttons";
+@import "badges";
+@import "panels";
+@import "wells";
+@import "modals";
+@import "forms";
+@import "lists";
+@import "visibility";
+@import "ticksift";

@@ -1,0 +1,81 @@
+.modal {
+    .modal-title {
+        text-transform: uppercase;
+    }
+    .modal-header {
+        background-color: $brand-light;
+        border-top-left-radius: 3px;
+        -moz-border-radius-top-left: 3px;
+        -webkit-border-top-left-radius: 3px;
+        border-top-right-radius: 3px;
+        -moz-border-radius-top-right: 3px;
+        -webkit-border-top-right-radius: 3px;
+    }
+    .modal-content {
+        background-color: $brand-primary;
+        color: rgba(255, 255, 255, 0.5);
+    }
+    input, textarea {
+        background-color: $brand-dark;
+    }
+    &.modal-success {
+        .modal-header {
+            color: $white;
+            background-color: $brand-success;
+        }
+    }
+    &.modal-warning {
+        .modal-header {
+            color: $white;
+            background-color: $brand-warning;
+        }
+    }
+    &.modal-danger {
+        .modal-header {
+            color: $white;
+            background-color: $brand-danger;
+        }
+    }
+    &.modal-info {
+        .modal-header {
+            color: $white;
+            background-color: $brand-info;
+        }
+    }
+    &.modal-primary {
+        .modal-header {
+            color: $white;
+            background-color: $brand-primary;
+        }
+    }
+}
+
+.cancel-modal-button {
+  text-decoration: underline !important;
+}
+
+.modal-form {
+  margin-left: 0px;
+  width: 100%;
+  .form-group {
+    margin-left: 5px;
+  }
+}
+.edit-attribute-form {
+  padding-top: 5px;
+}
+.edit-demographic-form {
+  padding-top: 5px;
+}
+.edit-filters-form {
+  padding-top: 10px;
+}
+.product-form {
+  padding-top: 10px
+}
+.create-project-form {
+  padding-top: 10px;
+}
+.edit-project-form {
+  padding-top: 10px;
+}

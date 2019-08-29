@@ -1,0 +1,34 @@
+variables:
+  SSH_SERVER: "gitlab-runner@midnightmechanism.com"
+
+cache:
+  key: ${CI_COMMIT_REF_SLUG}
+  paths:
+    - node_modules/
+    - vendor/
+
+deploy_staging:
+  stage: deploy
+  before_script:
+    - npm install
+    - composer install
+    - npm run dev
+    - echo "$STAGING_ENV" > .env
+    - rm -rf storage
+    - mkdir -p ~/.ssh
+    - chmod 700 ~/.ssh
+    - echo "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
+    - chmod 644 ~/.ssh/known_hosts
+    - eval $(ssh-agent -s)
+    - ssh-add <(echo "$DEPLOY_KEY")
+  script:
+    - rsync -ra --exclude=.git ./ $SSH_SERVER:/web/ticksift/staging_temp/
+    - ssh $SSH_SERVER "rm -rf /web/ticksift/staging"
+    - ssh $SSH_SERVER "mv /web/ticksift/staging_temp /web/ticksift/staging"
+    - ssh $SSH_SERVER "ln -s /web/ticksift/storage_staging /web/ticksift/staging/storage"
+    - ssh $SSH_SERVER "ln -s /web/ticksift/staging/storage/app/public /web/ticksift/staging/public/storage"
+    - ssh $SSH_SERVER "php /web/ticksift/staging/artisan view:clear"
+    - ssh $SSH_SERVER "php /web/ticksift/staging/artisan cache:clear"
+    - ssh $SSH_SERVER "php /web/ticksift/staging/artisan migrate --force"
+  only:
+    - develop

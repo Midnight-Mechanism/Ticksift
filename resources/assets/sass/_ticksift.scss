@@ -1,0 +1,179 @@
+body {
+    color: white;
+}
+
+.has-error input {
+    border-color: $brand-danger;
+    border-width: 4px;
+}
+
+.navbar-laravel {
+    background-color: $brand-primary;
+    color: white;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
+    .container {
+        max-width: unset;
+    }
+    .navbar-brand {
+        font-family: $font-family-sans-serif-bold;
+        font-weight: 500;
+        max-height: 43px;
+        max-width: 125;
+    }
+    .nav-link {
+        cursor: pointer;
+        text-transform: uppercase;
+        text-decoration: none;
+        font-family: $font-family-sans-serif-bold;
+    }
+}
+
+.login-box {
+    width: 90%;
+    max-width: 600px;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    .card-body {
+        color: white;
+        background-color: #526591;
+        .btn-link {
+            color: white;
+        }
+    }
+}
+
+.btn {
+    font-weight: bold;
+    letter-spacing: 1px;
+    border-radius: 2rem;
+    text-transform: uppercase;
+    &:focus, &:active {
+        box-shadow: none !important;
+    }
+    &:disabled {
+        color: #ADADAD !important;
+        background-color: #DDDDDD !important;
+        border: none;
+    }
+}
+
+.btn-primary {
+    @include button-variant($brand-warning, darken($brand-warning, 10%));
+    color: white;
+}
+
+.btn-success {
+    @include button-variant($brand-success, darken($brand-success, 10%));
+    color: white;
+}
+
+.btn:not(.btn-link) {
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+}
+
+a:not(.btn), .btn-link {
+    color: #666;
+    text-decoration: underline;
+}
+
+.card-container {
+    padding: 0 5rem 0 5rem;
+}
+
+a.row-card {
+    border-radius: 0px;
+    box-shadow: 0px 0px 10px $brand-light;
+    text-decoration: none;
+    &:hover {
+        box-shadow: 0px 0px 10px lightgray;
+        text-decoration: none;
+    }
+    .card-header {
+        font-weight: bold;
+    }
+}
+
+.card-header {
+    h3, h4, h5 {
+        color: $brand-primary;
+        margin-bottom: 0px;
+        font-family: $font-family-sans-serif-bold;
+    }
+}
+
+.card-body {
+    color: #666;
+    form {
+        margin: 0;
+    }
+    .btn-link {
+        padding: 0;
+    }
+}
+
+.card-content {
+    display: flex;
+    flex-direction: column;
+    height: 200px;
+    p {
+        align-self: flex-start;
+    }
+    img {
+        align-self: center;
+        margin:auto;
+        max-height: 80%;
+        max-width: 80%;
+    }
+}
+
+body {
+    background-color: $brand-background;
+}
+
+body.waiting * {
+    cursor: progress;
+}
+
+h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6 {
+    font-family: $font-family-sans-serif-light;
+    color: white;
+}
+
+.select2-selection {
+    background-color: #000F0F !important;
+    #select2-select-ticker-container {
+        color: white !important;
+    }
+}
+
+.select2 {
+    width: 100% !important;
+}
+
+.select2-search, .select2-search input {
+    background-color: #000F0F !important;
+}
+
+.select2-results, .select2-search__field {
+    background-color: #000F0F !important;
+    color: white !important;
+    .select2-results__option[aria-selected="true"] {
+        background-color: #001F1F !important;
+    }
+    .select2-results__option--highlighted {
+        background-color: #073333 !important;
+    }
+}
+
+.sim-card {
+    display: none;
+    justify-content: center;
+    align-content: center;
+    background-color: #000F0F;
+    margin: 0.5rem 0 0.5rem 0;
+    padding: 0.5rem;
+    font-size: 1.5rem;
+}
