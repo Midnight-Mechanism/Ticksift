@@ -50,4 +50,14 @@ class Security extends Model
     {
         return $this->hasMany('App\Models\Price')->orderBy('date');
     }
+
+    /**
+     * A security has actions.
+     *
+     * @var array
+     */
+    public function actions()
+    {
+        return $this->belongsToMany('App\Models\Action')->withPivot('date', 'value');
+    }
 }
