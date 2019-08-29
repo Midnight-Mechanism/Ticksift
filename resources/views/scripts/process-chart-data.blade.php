@@ -65,11 +65,15 @@
             prices = msg;
             redrawPlots();
             let lastPoint = prices[prices.length - 1];
+            let currencyFormatter = new Intl.NumberFormat("en-US", {
+                style: "currency",
+                currency: "USD",
+            });
             $("#last-date").text("Last Date: " + lastPoint.date);
-            $("#last-open").text("Last Open Price: $" + lastPoint.open);
-            $("#last-high").text("Last High Price: $" + lastPoint.high);
-            $("#last-low").text("Last Low Price: $" + lastPoint.low);
-            $("#last-close").text("Last Close Price: $" + lastPoint.close);
+            $("#last-open").text("Last Open Price: " + currencyFormatter.format(lastPoint.open));
+            $("#last-high").text("Last High Price: " + currencyFormatter.format(lastPoint.high));
+            $("#last-low").text("Last Low Price: " + currencyFormatter.format(lastPoint.low));
+            $("#last-close").text("Last Close Price: " + currencyFormatter.format(lastPoint.close));
             $(".sim-card").css("display", "flex");
             $("body").removeClass("waiting");
         });
