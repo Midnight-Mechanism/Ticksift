@@ -15,7 +15,14 @@ class SecurityController extends Controller
     public function search(Request $request)
     {
         $query = $request->input('q');
-        $results = Security::where('ticker', 'ILIKE', $query . '%')->get();
+        $results = Security::where('ticker', 'ILIKE', '%' . $query . '%')
+            ->orWhere('name', 'ILIKE', '%' . $query . '%')
+            ->select(
+                'id',
+                'ticker',
+                'name',
+            )
+            ->get();
         return response()->json($results);
     }
 
