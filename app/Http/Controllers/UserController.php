@@ -12,23 +12,6 @@ use Illuminate\Http\Request;
 class UserController extends Controller
 {
     /**
-     * Activate an invited user.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function activate(Request $request, $code) {
-        if(Invite::isValid($code)) {
-            $invitation = Invite::get($code);
-            Auth::loginUsingId($invitation->user_id, true);
-            $user = Auth::user();
-            $user->activated = true;
-            $user->save();
-            Invite::consume($code);
-            return redirect()->route('profile');
-        }
-    }
-
-    /**
      * Retrieve a user profile.
      *
      * @return \Illuminate\Http\Response

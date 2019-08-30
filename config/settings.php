@@ -10,7 +10,7 @@ return [
     /*
      * Is email activation required
      */
-    'activation' => env('ACTIVATION', false),
+    'activation' => env('ACTIVATION', true),
 
     /*
      * Is email activation required
