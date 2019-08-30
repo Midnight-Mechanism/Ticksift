@@ -27,7 +27,7 @@ class SecuritiesTableSeeder extends Seeder
         $header = TRUE;
         while (($line = fgetcsv($file)) !== FALSE) {
             if (!$header) {
-                $source_table_id = SourceTable::firstOrCreate(['name' => $line[4]])->id;
+                $source_table_id = SourceTable::firstOrCreate(['name' => $line[0]])->id;
                 $exchange_id = Exchange::firstOrCreate(['name' => $line[4]])->id;
                 $category_id = Category::firstOrCreate(['name' => $line[6]])->id;
                 $cusips = explode(' ', $line[7]);

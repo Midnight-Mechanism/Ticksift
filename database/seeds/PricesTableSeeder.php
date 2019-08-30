@@ -19,6 +19,7 @@ class PricesTableSeeder extends Seeder
 
         $header = TRUE;
         $chunk = [];
+        $missing_tickers = [];
         while (($line = fgetcsv($file)) !== FALSE) {
             if (!$header) {
                 $security = Security::where('ticker', $line[0])->first();
@@ -38,12 +39,12 @@ class PricesTableSeeder extends Seeder
                         'updated_at' => Carbon::now(),
                     ];
                 } catch (Exception $e) {
-                    $this->command->error($e->getMessage());
-                    $this->command->error(implode(',', $line));
+                    if (!in_array($line[0], $missing_tickers)) {
+                        $missing_tickers[] = $line[0];
+                    }
                     continue;
                 }
                 if (count($chunk) > 1000) {
-                    $this->command->info(implode(',', $line));
                     Price::insert($chunk);
                     $chunk = [];
                 }
@@ -53,5 +54,9 @@ class PricesTableSeeder extends Seeder
         }
 
         fclose($file);
+        if (count($missing_tickers) > 0) {
+            $this->command->error("There was price data for unknown securities:");
+            $this->command->error(implode(' ', $missing_tickers));
+        }
     }
 }

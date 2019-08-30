@@ -18,12 +18,16 @@ class ActionsTableSeeder extends Seeder
 
         $header = TRUE;
         $chunk = [];
+        $missing_tickers = [];
+
         while (($line = fgetcsv($file)) !== FALSE) {
             if (!$header) {
                 $action = Action::firstOrCreate(['name' => $line[1]]);
                 $security = Security::where('ticker', $line[2])->first();
                 if (!$security) {
-                    $this->command->error("Security with ticker " . $line[2] . " not found.");
+                    if (!in_array($line[2], $missing_tickers)) {
+                        $missing_tickers[] = $line[2];
+                    }
                     continue;
                 }
                 $action->securities()->attach($security->id, [
@@ -36,5 +40,9 @@ class ActionsTableSeeder extends Seeder
         }
 
         fclose($file);
+        if (count($missing_tickers) > 0) {
+            $this->command->error("There was action data for unknown securities:");
+            $this->command->error(implode(' ', $missing_tickers));
+        }
     }
 }
