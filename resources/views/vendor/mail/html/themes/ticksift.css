@@ -1,7 +1,7 @@
 /* Base */
 
 body, body *:not(html):not(style):not(br):not(tr):not(code) {
-    font-family: Montserrat, Helvetica, sans-serif;
+    font-family: "Hind Madurai", Helvetica, sans-serif;
     box-sizing: border-box;
 }
 

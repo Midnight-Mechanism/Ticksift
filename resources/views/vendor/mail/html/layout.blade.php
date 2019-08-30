@@ -7,6 +7,7 @@
 <body>
     <style>
         @import url('https://fonts.googleapis.com/css?family=Montserrat');
+        @import url('https://fonts.googleapis.com/css?family=Hind+Madurai');
         @media only screen and (max-width: 600px) {
             .inner-body {
                 width: 100% !important;
