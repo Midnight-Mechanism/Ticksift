@@ -6,6 +6,7 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Notification;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
+use Illuminate\Support\HtmlString;
 
 class UserActivated extends Notification
 {
@@ -46,7 +47,7 @@ class UserActivated extends Notification
             ->subject('Welcome to ' . config('app.name'))
             ->greeting('Hi ' . $this->user->first_name . ',')
             ->line('Your ' . config('app.name') . ' account is ready to go.  Enjoy!')
-            ->line('If you have any questions, please let us know.');
+            ->line(new HtmlString('If you have any questions, please <a href="https://midnightmechanism.com/#contact">let us know</a>.'));
     }
 
     /**
