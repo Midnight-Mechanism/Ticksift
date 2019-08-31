@@ -42,6 +42,15 @@
         let low = prices.map(a => a.low);
         let close = prices.map(a => a.close);
 
+        // set default range to last six months of data
+        if (dates.length > 0) {
+            let lastDate = dates[dates.length - 1];
+            layout.xaxis.range = [
+                moment(lastDate).subtract(6, "month").format("YYYY-MM-DD"),
+                lastDate,
+            ];
+        }
+
         let candleData = [
             {
                 name: "Candlestick",
