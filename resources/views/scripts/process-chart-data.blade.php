@@ -25,6 +25,7 @@
 
     var correlationLayout = {
         autosize: true,
+        title: "Correlations",
         font: {
             family: "Hind Madurai",
             color: "white",
@@ -36,6 +37,7 @@
         yaxis: {
             gridcolor: gridColor,
         },
+        annotations: [],
         paper_bgcolor: chartColor,
         plot_bgcolor: chartColor,
     };
@@ -52,7 +54,7 @@
     var correlationChart = document.getElementById('correlation-chart');
     function processChartData() {
 
-        candlestickLayout.title = "Prices: " + Object.keys(securityPrices).sort().join(" - ");
+        candlestickLayout.title = "Prices";
 
         let candleTraces = [];
         let correlationTraces = [{
@@ -64,7 +66,9 @@
             zmin: -1,
             zmax: 1,
         }];
+
         let lastDates = [];
+        correlationLayout.annotations = [];
 
         for (const security of Object.entries(securityPrices)) {
             let ticker = security[0];
@@ -81,21 +85,41 @@
             // calculate correlation data for security
             for (const compSecurity of Object.entries(securityPrices)) {
                 let compTicker = compSecurity[0];
-                let compPrices = compSecurity[1];
-                let compDates = compPrices.map(a => a.date);
-                let compClose = compPrices.map(a => a.close);
-                let overlappingDates = dates.filter(date => compDates.includes(date));
-                let tickerData = [];
-                let compTickerData = [];
-                overlappingDates.forEach(function(date) {
-                    let dateIndex = dates.indexOf(date);
-                    let compDateIndex = compDates.indexOf(date);
-                    tickerData.push(close[dateIndex]);
-                    compTickerData.push(compClose[dateIndex]);
-                });
+
+                let coeff = 1;
+                // skip expensive computations if comparing ticker against itself
+                if (ticker !== compTicker) {
+                    let compPrices = compSecurity[1];
+                    let compDates = compPrices.map(a => a.date);
+                    let compClose = compPrices.map(a => a.close);
+                    let overlappingDates = dates.filter(date => compDates.includes(date));
+                    let tickerData = [];
+                    let compTickerData = [];
+                    overlappingDates.forEach(function(date) {
+                        let dateIndex = dates.indexOf(date);
+                        let compDateIndex = compDates.indexOf(date);
+                        tickerData.push(close[dateIndex]);
+                        compTickerData.push(compClose[compDateIndex]);
+                    });
+                    coeff = jStat.corrcoeff(tickerData, compTickerData);
+
+                    // correct values outside of correlation range
+                    coeff = coeff > 1 ? 1 : coeff;
+                    coeff = coeff < -1 ? -1 : coeff;
+                }
+
                 correlationTraces[0].x.push(ticker);
                 correlationTraces[0].y.push(compTicker);
-                correlationTraces[0].z.push(jStat.corrcoeff(tickerData, compTickerData));
+                correlationTraces[0].z.push(coeff);
+                correlationLayout.annotations.push({
+                    x: ticker,
+                    y: compTicker,
+                    text: coeff,
+                    font: {
+                        color: coeff > 0 ? "black" : "white",
+                    },
+                    showarrow: false,
+                });
             }
 
             candleTraces.push(
