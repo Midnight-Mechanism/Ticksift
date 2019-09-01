@@ -1,7 +1,7 @@
 <nav class="navbar navbar-expand-md navbar-dark navbar-laravel">
     <div class="container">
         <a class="navbar-brand" href="{{ url('/') }}">
-            <img src="/images/ticksift.svg"></img>
+            <img src="/images/ticksift.svg">
         </a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
                                                                             aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
