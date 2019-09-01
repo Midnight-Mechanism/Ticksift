@@ -8,3 +8,4 @@
 require('./bootstrap');
 window.Plotly = require('plotly.js-dist');
 window.moment = require('moment');
+window.jStat = require('jstat');

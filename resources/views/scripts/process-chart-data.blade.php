@@ -1,9 +1,9 @@
 <script type="text/javascript">
 
-    var security = $("#select-ticker").val();
-    var ticker = $("#select-ticker option:selected").text();
+    const chartColor = "#000F0F";
+    const gridColor = "#154B4B";
 
-    var layout = {
+    var candlestickLayout = {
         autosize: true,
         font: {
             family: "Hind Madurai",
@@ -12,17 +12,34 @@
         dragmode: "zoom",
         xaxis: {
             title: "Date",
-            matches: "x2",
-            gridcolor: "#154B4B",
+            gridcolor: gridColor,
         },
         yaxis: {
             title: "Price",
             tickprefix: "$",
-            gridcolor: "#154B4B",
+            gridcolor: gridColor,
         },
-        paper_bgcolor: "#000F0F",
-        plot_bgcolor: "#000F0F",
+        paper_bgcolor: chartColor,
+        plot_bgcolor: chartColor,
     };
+
+    var correlationLayout = {
+        autosize: true,
+        font: {
+            family: "Hind Madurai",
+            color: "white",
+        },
+        dragmode: "zoom",
+        xaxis: {
+            gridcolor: gridColor,
+        },
+        yaxis: {
+            gridcolor: gridColor,
+        },
+        paper_bgcolor: chartColor,
+        plot_bgcolor: chartColor,
+    };
+
 
     var config = {
         collaborate: false,
@@ -31,12 +48,22 @@
     };
 
     var securityPrices = [];
-    var candlestickChart = document.getElementById('candlestick-chart')
-    function redrawPlots() {
+    var candlestickChart = document.getElementById('candlestick-chart');
+    var correlationChart = document.getElementById('correlation-chart');
+    function processChartData() {
 
-        layout.title = "Prices: " + Object.keys(securityPrices).sort().join(" - ");
+        candlestickLayout.title = "Prices: " + Object.keys(securityPrices).sort().join(" - ");
 
-        let candleData = [];
+        let candleTraces = [];
+        let correlationTraces = [{
+            x: [],
+            y: [],
+            z: [],
+            type: "heatmap",
+            colorscale: "Electric",
+            zmin: -1,
+            zmax: 1,
+        }];
         let lastDates = [];
 
         for (const security of Object.entries(securityPrices)) {
@@ -51,7 +78,27 @@
 
             lastDates.push(moment(dates[dates.length - 1]));
 
-            candleData.push(
+            // calculate correlation data for security
+            for (const compSecurity of Object.entries(securityPrices)) {
+                let compTicker = compSecurity[0];
+                let compPrices = compSecurity[1];
+                let compDates = compPrices.map(a => a.date);
+                let compClose = compPrices.map(a => a.close);
+                let overlappingDates = dates.filter(date => compDates.includes(date));
+                let tickerData = [];
+                let compTickerData = [];
+                overlappingDates.forEach(function(date) {
+                    let dateIndex = dates.indexOf(date);
+                    let compDateIndex = compDates.indexOf(date);
+                    tickerData.push(close[dateIndex]);
+                    compTickerData.push(compClose[dateIndex]);
+                });
+                correlationTraces[0].x.push(ticker);
+                correlationTraces[0].y.push(compTicker);
+                correlationTraces[0].z.push(jStat.corrcoeff(tickerData, compTickerData));
+            }
+
+            candleTraces.push(
                 {
                     name: ticker + " - Open",
                     legendgroup: ticker,
@@ -83,15 +130,8 @@
             );
         }
 
-        if (lastDates.length > 0) {
-            lastDate = moment.max(lastDates);
-            layout.xaxis.range = [
-                lastDate.subtract(6, "month").format("YYYY-MM-DD"),
-                lastDate,
-            ];
-        }
-
-        Plotly.react(candlestickChart, candleData, layout, config);
+        Plotly.newPlot(candlestickChart, candleTraces, candlestickLayout, config);
+        Plotly.newPlot(correlationChart, correlationTraces, correlationLayout, config);
     }
 
     function getSecurityData() {
@@ -101,7 +141,7 @@
             ids: ids
         }).done(function(msg) {
             securityPrices = msg;
-            redrawPlots();
+            processChartData();
             $("body").removeClass("waiting");
         });
     }
@@ -130,6 +170,7 @@
         let vals = $("#select-ticker").val();
         if (!vals || !vals.length) {
             Plotly.purge(candlestickChart);
+            Plotly.purge(correlationChart);
             $("body").removeClass("waiting");
         }
     });

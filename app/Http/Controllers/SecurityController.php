@@ -48,6 +48,6 @@ class SecurityController extends Controller
                     'close',
                 )->get();
         }
-        return response()->json($prices);
+        return response()->json($prices, 200, [], JSON_NUMERIC_CHECK);
     }
 }
