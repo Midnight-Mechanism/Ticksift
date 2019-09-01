@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Security;
+use App\Models\Price;
 
 class SecurityController extends Controller
 {
@@ -29,20 +30,24 @@ class SecurityController extends Controller
     /**
      * Calculate price elasticity for the specified resource.
      *
-     * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function prices($id)
+    public function prices(Request $request)
     {
-        $prices = Security::findOrFail($id)
-            ->prices()
-            ->select(
-                'date',
-                'open',
-                'high',
-                'low',
-                'close',
-            )->get();
+        $security_ids = $request->input('ids');
+        $prices = [];
+        foreach ($security_ids as $security_id) {
+            $security = Security::findOrFail($security_id);
+            $prices[$security->ticker] = $security
+                ->prices()
+                ->select(
+                    'date',
+                    'open',
+                    'high',
+                    'low',
+                    'close',
+                )->get();
+        }
         return response()->json($prices);
     }
 }

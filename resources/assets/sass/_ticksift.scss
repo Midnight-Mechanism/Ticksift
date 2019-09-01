@@ -147,6 +147,9 @@ h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6 {
     #select2-select-ticker-container {
         color: white !important;
     }
+    .select2-selection__choice {
+        background-color: $brand-primary !important;
+    }
 }
 
 .select2 {

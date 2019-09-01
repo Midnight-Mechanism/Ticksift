@@ -61,7 +61,7 @@ Route::group(['middleware' => ['auth', 'activated', 'activity', 'currentUser']],
     ]);
 
     Route::view('securities/show', 'securities.show')->name('securities.show');
-    Route::get('securities/{security}/prices', ['as' => 'securities.price', 'uses' => 'SecurityController@prices']);
+    Route::post('securities/prices', ['as' => 'securities.prices', 'uses' => 'SecurityController@prices']);
 });
 
 // Registered and is admin routes.

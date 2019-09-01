@@ -10,7 +10,6 @@
 
         <title>@if (trim($__env->yieldContent('template_title')))@yield('template_title') | @endif {{ config('app.name', Lang::get('titles.app')) }}</title>
         <meta name="description" content="">
-        <meta name="author" content="Jeremy Kenedy">
         <link rel="shortcut icon" href="/images/favicon.png">
 
         {{-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries --}}
@@ -66,6 +65,13 @@
         {{-- Scripts --}}
         <script src="{{ mix('/js/app.js') }}"></script>
         <script src="{{ mix('/js/vendor.js') }}"></script>
+        <script>
+            $.ajaxSetup({
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                }
+            });
+        </script>
 
         @yield('footer_scripts')
 

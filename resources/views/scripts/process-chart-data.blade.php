@@ -30,60 +30,57 @@
         responsive: true,
     };
 
-    var prices = [];
+    var securityPrices = [];
     var candlestickChart = document.getElementById('candlestick-chart')
     function redrawPlots() {
 
-        layout.title = ticker;
+        layout.title = "Prices: " + Object.keys(securityPrices).sort().join(" - ");
 
-        let dates = prices.map(a => a.date);
-        let open = prices.map(a => a.open);
-        let high = prices.map(a => a.high);
-        let low = prices.map(a => a.low);
-        let close = prices.map(a => a.close);
+        let candleData = [];
+        let lastDates = [];
 
-        // set default range to last six months of data
-        if (dates.length > 0) {
-            let lastDate = dates[dates.length - 1];
-            layout.xaxis.range = [
-                moment(lastDate).subtract(6, "month").format("YYYY-MM-DD"),
-                lastDate,
-            ];
-        }
+        for (const security of Object.entries(securityPrices)) {
+            let ticker = security[0];
+            let prices = security[1];
 
-        let candleData = [
-            {
-                name: "Candlestick",
+            let dates = prices.map(a => a.date);
+            let open = prices.map(a => a.open);
+            let high = prices.map(a => a.high);
+            let low = prices.map(a => a.low);
+            let close = prices.map(a => a.close);
+
+            lastDates.push(moment(dates[dates.length - 1]));
+
+            candleData.push({
+                name: ticker,
                 type: "candlestick",
                 x: dates,
                 open: open,
                 high: high,
                 low: low,
                 close: close,
-            },
-        ];
+            });
+        }
+
+        if (lastDates.length > 0) {
+            lastDate = moment.max(lastDates);
+            layout.xaxis.range = [
+                lastDate.subtract(6, "month").format("YYYY-MM-DD"),
+                lastDate,
+            ];
+        }
 
         Plotly.react(candlestickChart, candleData, layout, config);
     }
 
     function getSecurityData() {
-        security = $("#select-ticker").val();
-        ticker = $("#select-ticker option:selected").text();
+        ids = $("#select-ticker").val();
         $("body").addClass("waiting");
-        $.get("/securities/" + security + "/prices", function(msg) {
-            prices = msg;
+        $.post("{{ route('securities.prices') }}", data = {
+            ids: ids
+        }).done(function(msg) {
+            securityPrices = msg;
             redrawPlots();
-            let lastPoint = prices[prices.length - 1];
-            let currencyFormatter = new Intl.NumberFormat("en-US", {
-                style: "currency",
-                currency: "USD",
-            });
-            $("#last-date").text("Last Date: " + lastPoint.date);
-            $("#last-open").text("Last Open Price: " + currencyFormatter.format(lastPoint.open));
-            $("#last-high").text("Last High Price: " + currencyFormatter.format(lastPoint.high));
-            $("#last-low").text("Last Low Price: " + currencyFormatter.format(lastPoint.low));
-            $("#last-close").text("Last Close Price: " + currencyFormatter.format(lastPoint.close));
-            $(".sim-card").css("display", "flex");
             $("body").removeClass("waiting");
         });
     }
@@ -105,8 +102,8 @@
             },
         },
     })).on("select2:selecting", function(event) {
-        // clear results to prevent option list getting too large
-        $("#select-ticker").find("option").remove();
+		// clear results to prevent option list getting too large
+		$(".select2-results__option").remove();
     });
 
     $("#select-ticker").change(getSecurityData);
