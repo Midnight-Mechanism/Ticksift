@@ -85,10 +85,28 @@
             // calculate correlation data for security
             for (const compSecurity of Object.entries(securityPrices)) {
                 let compTicker = compSecurity[0];
+                let coeff;
+                let oldCoeff;
 
-                let coeff = 1;
-                // skip expensive computations if comparing ticker against itself
+                // check existing points for reverse of ticker pair
                 if (ticker !== compTicker) {
+                    for (const pointIndex in correlationTraces[0].x) {
+                        if (
+                            correlationTraces[0].x[pointIndex] === compTicker &&
+                            correlationTraces[0].y[pointIndex] === ticker
+                        ) {
+                            oldCoeff = correlationTraces[0].z[pointIndex];
+                        }
+                    }
+                }
+
+                // skip expensive computations if comparing ticker against itself
+                if (ticker === compTicker) {
+                    coeff = 1;
+                    // use old coefficient if we've computed the correlation already
+                } else if (oldCoeff != undefined) {
+                    coeff = oldCoeff;
+                } else {
                     let compPrices = compSecurity[1];
                     let compDates = compPrices.map(a => a.date);
                     let compClose = compPrices.map(a => a.close);
