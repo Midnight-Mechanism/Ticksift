@@ -119,7 +119,11 @@
                         tickerData.push(close[dateIndex]);
                         compTickerData.push(compClose[compDateIndex]);
                     });
+
                     coeff = jStat.corrcoeff(tickerData, compTickerData);
+                    if (coeff) {
+                        coeff = parseFloat(coeff.toFixed(2));
+                    }
 
                     // correct values outside of correlation range
                     coeff = coeff > 1 ? 1 : coeff;
