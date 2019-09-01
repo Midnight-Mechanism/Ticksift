@@ -123,9 +123,15 @@
                 };
             },
         },
-    })).on("select2:selecting", function(event) {
+    })).on("select2:select", function() {
         // clear results to prevent option list getting too large
         $(".select2-results__option").remove();
+    }).on("select2:unselect", function () {
+        let vals = $("#select-ticker").val();
+        if (!vals || !vals.length) {
+            Plotly.purge(candlestickChart);
+            $("body").removeClass("waiting");
+        }
     });
 
     $("#select-ticker").change(getSecurityData);
