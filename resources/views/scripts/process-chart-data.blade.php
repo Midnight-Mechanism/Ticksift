@@ -6,7 +6,7 @@
     var layout = {
         autosize: true,
         font: {
-            family: "Lato",
+            family: "Hind Madurai",
             color: "white",
         },
         dragmode: "zoom",
@@ -51,15 +51,36 @@
 
             lastDates.push(moment(dates[dates.length - 1]));
 
-            candleData.push({
-                name: ticker,
-                type: "candlestick",
-                x: dates,
-                open: open,
-                high: high,
-                low: low,
-                close: close,
-            });
+            candleData.push(
+                {
+                    name: ticker + " - Open",
+                    legendgroup: ticker,
+                    type: "scattergl",
+                    x: dates,
+                    y: open,
+                },
+                {
+                    name: ticker + " - High",
+                    legendgroup: ticker,
+                    type: "scattergl",
+                    x: dates,
+                    y: high,
+                },
+                {
+                    name: ticker + " - Low",
+                    legendgroup: ticker,
+                    type: "scattergl",
+                    x: dates,
+                    y: low,
+                },
+                {
+                    name: ticker + " - Close",
+                    legendgroup: ticker,
+                    type: "scattergl",
+                    x: dates,
+                    y: close,
+                }
+            );
         }
 
         if (lastDates.length > 0) {
@@ -102,8 +123,8 @@
             },
         },
     })).on("select2:selecting", function(event) {
-		// clear results to prevent option list getting too large
-		$(".select2-results__option").remove();
+        // clear results to prevent option list getting too large
+        $(".select2-results__option").remove();
     });
 
     $("#select-ticker").change(getSecurityData);
