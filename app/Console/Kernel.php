@@ -15,6 +15,7 @@ class Kernel extends ConsoleKernel
     protected $commands = [
         Commands\RerunSimulations::class,
         Commands\DeleteUnsavedSimulations::class,
+        Commands\UpdateSecurities::class,
     ];
 
     /**
@@ -27,6 +28,7 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule)
     {
         $schedule->command('simulation:clean')->daily();
+        $schedule->command('securities:update')->dailyAt('02:00');
     }
 
     /**
