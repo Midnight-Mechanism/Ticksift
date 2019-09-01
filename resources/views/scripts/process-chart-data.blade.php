@@ -108,6 +108,7 @@
 
     $("#select-ticker").select2(({
         placeholder: "Please enter a ticker symbol (e.g. AAPL)...",
+        minimumInputLength: 1,
         ajax: {
             url: "/securities/search",
             delay: 250,
