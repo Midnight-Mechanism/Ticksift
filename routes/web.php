@@ -13,16 +13,14 @@
 |
 */
 
-// Homepage Route
-Route::get('/', function () {
-    return redirect()->route('login');
-});
-
 // Authentication Routes
 Auth::routes();
 
 // Public Routes
 Route::group(['middleware' => ['web']], function () {
+
+    // Landing Page
+    Route::view('/', 'landing');
 
     // Activation Routes
     Route::get('/activate', ['as' => 'activate', 'uses' => 'Auth\ActivateController@initial']);
