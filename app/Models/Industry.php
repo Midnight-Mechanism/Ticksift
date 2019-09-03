@@ -21,7 +21,7 @@ class Industry extends Model
      * @var array
      */
     protected $fillable = [
-        'sic_sector_id',
+        'sector_id',
         'name',
     ];
 }

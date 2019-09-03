@@ -189,7 +189,7 @@
                 id: id,
             }).done(function(securities) {
                 for (security of securities) {
-                    if (!$("#select-tickers").val().includes(security.id)) {
+                    if (!$("#select-tickers").val().includes(security.id.toString())) {
                         let option = new Option(security.ticker + " - " + security.name, security.id, true, true);
                         $("#select-tickers").append(option);
                     }

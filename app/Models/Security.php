@@ -29,7 +29,6 @@ class Security extends Model
         'is_delisted',
         'category_id',
         'sic_industry_id',
-        'sector_id',
         'industry_id',
         'scale_marketcap',
         'scale_revenue',
