@@ -44,6 +44,7 @@ Route::group(['middleware' => ['auth']], function () {
 
 // Registered and is current user routes.
 Route::group(['middleware' => ['auth', 'activated', 'currentUser']], function () {
+    Route::get('portfolios/search', ['as' => 'portfolios.search', 'uses' => 'PortfolioController@search']);
     Route::get('securities/search', ['as' => 'securities.search', 'uses' => 'SecurityController@search']);
 });
 
@@ -59,6 +60,7 @@ Route::group(['middleware' => ['auth', 'activated', 'activity', 'currentUser']],
     ]);
 
     Route::view('securities/show', 'securities.show')->name('securities.show');
+    Route::post('portfolios/securities', ['as' => 'portfolios.securities', 'uses' => 'PortfolioController@securities']);
     Route::post('securities/prices', ['as' => 'securities.prices', 'uses' => 'SecurityController@prices']);
 });
 

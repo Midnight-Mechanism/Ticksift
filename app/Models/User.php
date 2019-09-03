@@ -63,4 +63,15 @@ class User extends Authenticatable
     {
         return $this->hasMany('App\Models\Simulation')->orderBy('name');
     }
+
+    /**
+     * A user has portfolios.
+     *
+     * @var array
+     */
+    public function portfolios()
+    {
+        return $this->belongsToMany('App\Models\Portfolio')->orderBy('name');
+    }
+
 }

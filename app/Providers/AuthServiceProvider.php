@@ -2,11 +2,9 @@
 
 namespace App\Providers;
 
-use App\Models\Project;
-use App\Models\Attribute;
+use App\Models\Portfolio;
 use App\Models\Simulation;
-use App\Policies\ProjectPolicy;
-use App\Policies\AttributePolicy;
+use App\Policies\PortfolioPolicy;
 use App\Policies\SimulationPolicy;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 
@@ -18,8 +16,7 @@ class AuthServiceProvider extends ServiceProvider
      * @var array
      */
     protected $policies = [
-        Project::class => ProjectPolicy::class,
-        Attribute::class => AttributePolicy::class,
+        Portfolio::class => PortfolioPolicy::class,
         Simulation::class => SimulationPolicy::class,
     ];
 

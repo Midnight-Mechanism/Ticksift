@@ -180,8 +180,29 @@
         Plotly.newPlot(correlationChart, correlationTraces, correlationLayout, config);
     }
 
+    function getPortfolioData() {
+        let id = $("#select-portfolios").val();
+
+        if (id) {
+            $("body").addClass("waiting");
+            $.post("{{ route('portfolios.securities') }}", data = {
+                id: id,
+            }).done(function(securities) {
+                for (security of securities) {
+                    if (!$("#select-tickers").val().includes(security.id)) {
+                        let option = new Option(security.ticker + " - " + security.name, security.id, true, true);
+                        $("#select-tickers").append(option);
+                    }
+                }
+                $("#select-tickers").trigger("change");
+                $("body").removeClass("waiting");
+            });
+        }
+    }
+
+
     function getSecurityData() {
-        let ids = $("#select-ticker").val();
+        let ids = $("#select-tickers").val();
         let dates = $("#input-dates").val();
 
         if (ids.length > 0) {
@@ -189,16 +210,16 @@
             $.post("{{ route('securities.prices') }}", data = {
                 ids: ids,
                 dates: dates,
-            }).done(function(msg) {
-                securityPrices = msg;
+            }).done(function(prices) {
+                securityPrices = prices;
                 processChartData();
                 $("body").removeClass("waiting");
             });
         }
     }
 
-    $("#select-ticker").select2(({
-        placeholder: "Please enter a ticker symbol (e.g. AAPL)...",
+    $("#select-tickers").select2(({
+        placeholder: "Please enter a security ticker or name (AAPL, Apple, etc.)...",
         allowClear: true,
         minimumInputLength: 1,
         ajax: {
@@ -219,7 +240,7 @@
         // clear results to prevent option list getting too large
         $(".select2-results__option").remove();
     }).on("select2:unselect", function () {
-        let vals = $("#select-ticker").val();
+        let vals = $("#select-tickers").val();
         if (!vals || !vals.length) {
             Plotly.purge(candlestickChart);
             Plotly.purge(correlationChart);
@@ -227,11 +248,29 @@
         }
     });
 
-    $("#input-dates").change(function() {
-        if ($("#select-ticker").val().length > 0) {
-            getSecurityData();
-        }
+    $("#select-portfolios").select2(({
+        placeholder: "Add entire portfolios (e.g. FAANG)...",
+        minimumInputLength: 1,
+        ajax: {
+            url: "/portfolios/search",
+            delay: 250,
+            processResults: function (data) {
+                return {
+                    results: $.map(data, function (item) {
+                        return {
+                            text: item.name,
+                            id: item.id
+                        }
+                    })
+                };
+            },
+        },
+    })).on("select2:select", function() {
+        getPortfolioData();
+        $("#select-portfolios").val(null).trigger("change");
     });
-    $("#select-ticker").change(getSecurityData);
+
+    $("#input-dates").change(getSecurityData);
+    $("#select-tickers").change(getSecurityData);
 
 </script>

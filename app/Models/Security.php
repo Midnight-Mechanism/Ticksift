@@ -60,4 +60,15 @@ class Security extends Model
     {
         return $this->belongsToMany('App\Models\Action')->withPivot('date', 'value');
     }
+
+    /**
+     * A security belongs to portfolios.
+     *
+     * @var array
+     */
+    public function portfolios()
+    {
+        return $this->belongsToMany('App\Models\Portfolio');
+    }
+
 }

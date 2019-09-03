@@ -9,7 +9,7 @@ use App\Models\Price;
 class SecurityController extends Controller
 {
     /**
-     * Calculate price elasticity for the specified resource.
+     * Search for the specified resource.
      *
      * @return \Illuminate\Http\Response
      */
@@ -28,7 +28,7 @@ class SecurityController extends Controller
     }
 
     /**
-     * Calculate price elasticity for the specified resource.
+     * Fetch the price data for the specified resources.
      *
      * @return \Illuminate\Http\Response
      */
