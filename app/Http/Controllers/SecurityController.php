@@ -35,11 +35,24 @@ class SecurityController extends Controller
     public function prices(Request $request)
     {
         $security_ids = $request->input('ids');
+        $dates = explode(' ', $request->input('dates'));
+        $start_date = $dates[0];
+        if (count($dates) > 1) {
+            // date range, e.g. "1995-01-01 to 1995-02-01"
+            $end_date = $dates[2];
+        } else {
+            // single date, e.g. "1995-01-01"
+            $end_date = $dates[0];
+        }
         $prices = [];
         foreach ($security_ids as $security_id) {
             $security = Security::findOrFail($security_id);
             $prices[$security->ticker] = $security
                 ->prices()
+                ->whereBetween('date', [
+                    $start_date,
+                    $end_date,
+                ])
                 ->select(
                     'date',
                     'open',

@@ -181,10 +181,10 @@
     }
 
     function getSecurityData() {
-        ids = $("#select-ticker").val();
         $("body").addClass("waiting");
         $.post("{{ route('securities.prices') }}", data = {
-            ids: ids
+            ids: $("#select-ticker").val(),
+            dates: $("#input-dates").val(),
         }).done(function(msg) {
             securityPrices = msg;
             processChartData();
@@ -221,6 +221,11 @@
         }
     });
 
+    $("#input-dates").change(function() {
+        if ($("#select-ticker").val().length > 0) {
+            getSecurityData();
+        }
+    });
     $("#select-ticker").change(getSecurityData);
 
 </script>

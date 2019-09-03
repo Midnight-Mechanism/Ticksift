@@ -16,7 +16,7 @@ mix.js('resources/assets/js/app.js', 'public/js')
     .copyDirectory('resources/assets/fonts', 'public/fonts');
 
 mix.styles([
-    'node_modules/bootstrap4-duallistbox/dist/bootstrap-duallistbox.min.css',
+    'node_modules/flatpickr/dist/themes/dark.css',
     'node_modules/select2/dist/css/select2.min.css'
 ], 'public/css/vendor.css');
 

@@ -8,6 +8,11 @@
     <div class="container-fluid">
         <div class="row pb-3">
             <div class="col-12">
+                <input id="input-dates" type="text" placeholder="Select Date.." data-input>
+            </div>
+        </div>
+        <div class="row pb-3">
+            <div class="col-12">
                 <select id="select-ticker" multiple="multiple" style="display: none"></select>
             </div>
         </div>
@@ -23,5 +28,16 @@
 @endsection
 
 @section('footer_scripts')
+    <script>
+        $("#input-dates").flatpickr({
+            mode: "range",
+            dateFormat: "Y-m-d",
+            defaultDate: [
+                moment().subtract(6, "month").format("YYYY-MM-DD"),
+                moment().format("YYYY-MM-DD")
+            ],
+            maxDate: moment().format("YYYY-MM-DD"),
+        });
+    </script>
     @include('scripts/process-chart-data')
 @endsection
