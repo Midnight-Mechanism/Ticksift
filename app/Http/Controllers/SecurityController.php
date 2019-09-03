@@ -34,7 +34,6 @@ class SecurityController extends Controller
      */
     public function prices(Request $request)
     {
-        $security_ids = $request->input('ids');
         $dates = explode(' ', $request->input('dates'));
         $start_date = $dates[0];
         if (count($dates) > 1) {
@@ -44,6 +43,8 @@ class SecurityController extends Controller
             // single date, e.g. "1995-01-01"
             $end_date = $dates[0];
         }
+
+        $security_ids = $request->input('ids');
         $prices = [];
         foreach ($security_ids as $security_id) {
             $security = Security::findOrFail($security_id);

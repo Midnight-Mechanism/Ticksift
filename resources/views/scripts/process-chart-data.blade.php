@@ -181,19 +181,25 @@
     }
 
     function getSecurityData() {
-        $("body").addClass("waiting");
-        $.post("{{ route('securities.prices') }}", data = {
-            ids: $("#select-ticker").val(),
-            dates: $("#input-dates").val(),
-        }).done(function(msg) {
-            securityPrices = msg;
-            processChartData();
-            $("body").removeClass("waiting");
-        });
+        let ids = $("#select-ticker").val();
+        let dates = $("#input-dates").val();
+
+        if (ids.length > 0) {
+            $("body").addClass("waiting");
+            $.post("{{ route('securities.prices') }}", data = {
+                ids: ids,
+                dates: dates,
+            }).done(function(msg) {
+                securityPrices = msg;
+                processChartData();
+                $("body").removeClass("waiting");
+            });
+        }
     }
 
     $("#select-ticker").select2(({
         placeholder: "Please enter a ticker symbol (e.g. AAPL)...",
+        allowClear: true,
         minimumInputLength: 1,
         ajax: {
             url: "/securities/search",
