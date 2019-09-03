@@ -64,7 +64,7 @@
 
                         <div class="row">
                             <div class="col-md-12 d-flex justify-content-end align-items-baseline">
-                                <button type="submit" class="btn btn-primary">Register</button>
+                                <button type="submit" class="btn btn-success">Register</button>
                             </div>
                         </div>
 

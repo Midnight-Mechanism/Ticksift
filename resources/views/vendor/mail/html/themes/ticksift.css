@@ -211,11 +211,11 @@ img {
 }
 
 .button-blue {
-    background-color: #3097D1;
-    border-top: 10px solid #3097D1;
-    border-right: 18px solid #3097D1;
-    border-bottom: 10px solid #3097D1;
-    border-left: 18px solid #3097D1;
+    background-color: rgb(13, 77, 77);
+    border-top: 10px solid rgb(13, 77, 77);
+    border-right: 18px solid rgb(13, 77, 77);
+    border-bottom: 10px solid rgb(13, 77, 77);
+    border-left: 18px solid rgb(13, 77, 77);
 }
 
 .button-green {

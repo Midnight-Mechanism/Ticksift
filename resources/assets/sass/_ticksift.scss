@@ -6,48 +6,10 @@ body {
     color: white;
 }
 
-.has-error input {
-    border-color: $brand-danger;
-    border-width: 4px;
-}
-
-.navbar-laravel {
-    background-color: $brand-primary;
-    color: white;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
-    .container {
-        max-width: unset;
-    }
-    .navbar-brand {
-        font-family: $font-family-sans-serif-bold;
-        font-weight: 500;
-        max-height: 43px;
-        max-width: 125;
-    }
-    .nav-link {
-        cursor: pointer;
-        text-transform: uppercase;
-        text-decoration: none;
-        font-family: $font-family-sans-serif-bold;
-    }
-}
-
-.login-box {
-    width: 90%;
-    max-width: 600px;
-    .card-body {
-        color: white;
-        background-color: #526591;
-        .btn-link {
-            color: white;
-        }
-    }
-}
-
 .btn {
     font-weight: bold;
     letter-spacing: 1px;
-    border-radius: 2rem;
+    border-radius: 0.5rem;
     text-transform: uppercase;
     &:focus, &:active {
         box-shadow: none !important;
@@ -60,7 +22,7 @@ body {
 }
 
 .btn-primary {
-    @include button-variant($brand-warning, darken($brand-warning, 10%));
+    @include button-variant($brand-primary, darken($brand-primary, 10%));
     color: white;
 }
 
@@ -70,8 +32,8 @@ body {
 }
 
 .btn:not(.btn-link) {
-    padding-left: 1rem !important;
-    padding-right: 1rem !important;
+    padding-left: 0.5rem !important;
+    padding-right: 0.5rem !important;
 }
 
 a:not(.btn), .btn-link {
@@ -97,19 +59,22 @@ a.row-card {
 }
 
 .card-header {
+    background-color: darken($brand-primary, 5%);
     h3, h4, h5 {
-        color: $brand-primary;
+        color: white;
         margin-bottom: 0px;
         font-family: $font-family-sans-serif-bold;
     }
 }
 
 .card-body {
-    color: #666;
+    background-color: lighten($brand-primary, 5%);
+    color: white;
     form {
         margin: 0;
     }
     .btn-link {
+        color: white;
         padding: 0;
     }
 }
@@ -160,7 +125,7 @@ input {
     background-color: $brand-dark !important;
     color: white !important;
     border: 1px gray solid;
-    border-radius: 5px;
+    border-radius: 0.5rem;
     padding: 5px 10px;
     width: 100%;
 }
@@ -184,4 +149,41 @@ input {
     margin: 0.5rem 0 0.5rem 0;
     padding: 0.5rem;
     font-size: 1.5rem;
+}
+
+.has-error input {
+    border-color: $brand-danger;
+    border-width: 4px;
+}
+
+.navbar-laravel {
+    background-color: $brand-primary;
+    color: white;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
+    .container {
+        max-width: unset;
+    }
+    .navbar-brand {
+        font-family: $font-family-sans-serif-bold;
+        font-weight: 500;
+        max-height: 43px;
+        max-width: 125;
+    }
+    .nav-link {
+        cursor: pointer;
+        text-transform: uppercase;
+        text-decoration: none;
+        font-family: $font-family-sans-serif-bold;
+    }
+}
+
+.login-box {
+    min-width: 80%;
+}
+
+.date-options {
+    .btn {
+        height: 100%;
+        width: 100%;
+    }
 }
