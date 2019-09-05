@@ -102,11 +102,6 @@ body.waiting * {
     cursor: progress;
 }
 
-h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6 {
-    font-family: $font-family-sans-serif-light;
-    color: white;
-}
-
 .select2-dropdown {
     background-color: $brand-dark !important;
 }
@@ -190,4 +185,8 @@ input {
         height: 100%;
         width: 100%;
     }
+}
+
+.table {
+    color: white;
 }
