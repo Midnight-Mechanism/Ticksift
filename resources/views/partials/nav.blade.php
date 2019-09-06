@@ -18,9 +18,11 @@
                         </li>
                     @endif
                     @if(Route::currentRouteName() !== 'simulations.index')
+                    <!--
                         <li>
                             <a class="nav-link" href="{{ route('simulations.index') }}">Simulations</a>
                         </li>
+                    -->
                     @endif
                 @endauth
             </ul>
