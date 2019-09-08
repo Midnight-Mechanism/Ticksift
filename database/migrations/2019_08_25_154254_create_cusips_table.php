@@ -17,7 +17,7 @@ class CreateCusipsTable extends Migration
             $table->increments('id');
             $table->integer('security_id')->unsigned()->index();
             $table->foreign('security_id')->references('id')->on('securities');
-            $table->string('number')->unique();
+            $table->string('number');
             $table->timestamps();
         });
     }
