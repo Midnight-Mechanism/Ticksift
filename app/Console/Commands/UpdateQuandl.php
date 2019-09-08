@@ -218,7 +218,7 @@ class UpdateQuandl extends Command
                         'high' => $line[3],
                         'low' => $line[4],
                         'close' => $line[5],
-                        'volume' => $line[6],
+                        'volume' => $line[6] ?: null,
                         'dividends' => $line[7],
                         'close_unadj' => $line[8],
                         'source_last_updated' => $line[9],
