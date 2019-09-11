@@ -176,8 +176,8 @@
             );
         }
 
-        Plotly.newPlot(candlestickChart, candleTraces, candlestickLayout, config);
-        Plotly.newPlot(correlationChart, correlationTraces, correlationLayout, config);
+        Plotly.react(candlestickChart, candleTraces, candlestickLayout, config);
+        Plotly.react(correlationChart, correlationTraces, correlationLayout, config);
     }
 
     function getPortfolioData() {
@@ -199,7 +199,6 @@
             });
         }
     }
-
 
     function getSecurityData() {
         let ids = $("#select-tickers").val();
@@ -272,5 +271,19 @@
 
     $("#input-dates").change(getSecurityData);
     $("#select-tickers").change(getSecurityData);
+
+    @if($old_dates)
+        @foreach($old_securities as $security)
+            if (!$("#select-tickers").val().includes("{{ $security->id }}")) {
+                $("#select-tickers").append(new Option(
+                    "{{ $security->ticker }} - {{ $security->name }}",
+                    {{ $security->id }},
+                    true,
+                    true,
+                ));
+            }
+        @endforeach
+        $("#select-tickers").trigger("change");
+    @endif
 
 </script>

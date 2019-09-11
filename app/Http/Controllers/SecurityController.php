@@ -8,6 +8,29 @@ use App\Models\Price;
 
 class SecurityController extends Controller
 {
+
+    /**
+     * Show the specified resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function show(Request $request)
+    {
+        $old_dates = $request->session()->get('security_dates');
+        $old_security_ids = $request->session()->get('security_ids');
+        $old_securities = Security::whereIn('id', $old_security_ids)
+            ->select(
+                'id',
+                'ticker',
+                'name',
+            )
+            ->get();
+
+        return view('securities.show')
+            ->with('old_dates', $old_dates)
+            ->with('old_securities', $old_securities);
+    }
+
     /**
      * Search for the specified resource.
      *
@@ -35,6 +58,8 @@ class SecurityController extends Controller
     public function prices(Request $request)
     {
         $dates = explode(' ', $request->input('dates'));
+        $security_ids = $request->input('ids');
+
         $start_date = $dates[0];
         if (count($dates) > 1) {
             // date range, e.g. "1995-01-01 to 1995-02-01"
@@ -44,7 +69,12 @@ class SecurityController extends Controller
             $end_date = $dates[0];
         }
 
-        $security_ids = $request->input('ids');
+        $request->session()->put('security_dates', [
+            $start_date,
+            $end_date,
+        ]);
+        $request->session()->put('security_ids', $security_ids);
+
         $prices = [];
         foreach ($security_ids as $security_id) {
             $security = Security::findOrFail($security_id);

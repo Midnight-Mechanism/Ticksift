@@ -60,7 +60,8 @@ Route::group(['middleware' => ['auth', 'activated', 'activity', 'currentUser']],
         ],
     ]);
 
-    Route::view('securities/show', 'securities.show')->name('securities.show');
+    Route::get('securities/show', ['as' => 'securities.show', 'uses' => 'SecurityController@show']);
+
     Route::post('portfolios/securities', ['as' => 'portfolios.securities', 'uses' => 'PortfolioController@securities']);
     Route::post('securities/prices', ['as' => 'securities.prices', 'uses' => 'SecurityController@prices']);
 });

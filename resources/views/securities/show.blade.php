@@ -62,8 +62,13 @@
             altInput: true,
             altFormat: "M j, Y",
             defaultDate: [
-                moment().subtract(1, "month").format("YYYY-MM-DD"),
-                moment().format("YYYY-MM-DD")
+                @if(Session::has('security_dates'))
+                    "{{ Session::get('security_dates')[0] }}",
+                    "{{ Session::get('security_dates')[1] }}"
+                @else
+                    moment().subtract(1, "month").format("YYYY-MM-DD"),
+                    moment().format("YYYY-MM-DD")
+                @endif
             ],
             maxDate: moment().format("YYYY-MM-DD"),
         });
