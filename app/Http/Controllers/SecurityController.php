@@ -18,13 +18,18 @@ class SecurityController extends Controller
     {
         $old_dates = $request->session()->get('security_dates');
         $old_security_ids = $request->session()->get('security_ids');
-        $old_securities = Security::whereIn('id', $old_security_ids)
-            ->select(
-                'id',
-                'ticker',
-                'name',
-            )
-            ->get();
+
+        $old_securities = [];
+
+        if ($old_security_ids) {
+            $old_securities = Security::whereIn('id', $old_security_ids)
+                ->select(
+                    'id',
+                    'ticker',
+                    'name',
+                )
+                ->get();
+        }
 
         return view('securities.show')
             ->with('old_dates', $old_dates)
