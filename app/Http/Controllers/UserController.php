@@ -21,14 +21,39 @@ class UserController extends Controller
     }
 
     /**
+     * Update a user's profile.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function updateProfile(Request $request) {
+        $validator = Validator::make($request->all(), [
+            'first_name' => 'required',
+            'last_name' => 'required',
+        ]);
+
+        if ($validator->fails()) {
+            return back()->withErrors($validator)->withInput();
+        }
+
+        $user = Auth::user();
+
+        $user->first_name = $request->input('first_name');
+        $user->last_name = $request->input('last_name');
+
+        $user->save();
+
+        return back()->with('success', 'Your information was successfully updated.');
+    }
+
+
+    /**
      * Update a user's password.
      *
      * @return \Illuminate\Http\Response
      */
     public function updatePassword(Request $request) {
         $validator = Validator::make($request->all(), [
-            'password'              => 'required|min:6|max:20|confirmed',
-            'password_confirmation' => 'required|same:password',
+            'password' => 'required|min:6|max:20|confirmed',
         ]);
 
         if ($validator->fails()) {

@@ -51,7 +51,8 @@ Route::group(['middleware' => ['auth', 'activated', 'currentUser']], function ()
 Route::group(['middleware' => ['auth', 'activated', 'activity', 'currentUser']], function () {
 
     Route::get('profile', ['as' => 'profile',   'uses' => 'UserController@profile']);
-    Route::post('change-password', ['as' => 'update-password',   'uses' => 'UserController@updatePassword']);
+    Route::post('update-password', ['as' => 'update-password',   'uses' => 'UserController@updatePassword']);
+    Route::post('update-profile', ['as' => 'update-profile',   'uses' => 'UserController@updateProfile']);
 
     Route::resource('simulations', 'SimulationController', [
         'except' => [
