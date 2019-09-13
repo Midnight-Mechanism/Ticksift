@@ -17,7 +17,8 @@ mix.js('resources/assets/js/app.js', 'public/js')
 
 mix.styles([
     'node_modules/flatpickr/dist/themes/dark.css',
-    'node_modules/select2/dist/css/select2.min.css'
+    'node_modules/select2/dist/css/select2.min.css',
+    'node_modules/tabulator-tables/dist/css/tabulator_midnight.css'
 ], 'public/css/vendor.css');
 
 mix.scripts([

@@ -60,10 +60,12 @@ Route::group(['middleware' => ['auth', 'activated', 'activity', 'currentUser']],
         ],
     ]);
 
-    Route::get('securities/show', ['as' => 'securities.show', 'uses' => 'SecurityController@show']);
+    Route::get('securities/explorer', ['as' => 'securities.explorer', 'uses' => 'SecurityController@explorer']);
+    Route::get('securities/momentum', ['as' => 'securities.momentum', 'uses' => 'SecurityController@momentum']);
 
     Route::post('portfolios/securities', ['as' => 'portfolios.securities', 'uses' => 'PortfolioController@securities']);
     Route::post('securities/prices', ['as' => 'securities.prices', 'uses' => 'SecurityController@prices']);
+    Route::post('securities/calculateMomentum', ['as' => 'securities.calculate-momentum', 'uses' => 'SecurityController@calculateMomentum']);
 });
 
 // Registered and is admin routes.

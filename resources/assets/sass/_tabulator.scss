@@ -1,0 +1,11 @@
+.tabulator, .tabulator-header, .tabulator-col {
+    background-color: $brand-dark !important;
+}
+
+.tabulator-row-even {
+    background-color: darken($brand-dark, 2%) !important;
+}
+
+.tabulator-row-odd {
+    background-color: lighten($brand-dark, 2%) !important;
+}

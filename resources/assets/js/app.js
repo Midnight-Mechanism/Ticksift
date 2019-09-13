@@ -10,3 +10,5 @@ window.Plotly = require('plotly.js-dist');
 window.moment = require('moment');
 window.jStat = require('jstat');
 window.flatpickr = require('flatpickr');
+window.Tabulator = require('tabulator-tables');
+window._ = require('lodash');

@@ -22,7 +22,7 @@ class CreatePricesTable extends Migration
             $table->double('high', 8, 2);
             $table->double('low', 8, 2);
             $table->double('close', 8, 2);
-            $table->double('volume', 8, 2)->nullable();
+            $table->double('volume', 8, 2)->nullable()->index();
             $table->double('dividends', 8, 2);
             $table->double('close_unadj', 8, 2);
             $table->date('source_last_updated');

@@ -12,9 +12,14 @@
             {{-- Left Side Of Navbar --}}
             <ul class="navbar-nav mr-auto">
                 @auth
-                    @if(Route::currentRouteName() !== 'securities.show')
+                    @if(Route::currentRouteName() !== 'securities.explorer')
                         <li>
-                            <a class="nav-link" href="{{ route('securities.show') }}">Securities</a>
+                            <a class="nav-link" href="{{ route('securities.explorer') }}">Explorer</a>
+                        </li>
+                    @endif
+                    @if(Route::currentRouteName() !== 'securities.momentum')
+                        <li>
+                            <a class="nav-link" href="{{ route('securities.momentum') }}">Momentum</a>
                         </li>
                     @endif
                     @if(Route::currentRouteName() !== 'simulations.index')

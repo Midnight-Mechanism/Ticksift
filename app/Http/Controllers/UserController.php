@@ -78,6 +78,6 @@ class UserController extends Controller
      */
     public function index(Request $request)
     {
-        return redirect()->route('securities.show');
+        return redirect()->route('securities.explorer');
     }
 }
