@@ -119,8 +119,8 @@ class SecurityController extends Controller
             }
         }
 
-        $results['winners'] = $winners->sortByDesc('increase')->values()->take(10);
-        $results['losers'] = $losers->sortByDesc('decrease')->values()->take(10);
+        $results['winners'] = $winners->sortByDesc('increase')->values();
+        $results['losers'] = $losers->sortByDesc('decrease')->values();
         return response()->json($results, 200, [], JSON_NUMERIC_CHECK);
     }
 
