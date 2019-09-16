@@ -44,7 +44,7 @@ class UserActivated extends Notification
     public function toMail($notifiable)
     {
         return (new MailMessage)
-            ->subject('Welcome to ' . config('app.name'))
+            ->subject('Welcome to ' . config('app.name') . '!')
             ->greeting('Hi ' . $this->user->first_name . ',')
             ->line('Your ' . config('app.name') . ' account is ready to go.  Enjoy!')
             ->line(new HtmlString('If you have any questions, please <a href="https://midnightmechanism.com/#contact">let us know</a>.'));
