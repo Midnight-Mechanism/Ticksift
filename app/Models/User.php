@@ -7,14 +7,12 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use jeremykenedy\LaravelRoles\Traits\HasRoleAndPermission;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Junaidnasir\Larainvite\InviteTrait;
 
 class User extends Authenticatable
 {
     use HasRoleAndPermission;
     use Notifiable;
     use SoftDeletes;
-    use InviteTrait;
 
     /**
      * The attributes that are not mass assignable.

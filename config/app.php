@@ -166,7 +166,6 @@ return [
         App\Providers\ComposerServiceProvider::class,
         Intervention\Image\ImageServiceProvider::class,
         jeremykenedy\laravelexceptionnotifier\LaravelExceptionNotifier::class,
-        Junaidnasir\Larainvite\LaraInviteServiceProvider::class,
         jeremykenedy\LaravelLogger\LaravelLoggerServiceProvider::class,
 
     ],
@@ -222,7 +221,6 @@ return [
         'Input'        => Illuminate\Support\Facades\Input::class,
         'Image'        => Intervention\Image\Facades\Image::class,
         'Uuid'         => Webpatser\Uuid\Uuid::class,
-        'Invite'       => Junaidnasir\Larainvite\Facades\Invite::class,
     ],
 
 ];
