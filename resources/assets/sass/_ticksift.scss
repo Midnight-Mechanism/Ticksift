@@ -190,3 +190,11 @@ input {
 .table {
     color: white;
 }
+
+.table-title {
+    margin-bottom: 0px;
+    text-transform: uppercase;
+    background-color: $brand-dark;
+    padding: 0.75rem;
+    border: 1px solid #333;
+}
