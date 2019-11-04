@@ -1,5 +1,5 @@
 variables:
-  SSH_SERVER: "gitlab-runner@midnightmechanism.com"
+  SSH_SERVER: "gitlab-runner@ticksift.com"
 
 image:
   name: lorisleiva/laravel-docker
