@@ -1,6 +1,9 @@
 variables:
   SSH_SERVER: "gitlab-runner@midnightmechanism.com"
 
+image:
+  name: lorisleiva/laravel-docker
+
 cache:
   key: ${CI_COMMIT_REF_SLUG}
   paths:
