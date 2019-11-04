@@ -137,7 +137,11 @@ class SecurityController extends Controller
                 ->prices()
                 ->whereBetween('date', [$start_date, $end_date,])
                 ->select(
-                    'date', 'open', 'high', 'low', 'close',
+                    'date',
+                    'open',
+                    'high',
+                    'low',
+                    'close'
                 )->get();
         }
 
