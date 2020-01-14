@@ -11,25 +11,23 @@
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
             {{-- Left Side Of Navbar --}}
             <ul class="navbar-nav mr-auto">
-                @auth
-                    @if(Route::currentRouteName() !== 'securities.explorer')
-                        <li>
-                            <a class="nav-link" href="{{ route('securities.explorer') }}">Explorer</a>
-                        </li>
-                    @endif
-                    @if(Route::currentRouteName() !== 'securities.momentum')
-                        <li>
-                            <a class="nav-link" href="{{ route('securities.momentum') }}">Momentum</a>
-                        </li>
-                    @endif
-                    @if(Route::currentRouteName() !== 'simulations.index')
+                @if(Route::currentRouteName() !== 'securities.explorer')
+                    <li>
+                        <a class="nav-link" href="{{ route('securities.explorer') }}">Explorer</a>
+                    </li>
+                @endif
+                @if(Route::currentRouteName() !== 'securities.momentum')
+                    <li>
+                        <a class="nav-link" href="{{ route('securities.momentum') }}">Momentum</a>
+                    </li>
+                @endif
+                @if(Route::currentRouteName() !== 'simulations.index')
                     <!--
                         <li>
-                            <a class="nav-link" href="{{ route('simulations.index') }}">Simulations</a>
+                        <a class="nav-link" href="{{ route('simulations.index') }}">Simulations</a>
                         </li>
                     -->
-                    @endif
-                @endauth
+                @endif
             </ul>
             {{-- Right Side Of Navbar --}}
             <ul class="navbar-nav ml-auto">

@@ -17,9 +17,6 @@ class PortfolioController extends Controller
     {
         $query = $request->input('q');
         $results = Portfolio::where('name', 'ILIKE', '%' . $query . '%')->get();
-        $results = $results->filter(function($portfolio) {
-            return Auth::user()->can('view', $portfolio);
-        });
         return response()->json($results);
     }
 
@@ -31,18 +28,14 @@ class PortfolioController extends Controller
     public function securities(Request $request)
     {
         $portfolio = Portfolio::findOrFail($request->input('id'));
-        $securities = [];
-        if (Auth::user()->can('view', $portfolio)) {
-            $securities = $portfolio
-                ->securities()
-                ->select(
-                    'securities.id',
-                    'securities.ticker',
-                    'securities.name'
-                )
-                ->get();
-        }
+        $securities = $portfolio
+            ->securities()
+            ->select(
+                'securities.id',
+                'securities.ticker',
+                'securities.name'
+            )
+            ->get();
         return response()->json($securities, 200, [], JSON_NUMERIC_CHECK);
     }
-
 }

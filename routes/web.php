@@ -19,8 +19,7 @@ Auth::routes();
 // Public Routes
 Route::group(['middleware' => ['web']], function () {
 
-    // Landing Page
-    Route::view('/', 'landing');
+    Route::redirect('/', 'securities/explorer');
 
     // Activation Routes
     Route::get('/activate', ['as' => 'activate', 'uses' => 'Auth\ActivateController@initial']);
@@ -30,6 +29,23 @@ Route::group(['middleware' => ['web']], function () {
     Route::get('/exceeded', ['as' => 'exceeded', 'uses' => 'Auth\ActivateController@exceeded']);
 
     Route::get('activate/{code}', ['as' => 'activate',   'uses' => 'UserController@activate']);
+
+    Route::resource('simulations', 'SimulationController', [
+        'except' => [
+            'edit',
+        ],
+    ]);
+
+    Route::get('securities/explorer', ['as' => 'securities.explorer', 'uses' => 'SecurityController@explorer']);
+    Route::get('securities/momentum', ['as' => 'securities.momentum', 'uses' => 'SecurityController@momentum']);
+
+    Route::get('portfolios/search', ['as' => 'portfolios.search', 'uses' => 'PortfolioController@search']);
+    Route::get('securities/search', ['as' => 'securities.search', 'uses' => 'SecurityController@search']);
+
+    Route::post('portfolios/securities', ['as' => 'portfolios.securities', 'uses' => 'PortfolioController@securities']);
+    Route::post('securities/prices', ['as' => 'securities.prices', 'uses' => 'SecurityController@prices']);
+    Route::post('securities/calculateMomentum', ['as' => 'securities.calculate-momentum', 'uses' => 'SecurityController@calculateMomentum']);
+
 });
 
 // Registered User Routes
@@ -49,21 +65,6 @@ Route::group(['middleware' => ['auth', 'activated', 'currentUser']], function ()
     Route::post('update-password', ['as' => 'update-password',   'uses' => 'UserController@updatePassword']);
     Route::post('update-profile', ['as' => 'update-profile',   'uses' => 'UserController@updateProfile']);
 
-    Route::resource('simulations', 'SimulationController', [
-        'except' => [
-            'edit',
-        ],
-    ]);
-
-    Route::get('securities/explorer', ['as' => 'securities.explorer', 'uses' => 'SecurityController@explorer']);
-    Route::get('securities/momentum', ['as' => 'securities.momentum', 'uses' => 'SecurityController@momentum']);
-
-    Route::get('portfolios/search', ['as' => 'portfolios.search', 'uses' => 'PortfolioController@search']);
-    Route::get('securities/search', ['as' => 'securities.search', 'uses' => 'SecurityController@search']);
-
-    Route::post('portfolios/securities', ['as' => 'portfolios.securities', 'uses' => 'PortfolioController@securities']);
-    Route::post('securities/prices', ['as' => 'securities.prices', 'uses' => 'SecurityController@prices']);
-    Route::post('securities/calculateMomentum', ['as' => 'securities.calculate-momentum', 'uses' => 'SecurityController@calculateMomentum']);
 });
 
 // Registered and is admin routes.
