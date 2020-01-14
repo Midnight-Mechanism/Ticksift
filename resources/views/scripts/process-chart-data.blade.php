@@ -5,6 +5,7 @@
 
     var candlestickLayout = {
         autosize: true,
+        title: "Prices",
         font: {
             family: "Hind Madurai",
             color: "white",
@@ -13,6 +14,7 @@
         xaxis: {
             title: "Date",
             gridcolor: gridColor,
+            autorange: true,
         },
         yaxis: {
             title: "Price",
@@ -42,7 +44,6 @@
         plot_bgcolor: chartColor,
     };
 
-
     var config = {
         collaborate: false,
         displaylogo: false,
@@ -53,8 +54,6 @@
     var candlestickChart = document.getElementById('candlestick-chart');
     var correlationChart = document.getElementById('correlation-chart');
     function processChartData() {
-
-        candlestickLayout.title = "Prices";
 
         let candleTraces = [];
         let correlationTraces = [{
@@ -103,7 +102,7 @@
                 // skip expensive computations if comparing ticker against itself
                 if (ticker === compTicker) {
                     coeff = 1;
-                    // use old coefficient if we've computed the correlation already
+                // use old coefficient if we've computed the correlation already
                 } else if (oldCoeff != undefined) {
                     coeff = oldCoeff;
                 } else {
@@ -144,36 +143,16 @@
                 });
             }
 
-            candleTraces.push(
-                {
-                    name: ticker + " - Open",
-                    legendgroup: ticker,
-                    type: "scattergl",
-                    x: dates,
-                    y: open,
-                },
-                {
-                    name: ticker + " - High",
-                    legendgroup: ticker,
-                    type: "scattergl",
-                    x: dates,
-                    y: high,
-                },
-                {
-                    name: ticker + " - Low",
-                    legendgroup: ticker,
-                    type: "scattergl",
-                    x: dates,
-                    y: low,
-                },
-                {
-                    name: ticker + " - Close",
-                    legendgroup: ticker,
-                    type: "scattergl",
-                    x: dates,
-                    y: close,
-                }
-            );
+            candleTraces.push({
+                name: ticker,
+                legendgroup: ticker,
+                type: "candlestick",
+                x: dates,
+                open: open,
+                high: high,
+                low: low,
+                close: close,
+            });
         }
 
         Plotly.react(candlestickChart, candleTraces, candlestickLayout, config);
@@ -184,8 +163,6 @@
         let id = $("#select-portfolios").val();
 
         if (id) {
-            $("body").addClass("waiting");
-            $(".chart").addClass("outdated");
             $.post("{{ route('portfolios.securities') }}", data = {
                 id: id,
             }).done(function(securities) {
@@ -196,8 +173,6 @@
                     }
                 }
                 $("#select-tickers").trigger("change");
-                $("body").removeClass("waiting");
-                $(".chart").removeClass("outdated");
             });
         }
     }
