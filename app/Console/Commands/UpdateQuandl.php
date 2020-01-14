@@ -98,7 +98,7 @@ class UpdateQuandl extends Command
             if (!$line) {
                 continue;
             }
-            $line = explode(',', $line);
+            $line = str_getcsv($line);
             $source_table_id = SourceTable::firstOrCreate(['name' => $line[0]])->id;
             $exchange_id = Exchange::firstOrCreate(['name' => $line[4]])->id;
             $category_id = Category::firstOrCreate(['name' => $line[6]])->id;
@@ -205,7 +205,7 @@ class UpdateQuandl extends Command
             if (!$line) {
                 continue;
             }
-            $line = explode(',', $line);
+            $line = str_getcsv($line);
             $action = Action::firstOrCreate(['name' => $line[1]]);
             $security = Security::where('ticker', $line[2])->first();
             if ($security) {
@@ -261,7 +261,7 @@ class UpdateQuandl extends Command
             if (!$line) {
                 continue;
             }
-            $line = explode(',', $line);
+            $line = str_getcsv($line);
             $security = Security::where('ticker', $line[0])->first();
             if ($security) {
                 $price = Price::updateOrCreate(
