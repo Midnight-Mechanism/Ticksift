@@ -11,27 +11,27 @@
     "start": "php artisan serve --port=8008 --host=0.0.0.0 & npm run watch"
   },
   "devDependencies": {
-    "@fortawesome/fontawesome-free": "^5.10.2",
+    "@fortawesome/fontawesome-free": "^5.12.0",
     "axios": "^0.19",
-    "bootstrap": "^4.3.1",
-    "cross-env": "^5.2",
+    "bootstrap": "^4.4.1",
+    "cross-env": "^6.0",
     "jquery": "^3.4",
-    "laravel-mix": "^4.1",
+    "laravel-mix": "^5.0",
     "lodash": "^4.17.15",
-    "popper.js": "^1.15",
-    "resolve-url-loader": "^3.1.0",
-    "sass": "^1.22.10",
-    "sass-loader": "^7.3.1",
-    "vue-template-compiler": "^2.6.10"
+    "popper.js": "^1.16",
+    "resolve-url-loader": "^3.1.1",
+    "sass": "^1.24.4",
+    "sass-loader": "^8.0.2",
+    "vue-template-compiler": "^2.6.11"
   },
   "dependencies": {
-    "@yaireo/tagify": "^2.25.3",
+    "@yaireo/tagify": "^3.2.6",
     "dropzone": "^5.5.1",
-    "flatpickr": "^4.6.2",
-    "jstat": "^1.9.1",
+    "flatpickr": "^4.6.3",
+    "jstat": "^1.9.2",
     "moment": "^2.24.0",
-    "plotly.js-dist": "^1.49.4",
-    "select2": "^4.0.10",
-    "tabulator-tables": "^4.4.1"
+    "plotly.js-dist": "^1.52.1",
+    "select2": "^4.0.12",
+    "tabulator-tables": "^4.5.3"
   }
 }

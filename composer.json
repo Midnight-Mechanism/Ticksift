@@ -9,7 +9,7 @@
     "type": "project",
     "require": {
         "php": "^7.2",
-        "doctrine/dbal": "^2.9",
+        "doctrine/dbal": "^2.10",
         "dompdf/dompdf": "^0.8.3",
         "fideloper/proxy": "^4.0",
         "intervention/image": "^2.5",
@@ -17,18 +17,18 @@
         "jeremykenedy/laravel-exception-notifier": "^1.2",
         "jeremykenedy/laravel-https": "^1.1",
         "jeremykenedy/laravel-phpinfo": "^1.2",
-        "jeremykenedy/laravel-roles": "^2.2",
+        "jeremykenedy/laravel-roles": "^2.0",
         "jeremykenedy/uuid": "^3.1",
         "laravel/framework": "^6.0",
-        "laravel/tinker": "^1.0",
+        "laravel/tinker": "^2.0",
         "laravelcollective/html": "^6.0"
     },
     "require-dev": {
         "filp/whoops": "^2.0",
         "fzaninotto/faker": "^1.4",
         "mockery/mockery": "^1.0",
-        "nunomaduro/collision": "^2.0",
-        "phpunit/phpunit": "^7.0"
+        "nunomaduro/collision": "^3.0",
+        "phpunit/phpunit": "^8.0"
     },
     "autoload": {
         "classmap": [
