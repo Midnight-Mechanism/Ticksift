@@ -211,7 +211,7 @@ class UpdateQuandl extends Command
             if ($security) {
                 $action->securities()->attach($security->id, [
                     'date' => $line[0],
-                    'value' => $line[4],
+                    'value' => $line[4] ?: null,
                 ]);
             }
         }
