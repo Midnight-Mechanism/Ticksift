@@ -44,11 +44,6 @@ Route::group(['middleware' => ['auth']], function () {
 
 // Registered and is current user routes.
 Route::group(['middleware' => ['auth', 'activated', 'currentUser']], function () {
-    Route::get('portfolios/search', ['as' => 'portfolios.search', 'uses' => 'PortfolioController@search']);
-    Route::get('securities/search', ['as' => 'securities.search', 'uses' => 'SecurityController@search']);
-});
-
-Route::group(['middleware' => ['auth', 'activated', 'activity', 'currentUser']], function () {
 
     Route::get('profile', ['as' => 'profile',   'uses' => 'UserController@profile']);
     Route::post('update-password', ['as' => 'update-password',   'uses' => 'UserController@updatePassword']);
@@ -62,6 +57,9 @@ Route::group(['middleware' => ['auth', 'activated', 'activity', 'currentUser']],
 
     Route::get('securities/explorer', ['as' => 'securities.explorer', 'uses' => 'SecurityController@explorer']);
     Route::get('securities/momentum', ['as' => 'securities.momentum', 'uses' => 'SecurityController@momentum']);
+
+    Route::get('portfolios/search', ['as' => 'portfolios.search', 'uses' => 'PortfolioController@search']);
+    Route::get('securities/search', ['as' => 'securities.search', 'uses' => 'SecurityController@search']);
 
     Route::post('portfolios/securities', ['as' => 'portfolios.securities', 'uses' => 'PortfolioController@securities']);
     Route::post('securities/prices', ['as' => 'securities.prices', 'uses' => 'SecurityController@prices']);

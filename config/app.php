@@ -1,7 +1,5 @@
 <?php
 
-use jeremykenedy\LaravelLogger\LaravelLoggerServiceProvider;
-
 return [
 
     /*
@@ -166,8 +164,6 @@ return [
         App\Providers\ComposerServiceProvider::class,
         Intervention\Image\ImageServiceProvider::class,
         jeremykenedy\laravelexceptionnotifier\LaravelExceptionNotifier::class,
-        jeremykenedy\LaravelLogger\LaravelLoggerServiceProvider::class,
-
     ],
 
     /*
