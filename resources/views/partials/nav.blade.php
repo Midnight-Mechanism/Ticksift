@@ -31,48 +31,30 @@
             </ul>
             {{-- Right Side Of Navbar --}}
             <ul class="navbar-nav ml-auto">
-                @if(Route::currentRouteName() === 'simulations.show')
-                    <li>
-                        <a class="nav-link" data-toggle="modal" data-target="#saveSim">
-                            @if($simulation->saved)
-                                Rename
-                            @else
-                                Save
-                            @endif
-                        </a>
-                    </li>
-                @endif
                 @auth
                     <li>
                         <a class="nav-link" href="{{ url('profile') }}">Profile</a>
                     </li>
                 @endauth
-                @role('admin')
-                <li>
-                    <a class="nav-link" href="{{ route('activity') }}">
-                        Activity Log
-                    </a>
-                </li>
-            @endrole
-            @guest
-                <li>
-                    <a class="nav-link" href="{{ route('login') }}">Login</a>
-                </li>
-                <li>
-                    <a class="nav-link" href="{{ route('register') }}">Register</a>
-                </li>
-            @endguest
-            @auth
-                <li>
-                    <a class="nav-link" href="{{ route('logout') }}"
-                                        onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
-                        {{ __('Logout') }}
-                    </a>
-                    <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
-                        @csrf
-                    </form>
-                </li>
-            @endauth
+                @guest
+                    <li>
+                        <a class="nav-link" href="{{ route('login') }}">Login</a>
+                    </li>
+                    <li>
+                        <a class="nav-link" href="{{ route('register') }}">Register</a>
+                    </li>
+                @endguest
+                @auth
+                    <li>
+                        <a class="nav-link" href="{{ route('logout') }}"
+                                            onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+                            {{ __('Logout') }}
+                        </a>
+                        <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
+                            @csrf
+                        </form>
+                    </li>
+                @endauth
             </ul>
         </div>
     </div>

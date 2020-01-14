@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "d4013016251172797db8c9332cf260fa",
+    "content-hash": "330268e9889f8f7deab0ab84852d1227",
     "packages": [
         {
             "name": "dnoegel/php-xdg-base-dir",
@@ -1171,61 +1171,6 @@
                 "https"
             ],
             "time": "2017-11-12T11:29:09+00:00"
-        },
-        {
-            "name": "jeremykenedy/laravel-logger",
-            "version": "v3.0.1",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/jeremykenedy/laravel-logger.git",
-                "reference": "1f837930a13546d8be05522c6475572ff8bf852e"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/jeremykenedy/laravel-logger/zipball/1f837930a13546d8be05522c6475572ff8bf852e",
-                "reference": "1f837930a13546d8be05522c6475572ff8bf852e",
-                "shasum": ""
-            },
-            "require": {
-                "jaybizzle/laravel-crawler-detect": "1.*",
-                "laravelcollective/html": "^5.4|^5.5|^5.6|^5.7|^5.8|^6.0",
-                "php": ">=7.0.0"
-            },
-            "type": "package",
-            "extra": {
-                "laravel": {
-                    "providers": [
-                        "jeremykenedy\\LaravelLogger\\LaravelLoggerServiceProvider"
-                    ]
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "jeremykenedy\\LaravelLogger\\": "src/"
-                },
-                "files": [
-                    "src/app/Logic/helpers.php"
-                ]
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "jeremykenedy",
-                    "email": "jeremykenedy@gmail.com"
-                }
-            ],
-            "description": "Laravel Logger Package",
-            "keywords": [
-                "Laravel activity",
-                "Laravel activity log",
-                "Laravel activity logger",
-                "Laravel log",
-                "laravel logger"
-            ],
-            "time": "2019-09-07T02:33:59+00:00"
         },
         {
             "name": "jeremykenedy/laravel-phpinfo",
