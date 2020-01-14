@@ -19,10 +19,10 @@
         </div>
         <div class="row">
             <div class="col-12 col-lg-6 my-2">
-                <div id="candlestick-chart"></div>
+                <div id="candlestick-chart" class="chart"></div>
             </div>
             <div class="col-12 col-lg-6 my-2">
-                <div id="correlation-chart"></div>
+                <div id="correlation-chart" class="chart"></div>
             </div>
         </div>
     </div>

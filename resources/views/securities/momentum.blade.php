@@ -14,11 +14,11 @@
             </div>
         </div>
         <div class="row">
-            <div class="col-12 col-lg-6 text-center pb-3">
+            <div class="chart col-12 col-lg-6 text-center pb-3">
                 <h3 class="table-title">Winners</h3>
                 <div id="table-winners" style="height: 400px"></div>
             </div>
-            <div class="col-12 col-lg-6 text-center pb-3">
+            <div class="chart col-12 col-lg-6 text-center pb-3">
                 <h3 class="table-title">Losers</h3>
                 <div id="table-losers" style="height: 400px"></div>
             </div>
@@ -106,6 +106,7 @@
 
         function updateMomentum() {
             $("body").addClass("waiting");
+            $(".chart").addClass("outdated");
             $.post("{{ route('securities.calculate-momentum') }}", data = {
                 dates: $("#input-dates").val(),
                 volume_threshold: $("#input-volume").val(),
@@ -113,6 +114,7 @@
                 winnersTable.setData(data.winners);
                 losersTable.setData(data.losers);
                 $("body").removeClass("waiting");
+                $(".chart").removeClass("outdated");
             });
         }
 

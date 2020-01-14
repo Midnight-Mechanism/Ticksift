@@ -102,6 +102,10 @@ body.waiting * {
     cursor: progress;
 }
 
+.outdated {
+    opacity: 0.5;
+}
+
 .select2-dropdown {
     background-color: $brand-dark !important;
 }

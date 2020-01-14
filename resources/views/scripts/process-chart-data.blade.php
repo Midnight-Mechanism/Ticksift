@@ -185,6 +185,7 @@
 
         if (id) {
             $("body").addClass("waiting");
+            $(".chart").addClass("outdated");
             $.post("{{ route('portfolios.securities') }}", data = {
                 id: id,
             }).done(function(securities) {
@@ -196,6 +197,7 @@
                 }
                 $("#select-tickers").trigger("change");
                 $("body").removeClass("waiting");
+                $(".chart").removeClass("outdated");
             });
         }
     }
@@ -206,6 +208,7 @@
 
         if (ids.length > 0) {
             $("body").addClass("waiting");
+            $(".chart").addClass("outdated");
             $.post("{{ route('securities.prices') }}", data = {
                 ids: ids,
                 dates: dates,
@@ -213,6 +216,7 @@
                 securityPrices = prices;
                 processChartData();
                 $("body").removeClass("waiting");
+                $(".chart").removeClass("outdated");
             });
         }
     }
