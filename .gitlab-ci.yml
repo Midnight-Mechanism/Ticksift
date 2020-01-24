@@ -10,12 +10,37 @@ cache:
     - node_modules/
     - vendor/
 
-deploy_staging:
-  stage: deploy
-  before_script:
+stages:
+  - build
+  - deploy
+
+build_dev:
+  stage: build
+  script:
     - npm install
     - composer install
     - npm run dev
+  artifacts:
+    paths:
+      - "public/"
+  rules:
+    - if: '$CI_COMMIT_BRANCH != "master"'
+
+build_prod:
+  stage: build
+  script:
+    - npm install
+    - composer install
+    - npm run prod
+  artifacts:
+    paths:
+      - "public/"
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "master"'
+
+deploy_staging:
+  stage: deploy
+  before_script:
     - echo "$STAGING_ENV" > .env
     - rm -rf storage
     - mkdir -p ~/.ssh
@@ -33,15 +58,12 @@ deploy_staging:
     - ssh $SSH_SERVER "php /web/ticksift/staging/artisan view:clear"
     - ssh $SSH_SERVER "php /web/ticksift/staging/artisan cache:clear"
     - ssh $SSH_SERVER "php /web/ticksift/staging/artisan migrate --force"
-  only:
-    - develop
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "develop"'
 
 deploy_prod:
   stage: deploy
   before_script:
-    - npm install
-    - composer install
-    - npm run prod
     - echo "$PROD_ENV" > .env
     - rm -rf storage
     - mkdir -p ~/.ssh
@@ -59,5 +81,5 @@ deploy_prod:
     - ssh $SSH_SERVER "php /web/ticksift/prod/artisan view:clear"
     - ssh $SSH_SERVER "php /web/ticksift/prod/artisan cache:clear"
     - ssh $SSH_SERVER "php /web/ticksift/prod/artisan migrate --force"
-  only:
-    - master
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "master"'
