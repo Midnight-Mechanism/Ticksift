@@ -8,9 +8,13 @@
     <div class="container-fluid">
         @include('partials/date-picker')
         <div class="row pb-4">
-            <div class="col-12 col-lg-3">
-                <label for="input-volume">Volume Threshold</label>
-                <input id="input-volume" type="number" value="{{ Session::get('security_volume_threshold') }}">
+            <div class="col-6 col-lg-3">
+                <label for="input-min-volume">Minimum Volume</label>
+                <input id="input-min-volume" type="number" value="{{ Session::get('security_min_volume') }}">
+            </div>
+            <div class="col-6 col-lg-3">
+                <label for="input-min-close">Minimum Close</label>
+                <input id="input-min-close" type="number" step="0.01" min="0.00" value="{{ Session::get('security_min_close') }}">
             </div>
         </div>
         <div class="row">
@@ -109,7 +113,8 @@
             $(".chart").addClass("outdated");
             $.post("{{ route('securities.calculate-momentum') }}", data = {
                 dates: $("#input-dates").val(),
-                volume_threshold: $("#input-volume").val(),
+                min_volume: $("#input-min-volume").val(),
+                min_close: $("#input-min-close").val(),
             }).done(function(data) {
                 winnersTable.setData(data.winners);
                 losersTable.setData(data.losers);
@@ -119,7 +124,8 @@
         }
 
         $("#input-dates").change(updateMomentum);
-        $("#input-volume").change(_.debounce(updateMomentum, 250));
+        $("#input-min-volume").change(_.debounce(updateMomentum, 250));
+        $("#input-min-close").change(_.debounce(updateMomentum, 250));
 
         updateMomentum();
     </script>

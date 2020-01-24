@@ -60,15 +60,18 @@ class SecurityController extends Controller
             $dates[2] : // date range, e.g. "1995-01-01 to 1995-02-01"
             $dates[0]; // single date, e.g. "1995-01-01"
 
-        $volume_threshold = $request->input('volume_threshold');
+        $min_volume = $request->input('min_volume');
+        $min_close = $request->input('min_close');
 
         $request->session()->put([
             'security_dates' => [$start_date, $end_date],
-            'security_volume_threshold' => $volume_threshold,
+            'security_min_volume' => $min_volume,
+            'security_min_close' => $min_close,
         ]);
 
         $query =  DB::table('prices')
-            ->where('volume', '>=', $volume_threshold ?: 0)
+            ->where('volume', '>=', $min_volume ?: 0)
+            ->where('close', '>=', $min_close ?: 0)
             ->whereBetween('date', [$start_date, $end_date])
             ->join('securities', 'prices.security_id', 'securities.id')
             ->select('ticker', 'date', 'close')
