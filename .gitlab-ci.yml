@@ -2,7 +2,7 @@ variables:
   SSH_SERVER: "gitlab-runner@ticksift.com"
 
 image:
-  name: lorisleiva/laravel-docker
+  name: lorisleiva/laravel-docker:7.2
 
 cache:
   key: ${CI_COMMIT_REF_SLUG}
