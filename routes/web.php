@@ -39,8 +39,9 @@ Route::group(['middleware' => ['web']], function () {
     Route::get('securities/explorer', ['as' => 'securities.explorer', 'uses' => 'SecurityController@explorer']);
     Route::get('securities/momentum', ['as' => 'securities.momentum', 'uses' => 'SecurityController@momentum']);
 
-    Route::get('portfolios/search', ['as' => 'portfolios.search', 'uses' => 'PortfolioController@search']);
+    Route::get('securities/find', ['as' => 'securities.find', 'uses' => 'SecurityController@find']);
     Route::get('securities/search', ['as' => 'securities.search', 'uses' => 'SecurityController@search']);
+    Route::get('portfolios/search', ['as' => 'portfolios.search', 'uses' => 'PortfolioController@search']);
 
     Route::post('portfolios/securities', ['as' => 'portfolios.securities', 'uses' => 'PortfolioController@securities']);
     Route::post('securities/prices', ['as' => 'securities.prices', 'uses' => 'SecurityController@prices']);

@@ -40,6 +40,9 @@
                     title: "Ticker",
                     field: "ticker",
                     sorter: "string",
+                    cellClick: function(event, cell) {
+                        window.location = "/securities/explorer?add_ticker=" + cell._cell.value;
+                    },
                 },
                 {
                     title: "Earliest Close",
@@ -77,6 +80,9 @@
                     title: "Ticker",
                     field: "ticker",
                     sorter: "string",
+                    cellClick: function(event, cell) {
+                        window.location = "/securities/explorer?add_ticker=" + cell._cell.value;
+                    },
                 },
                 {
                     title: "Earliest Close",

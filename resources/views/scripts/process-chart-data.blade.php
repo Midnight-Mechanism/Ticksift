@@ -251,7 +251,7 @@
     $("#input-dates").change(getSecurityData);
     $("#select-tickers").change(getSecurityData);
 
-    @if($old_dates)
+    @if($old_securities)
         @foreach($old_securities as $security)
             if (!$("#select-tickers").val().includes("{{ $security->id }}")) {
                 $("#select-tickers").append(new Option(
@@ -265,4 +265,16 @@
         $("#select-tickers").trigger("change");
     @endif
 
+    let tickerToAdd = new URLSearchParams(location.search).get("add_ticker");
+    if (tickerToAdd) {
+        $.get("{{ route('securities.find') }}", data = {
+            ticker: tickerToAdd,
+        }).done(function(security) {
+            if (!$("#select-tickers").val().includes(security.id.toString())) {
+                let option = new Option(security.ticker + " - " + security.name, security.id, true, true);
+                $("#select-tickers").append(option);
+            }
+            $("#select-tickers").trigger("change");
+        });
+    }
 </script>
