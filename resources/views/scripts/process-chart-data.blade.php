@@ -181,19 +181,19 @@
         let ids = $("#select-tickers").val();
         let dates = $("#input-dates").val();
 
-        if (ids.length > 0) {
-            $("body").addClass("waiting");
-            $(".chart").addClass("outdated");
-            $.post("{{ route('securities.prices') }}", data = {
-                ids: ids,
-                dates: dates,
-            }).done(function(prices) {
-                securityPrices = prices;
+        $("body").addClass("waiting");
+        $(".chart").addClass("outdated");
+        $.post("{{ route('securities.prices') }}", data = {
+            ids: ids,
+            dates: dates,
+        }).done(function(prices) {
+            securityPrices = prices;
+            if (ids.length > 0) {
                 processChartData();
-                $("body").removeClass("waiting");
-                $(".chart").removeClass("outdated");
-            });
-        }
+            }
+            $("body").removeClass("waiting");
+            $(".chart").removeClass("outdated");
+        });
     }
 
     $("#select-tickers").select2(({

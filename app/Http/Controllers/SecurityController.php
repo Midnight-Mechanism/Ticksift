@@ -145,6 +145,10 @@ class SecurityController extends Controller
         ]);
         $request->session()->put('security_ids', $security_ids);
 
+        if (empty($security_ids)) {
+            return response()->json([], 200, [], JSON_NUMERIC_CHECK);
+        }
+
         $prices = [];
 
         foreach ($security_ids as $security_id) {
