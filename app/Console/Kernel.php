@@ -16,6 +16,7 @@ class Kernel extends ConsoleKernel
         Commands\RerunSimulations::class,
         Commands\DeleteUnsavedSimulations::class,
         Commands\UpdateQuandl::class,
+        Commands\CalculateMomentumPresets::class,
     ];
 
     /**
@@ -31,6 +32,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('quandl:update')->dailyAt('00:00');
         $schedule->command('quandl:update')->dailyAt('04:00');
         $schedule->command('quandl:update')->dailyAt('08:00');
+        $schedule->command('momentum:calculate-presets')->cron('30 */4 * * *');
     }
 
     /**

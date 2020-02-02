@@ -7,6 +7,7 @@ use App\Models\Security;
 use DB;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Cache;
 
 class SecurityController extends Controller
 {
@@ -48,11 +49,62 @@ class SecurityController extends Controller
     }
 
     /**
+     * Calculate momentum results
+     *
+     * @param start_date
+     * @param end_date
+     * @param min_volume
+     * @param min_close
+     * @param use_cached
+     * @return array
+     */
+    public static function calculateMomentum($start_date, $end_date, $min_volume = null, $min_close = null, $use_cached = TRUE) {
+        $cache_key = 'momentum';
+
+        $cache_key .= '-start-' . $start_date;
+        $cache_key .= '-end-' . $end_date;
+
+        $cache_key .= $min_volume ? '-minvol-' . $min_volume : null;
+        $cache_key .= $min_close ? '-minclose-' . $min_close : null;
+
+        if ($use_cached) {
+            $cached_results = Cache::get($cache_key);
+            if ($cached_results) {
+                return $cached_results;
+            }
+        }
+
+        $query =  DB::table('prices')
+            ->where('volume', '>=', $min_volume ?: 0)
+            ->where('close', '>=', $min_close ?: 0)
+            ->whereBetween('date', [$start_date, $end_date])
+            ->join('securities', 'prices.security_id', 'securities.id')
+            ->select('ticker', 'date', 'close')
+            ->distinct('ticker')
+            ->orderBy('ticker');
+
+        $earliest_prices = (clone $query)->oldest('date')->get();
+        $latest_prices = $query->latest('date')->get();
+
+        [$winners, $losers] = self::buildWinnersLosers(
+            $earliest_prices, $latest_prices
+        );
+
+        $results = [
+            'winners' => $winners->sortByDesc('increase')->values(),
+            'losers' => $losers->sortByDesc('decrease')->values(),
+        ];
+
+        Cache::put($cache_key, $results, now()->addDays(1));
+        return $results;
+    }
+
+    /**
      * Calculate the security momentum.
      *
      * @return \Illuminate\Http\Response
      */
-    public function calculateMomentum(Request $request)
+    public function getMomentum(Request $request)
     {
         $start_date = ($dates = explode(' ', $request->input('dates')))[0];
 
@@ -69,26 +121,9 @@ class SecurityController extends Controller
             'security_min_close' => $min_close,
         ]);
 
-        $query =  DB::table('prices')
-            ->where('volume', '>=', $min_volume ?: 0)
-            ->where('close', '>=', $min_close ?: 0)
-            ->whereBetween('date', [$start_date, $end_date])
-            ->join('securities', 'prices.security_id', 'securities.id')
-            ->select('ticker', 'date', 'close')
-            ->distinct('ticker')
-            ->orderBy('ticker');
+        $results = $this->calculateMomentum($start_date, $end_date, $min_volume, $min_close);
 
-        $earliest_prices = (clone $query)->oldest('date')->get();
-        $latest_prices = $query->latest('date')->get();
-
-        [$winners, $losers] = $this->buildWinnersLosers(
-            $earliest_prices, $latest_prices
-        );
-
-        return response()->json([
-            'winners' => $winners->sortByDesc('increase')->values(),
-            'losers' => $losers->sortByDesc('decrease')->values(),
-        ], 200, [], JSON_NUMERIC_CHECK);
+        return response()->json($results, 200, [], JSON_NUMERIC_CHECK);
     }
 
     /**
@@ -175,7 +210,7 @@ class SecurityController extends Controller
      * @param   \Illuminate\Support\Collection  $latest_prices
      * @return  array
      */
-    protected function buildWinnersLosers(Collection $earliestPrices, Collection $latestPrices)
+    protected static function buildWinnersLosers(Collection $earliestPrices, Collection $latestPrices)
     {
         [$winners, $losers] = [collect(), collect()];
 

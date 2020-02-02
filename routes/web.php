@@ -45,7 +45,7 @@ Route::group(['middleware' => ['web']], function () {
 
     Route::post('portfolios/securities', ['as' => 'portfolios.securities', 'uses' => 'PortfolioController@securities']);
     Route::post('securities/prices', ['as' => 'securities.prices', 'uses' => 'SecurityController@prices']);
-    Route::post('securities/calculateMomentum', ['as' => 'securities.calculate-momentum', 'uses' => 'SecurityController@calculateMomentum']);
+    Route::post('securities/get-momentum', ['as' => 'securities.get-momentum', 'uses' => 'SecurityController@getMomentum']);
 
 });
 

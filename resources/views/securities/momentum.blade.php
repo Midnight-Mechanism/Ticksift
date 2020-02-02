@@ -117,7 +117,7 @@
         function updateMomentum() {
             $("body").addClass("waiting");
             $(".chart").addClass("outdated");
-            $.post("{{ route('securities.calculate-momentum') }}", data = {
+            $.post("{{ route('securities.get-momentum') }}", data = {
                 dates: $("#input-dates").val(),
                 min_volume: $("#input-min-volume").val(),
                 min_close: $("#input-min-close").val(),
