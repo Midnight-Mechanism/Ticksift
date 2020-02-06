@@ -1,5 +1,6 @@
 variables:
   SSH_SERVER: "gitlab-runner@ticksift.com"
+  REVIEW_DOMAIN: "review.midnightmechanism.com"
 
 image:
   name: lorisleiva/laravel-docker:7.2
@@ -24,7 +25,7 @@ build_dev:
     paths:
       - "public/"
   rules:
-    - if: '$CI_COMMIT_BRANCH != "master"'
+    - if: '$CI_COMMIT_BRANCH == "develop" || $CI_MERGE_REQUEST_ID'
 
 build_prod:
   stage: build
@@ -38,6 +39,48 @@ build_prod:
   rules:
     - if: '$CI_COMMIT_BRANCH == "master"'
 
+deploy_review:
+  stage: deploy
+  before_script:
+    - echo "$STAGING_ENV" > .env
+    - mkdir -p ~/.ssh
+    - chmod 700 ~/.ssh
+    - echo "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
+    - chmod 644 ~/.ssh/known_hosts
+    - eval $(ssh-agent -s)
+    - echo "$DEPLOY_KEY" | ssh-add -
+  script:
+    - rsync -a --exclude=.git ./ gitlab-runner@$REVIEW_DOMAIN:/web/review/$CI_ENVIRONMENT_SLUG
+    - ssh gitlab-runner@$REVIEW_DOMAIN "php /web/review/$CI_ENVIRONMENT_SLUG/artisan migrate --force"
+  environment:
+    name: review/$CI_PROJECT_PATH/$CI_MERGE_REQUEST_SOURCE_BRANCH_NAME
+    url: https://$CI_ENVIRONMENT_SLUG.$REVIEW_DOMAIN
+    on_stop: stop_review
+  rules:
+    - if: '$CI_MERGE_REQUEST_ID'
+
+stop_review:
+  stage: deploy
+  before_script:
+    - mkdir -p ~/.ssh
+    - chmod 700 ~/.ssh
+    - echo "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
+    - chmod 644 ~/.ssh/known_hosts
+    - eval $(ssh-agent -s)
+    - echo "$DEPLOY_KEY" | ssh-add -
+  script:
+    - ssh gitlab-runner@$REVIEW_DOMAIN "rm -rf /web/review/$CI_ENVIRONMENT_SLUG"
+  variables:
+    GIT_STRATEGY: none
+  environment:
+    name: review/$CI_PROJECT_PATH/$CI_MERGE_REQUEST_SOURCE_BRANCH_NAME
+    url: https://$CI_ENVIRONMENT_SLUG.$REVIEW_DOMAIN
+    action: stop
+  cache: {}
+  rules:
+    - if: '$CI_MERGE_REQUEST_ID'
+      when: manual
+
 deploy_staging:
   stage: deploy
   before_script:
@@ -48,7 +91,7 @@ deploy_staging:
     - echo "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
     - chmod 644 ~/.ssh/known_hosts
     - eval $(ssh-agent -s)
-    - ssh-add <(echo "$DEPLOY_KEY")
+    - echo "$DEPLOY_KEY" | ssh-add -
   script:
     - rsync -ra --exclude=.git ./ $SSH_SERVER:/web/ticksift/staging_temp/
     - ssh $SSH_SERVER "rm -rf /web/ticksift/staging"
@@ -71,7 +114,7 @@ deploy_prod:
     - echo "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
     - chmod 644 ~/.ssh/known_hosts
     - eval $(ssh-agent -s)
-    - ssh-add <(echo "$DEPLOY_KEY")
+    - echo "$DEPLOY_KEY" | ssh-add -
   script:
     - rsync -ra --exclude=.git ./ $SSH_SERVER:/web/ticksift/prod_temp/
     - ssh $SSH_SERVER "rm -rf /web/ticksift/prod"
