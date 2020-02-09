@@ -155,8 +155,8 @@
             });
         }
 
-        Plotly.react(candlestickChart, candleTraces, candlestickLayout, config);
-        Plotly.react(correlationChart, correlationTraces, correlationLayout, config);
+        Plotly.newPlot(candlestickChart, candleTraces, candlestickLayout, config);
+        Plotly.newPlot(correlationChart, correlationTraces, correlationLayout, config);
     }
 
     function getPortfolioData() {
