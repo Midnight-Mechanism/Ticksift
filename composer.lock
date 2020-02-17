@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "f8ef36caeac35efa5f6765a3d85c57ca",
+    "content-hash": "45624abb9a182fdcac2d20c3d090196e",
     "packages": [
         {
             "name": "asm89/stack-cors",
@@ -1325,16 +1325,16 @@
         },
         {
             "name": "laravel/framework",
-            "version": "v7.1.2",
+            "version": "v7.1.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/laravel/framework.git",
-                "reference": "951e10fbfed2a2d547c3fc33853125b4a619e01a"
+                "reference": "42b311862adfc36b8628ac62d226a3682f463439"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/laravel/framework/zipball/951e10fbfed2a2d547c3fc33853125b4a619e01a",
-                "reference": "951e10fbfed2a2d547c3fc33853125b4a619e01a",
+                "url": "https://api.github.com/repos/laravel/framework/zipball/42b311862adfc36b8628ac62d226a3682f463439",
+                "reference": "42b311862adfc36b8628ac62d226a3682f463439",
                 "shasum": ""
             },
             "require": {
@@ -1472,7 +1472,7 @@
                 "framework",
                 "laravel"
             ],
-            "time": "2020-03-13T13:52:44+00:00"
+            "time": "2020-03-14T14:33:32+00:00"
         },
         {
             "name": "laravel/helpers",
@@ -1871,6 +1871,79 @@
                 "storage"
             ],
             "time": "2020-03-08T18:53:20+00:00"
+        },
+        {
+            "name": "markrogoyski/math-php",
+            "version": "v0.58.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/markrogoyski/math-php.git",
+                "reference": "0e0880074f76823a44358268bc5b1e7c00e7bb74"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/markrogoyski/math-php/zipball/0e0880074f76823a44358268bc5b1e7c00e7bb74",
+                "reference": "0e0880074f76823a44358268bc5b1e7c00e7bb74",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=7.0.0"
+            },
+            "require-dev": {
+                "php-coveralls/php-coveralls": "^2.0",
+                "phploc/phploc": "*",
+                "phpmd/phpmd": "^2.6",
+                "phpstan/phpstan": "*",
+                "phpunit/phpunit": ">=6.0 <8.0",
+                "squizlabs/php_codesniffer": "3.*"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "MathPHP\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Mark Rogoyski",
+                    "email": "mark@rogoyski.com",
+                    "homepage": "https://github.com/markrogoyski",
+                    "role": "Lead developer"
+                },
+                {
+                    "name": "Kevin Nowaczyk",
+                    "homepage": "https://github.com/Beakerboy",
+                    "role": "Developer"
+                },
+                {
+                    "name": "Jakob Sandberg",
+                    "role": "Contributor"
+                },
+                {
+                    "name": "MathPHP Community of Contributors",
+                    "homepage": "https://github.com/markrogoyski/math-php/graphs/contributors"
+                }
+            ],
+            "description": "Math Library for PHP. Features descriptive statistics and regressions; Continuous and discrete probability distributions; Linear algebra with matrices and vectors, Numerical analysis; special mathematical functions; Algebra",
+            "homepage": "https://github.com/markrogoyski/math-php/",
+            "keywords": [
+                "algebra",
+                "combinatorics",
+                "distributions",
+                "linear algebra",
+                "math",
+                "mathematics",
+                "matrix",
+                "numerical analysis",
+                "probability",
+                "regressions",
+                "statistics"
+            ],
+            "time": "2020-02-07T06:34:03+00:00"
         },
         {
             "name": "monolog/monolog",
@@ -6217,5 +6290,6 @@
     "platform": {
         "php": "^7.2"
     },
-    "platform-dev": []
+    "platform-dev": [],
+    "plugin-api-version": "1.1.0"
 }
