@@ -3,13 +3,15 @@
     const chartColor = "#000F0F";
     const gridColor = "#154B4B";
 
-    var candlestickLayout = {
+    var timeLayout = {
         autosize: true,
+        showlegend: true,
         title: "Prices",
         font: {
             family: "Hind Madurai",
             color: "white",
         },
+        height: 800,
         dragmode: "zoom",
         xaxis: {
             title: "Date",
@@ -32,6 +34,7 @@
             family: "Hind Madurai",
             color: "white",
         },
+        height: 800,
         dragmode: "zoom",
         xaxis: {
             gridcolor: gridColor,
@@ -48,14 +51,113 @@
         collaborate: false,
         displaylogo: false,
         responsive: true,
+        toImageButtonOptions: {
+            format: "png",
+            height: 1080,
+            width: 1920,
+        },
     };
 
     var securityPrices = [];
-    var candlestickChart = document.getElementById('candlestick-chart');
+    var timeChart = document.getElementById('time-chart');
     var correlationChart = document.getElementById('correlation-chart');
-    function processChartData() {
 
-        let candleTraces = [];
+    function buildTimeChart(chartType) {
+        let traces = [];
+        let timeConfig = _.cloneDeep(config);
+        const dates = $("#input-dates").val();
+        const tickers = Object.keys(securityPrices);
+
+        let filename = [
+            "ticksift",
+            chartType,
+            "chart",
+            $("#input-dates").val(),
+        ];
+        if (tickers.length === 1) {
+            filename.splice(1, 0, tickers[0]);
+        }
+        filename = filename.join("_").split(" ").join("_");
+        timeConfig.toImageButtonOptions.filename = filename;
+        switch (chartType) {
+            case "line":
+                for (const security of Object.entries(securityPrices)) {
+                    let ticker = security[0];
+                    let prices = security[1];
+
+                    traces.push({
+                        name: ticker,
+                        legendgroup: ticker,
+                        type: "scattergl",
+                        mode: "line",
+                        x: prices.map(a => a.date),
+                        y: prices.map(a => a.close),
+                    });
+                }
+                timeLayout.title = "Closing Prices";
+                break;
+            case "candlestick":
+            case "ohlc":
+                for (const security of Object.entries(securityPrices)) {
+                    let ticker = security[0];
+                    let prices = security[1];
+
+                    traces.push({
+                        name: ticker,
+                        legendgroup: ticker,
+                        type: chartType,
+                        x: prices.map(a => a.date),
+                        open: prices.map(a => a.open),
+                        high: prices.map(a => a.high),
+                        low: prices.map(a => a.low),
+                        close: prices.map(a => a.close),
+                    });
+                }
+                timeLayout.title = "Prices";
+                break;
+            case "bubble":
+                // determine max volume across all securities
+                // this factors into bubble size
+                let maxVolume = 0;
+                for (const security of Object.entries(securityPrices)) {
+                    maxVolume = Math.max(
+                        maxVolume,
+                        Math.max(...security[1].map(a => a.volume))
+                    );
+                }
+
+                for (const security of Object.entries(securityPrices)) {
+                    let ticker = security[0];
+                    let prices = security[1];
+                    let volume = prices.map(a => a.volume);
+
+                    traces.push({
+                        name: ticker,
+                        legendgroup: ticker,
+                        type: "scattergl",
+                        mode: "markers",
+                        x: prices.map(a => a.date),
+                        y: prices.map(a => a.close),
+                        marker: {
+                            size: volume,
+                            sizemode: "area",
+                            sizeref: 2.0 * (maxVolume) / (15**2),
+                        },
+                        hovertemplate: "Close: %{y}<br>Volume: %{marker.size:,} shares",
+                    });
+                }
+                timeLayout.title = "Closing Prices Weighted by Trading Volume";
+                break;
+        }
+        Plotly.newPlot(
+            timeChart,
+            traces,
+            timeLayout,
+            timeConfig
+        );
+    }
+
+    function processChartData() {
         let correlationTraces = [{
             x: [],
             y: [],
@@ -68,15 +170,19 @@
 
         let lastDates = [];
         correlationLayout.annotations = [];
+        correlationConfig = _.cloneDeep(config);
+        correlationConfig.toImageButtonOptions.filename = [
+            "ticksift",
+            "correlations",
+            $("#input-dates").val(),
+        ].join("_").split(" ").join("_");
+
 
         for (const security of Object.entries(securityPrices)) {
             let ticker = security[0];
             let prices = security[1];
 
             let dates = prices.map(a => a.date);
-            let open = prices.map(a => a.open);
-            let high = prices.map(a => a.high);
-            let low = prices.map(a => a.low);
             let close = prices.map(a => a.close);
 
             lastDates.push(moment(dates[dates.length - 1]));
@@ -142,21 +248,10 @@
                     showarrow: false,
                 });
             }
-
-            candleTraces.push({
-                name: ticker,
-                legendgroup: ticker,
-                type: "candlestick",
-                x: dates,
-                open: open,
-                high: high,
-                low: low,
-                close: close,
-            });
         }
 
-        Plotly.newPlot(candlestickChart, candleTraces, candlestickLayout, config);
-        Plotly.newPlot(correlationChart, correlationTraces, correlationLayout, config);
+        buildTimeChart($("#select-time-chart-type").val());
+        Plotly.newPlot(correlationChart, correlationTraces, correlationLayout, correlationConfig);
     }
 
     function getPortfolioData() {
@@ -220,7 +315,7 @@
     }).on("select2:unselect", function () {
         let vals = $("#select-tickers").val();
         if (!vals || !vals.length) {
-            Plotly.purge(candlestickChart);
+            Plotly.purge(timeChart);
             Plotly.purge(correlationChart);
             $("body").removeClass("waiting");
         }
@@ -250,6 +345,10 @@
 
     $("#input-dates").change(getSecurityData);
     $("#select-tickers").change(getSecurityData);
+
+    $("#select-time-chart-type").select2().on("select2:select", function() {
+        buildTimeChart($(this).val());
+    });
 
     @if($old_securities)
         @foreach($old_securities as $security)
