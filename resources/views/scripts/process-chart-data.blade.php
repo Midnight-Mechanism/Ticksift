@@ -285,6 +285,7 @@
             securityPrices = prices;
             if (ids.length > 0) {
                 processChartData();
+                $("#security-results").css("visibility", "visible");
             }
             $("body").removeClass("waiting");
             $(".chart").removeClass("outdated");
@@ -315,8 +316,7 @@
     }).on("select2:unselect", function () {
         let vals = $("#select-tickers").val();
         if (!vals || !vals.length) {
-            Plotly.purge(timeChart);
-            Plotly.purge(correlationChart);
+            $("#security-results").css("visibility", "hidden");
             $("body").removeClass("waiting");
         }
     });
