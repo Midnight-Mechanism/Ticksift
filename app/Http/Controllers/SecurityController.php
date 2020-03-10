@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Price;
 use App\Models\Security;
+use App\Models\Correlation;
 use DB;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
@@ -275,6 +276,51 @@ class SecurityController extends Controller
         });
 
         return response()->json($security_prices->values(), 200, [], JSON_NUMERIC_CHECK);
+    }
+
+    /**
+     * Fetch the related securities via correlations for the specified securities.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function getRelatedSecurities(Request $request)
+    {
+        $security_ids = $request->input('ids');
+        if (empty($security_ids)) {
+            return response()->json([], 200);
+        }
+
+        $related_securities = [];
+        foreach ($security_ids as $security_id) {
+            $security = Security::where('id', $security_id)->first();
+            // Find related securities with highest correlations
+            $corr = Correlation::where('security_id', $security_id)
+                        ->where('compared_security_id', '!=', $security_id)
+                        ->select('compared_security_id', 'correlation')
+                        ->orderBy('correlation', 'DESC')
+                        ->limit(10)->get()->toArray();
+            // Collect data for all correlated securities
+            $correlated_securities = [];
+            foreach($corr as $c) {
+                $corrSec = Security::where('id', $c['compared_security_id'])
+                            ->select('id', 'ticker', 'name')->first();
+                array_push($correlated_securities, [
+                    'correlation' => $c['correlation'],
+                    'compared_security_id' => $corrSec->id,
+                    'ticker' => $corrSec->ticker,
+                    'name' => $corrSec->name
+                ]);
+            }
+            // Add security to response array with correlations
+            array_push($related_securities, [
+                'security_id' => $security_id,
+                'ticker' => $security->ticker,
+                'name' => $security->name,
+                'correlated_securities' => $correlated_securities
+            ]);
+        }
+
+        return response()->json($related_securities, 200);
     }
 
     /**
