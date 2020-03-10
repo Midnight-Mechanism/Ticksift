@@ -11,7 +11,6 @@
             family: "Hind Madurai",
             color: "white",
         },
-        height: 800,
         dragmode: "zoom",
         xaxis: {
             title: "Date",
@@ -34,7 +33,6 @@
             family: "Hind Madurai",
             color: "white",
         },
-        height: 800,
         dragmode: "zoom",
         xaxis: {
             gridcolor: gridColor,
