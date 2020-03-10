@@ -205,6 +205,9 @@
 
                 // skip expensive computations if comparing ticker against itself
                 if (ticker === compTicker) {
+                    if (dates.length <= 1) {
+                        continue;
+                    }
                     coeff = 1;
                 // use old coefficient if we've computed the correlation already
                 } else if (oldCoeff != undefined) {
@@ -213,7 +216,12 @@
                     let compPrices = compSecurity[1];
                     let compDates = compPrices.map(a => a.date);
                     let compClose = compPrices.map(a => a.close);
+
                     let overlappingDates = dates.filter(date => compDates.includes(date));
+                    if (overlappingDates.length <= 1) {
+                        continue;
+                    }
+
                     let tickerData = [];
                     let compTickerData = [];
                     overlappingDates.forEach(function(date) {
@@ -248,8 +256,22 @@
             }
         }
 
+        // hide correlations and expand time chart if no correlations
+        if (correlationTraces[0].z.length > 0) {
+            Plotly.newPlot(correlationChart, correlationTraces, correlationLayout, correlationConfig);
+            $.merge(
+                $(timeChart).parent(),
+                $("#select-time-chart-type").parent()
+            ).addClass("col-lg-6");
+        }
+        else {
+            Plotly.purge(correlationChart);
+            $.merge(
+                $(timeChart).parent(),
+                $("#select-time-chart-type").parent()
+            ).removeClass("col-lg-6");
+        }
         buildTimeChart($("#select-time-chart-type").val());
-        Plotly.newPlot(correlationChart, correlationTraces, correlationLayout, correlationConfig);
     }
 
     function getPortfolioData() {
@@ -294,6 +316,9 @@
         placeholder: "Please enter a security ticker or name (AAPL, Apple, etc.)...",
         allowClear: true,
         minimumInputLength: 1,
+        escapeMarkup: function (text) {
+            return text;
+        },
         ajax: {
             url: "/securities/search",
             delay: 250,
@@ -322,6 +347,9 @@
     $("#select-portfolios").select2(({
         placeholder: "Add entire portfolios (e.g. FAANG)...",
         minimumInputLength: 1,
+        escapeMarkup: function (text) {
+            return text;
+        },
         ajax: {
             url: "/portfolios/search",
             delay: 250,

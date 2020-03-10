@@ -13,7 +13,134 @@ class SecurityController extends Controller
 {
 
     /**
-     * Provide the security explorer.
+     * Build the winners and losers list from prices.
+     *
+     * @param   \Illuminate\Support\Collection  $earliest_prices
+     * @param   \Illuminate\Support\Collection  $latest_prices
+     * @return  array
+     */
+    protected static function buildWinnersLosers(Collection $earliestPrices, Collection $latestPrices)
+    {
+        [$winners, $losers] = [collect(), collect()];
+
+        $latest_prices = $latestPrices->keyBy->ticker;
+
+        foreach ($earliestPrices as $earliest_price) {
+            $ticker = $earliest_price->ticker;
+
+            $latest_price = $latest_prices->get($ticker);
+
+            if (! $latest_price || $earliest_price->close == $latest_price->close) continue;
+
+            $coeff = $latest_price->close / $earliest_price->close;
+
+            $base = [
+                'ticker' => $ticker,
+                'earliest_close' => $earliest_price->close,
+                'latest_close' => $latest_price->close,
+            ];
+
+            if ($coeff >= 1) {
+                $winners->push($base + ['increase' => $coeff - 1]);
+            } else {
+                $losers->push($base + ['decrease' => 1 - $coeff]);
+            }
+        }
+
+        return [$winners, $losers];
+    }
+
+    /**
+     * Calculate momentum results
+     *
+     * @param start_date
+     * @param end_date
+     * @param use_cached
+     * @return array
+     */
+    public static function calculateMomentum($start_date, $end_date, $use_cached = TRUE) {
+        $cache_key = 'momentum';
+
+        $cache_key .= '-start-' . $start_date;
+        $cache_key .= '-end-' . $end_date;
+
+        if ($use_cached) {
+            $cached_results = Cache::get($cache_key);
+            if ($cached_results) {
+                return $cached_results;
+            }
+        }
+
+        $query =  DB::table('prices')
+            ->whereBetween('date', [$start_date, $end_date])
+            ->join('securities', 'prices.security_id', 'securities.id')
+            ->where('securities.scale_marketcap', '>=', 3)
+            ->select(
+                'ticker',
+                'date',
+                'close'
+            )
+            ->distinct('ticker')
+            ->orderBy('ticker');
+
+        $earliest_prices = (clone $query)->oldest('date')->get();
+        $latest_prices = $query->latest('date')->get();
+
+        [$winners, $losers] = self::buildWinnersLosers(
+            $earliest_prices, $latest_prices
+        );
+
+        $results = [
+            'winners' => $winners->sortByDesc('increase')->values(),
+            'losers' => $losers->sortByDesc('decrease')->values(),
+        ];
+
+        Cache::put($cache_key, $results, now()->addDays(1));
+        return $results;
+    }
+
+    /**
+     * Calculate the security momentum.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function getMomentum(Request $request)
+    {
+        $dates = explode(' ', $request->input('dates'));
+
+        if (count($dates) > 1) {
+            // date range, e.g. "1995-01-01 to 1995-02-01"
+            $start_date = $dates[0];
+            $end_date = $dates[2];
+        } else {
+            // single date, e.g. "1995-01-01"
+            // we want the start date to be the prior trading day
+            $start_date = Price::select('date')
+                ->where('date', '<=', $dates[0])
+                ->distinct()
+                ->orderBy('date', 'desc')
+                ->skip(1)
+                ->first()
+                ->date;
+            $end_date = $dates[0];
+        }
+
+        $min_volume = $request->input('min_volume');
+        $min_close = $request->input('min_close');
+
+        $request->session()->put([
+            'security_dates' => [$start_date, $end_date],
+            'security_min_volume' => $min_volume,
+            'security_min_close' => $min_close,
+        ]);
+
+        $results = $this->calculateMomentum($start_date, $end_date, $min_volume, $min_close);
+
+        return response()->json($results, 200, [], JSON_NUMERIC_CHECK);
+    }
+
+    /**
+     * Provide the security explorer view.
      *
      * @return \Illuminate\Http\Response
      */
@@ -46,84 +173,6 @@ class SecurityController extends Controller
 
         return view('securities.momentum')
             ->with('old_dates', $old_dates);
-    }
-
-    /**
-     * Calculate momentum results
-     *
-     * @param start_date
-     * @param end_date
-     * @param min_volume
-     * @param min_close
-     * @param use_cached
-     * @return array
-     */
-    public static function calculateMomentum($start_date, $end_date, $min_volume = null, $min_close = null, $use_cached = TRUE) {
-        $cache_key = 'momentum';
-
-        $cache_key .= '-start-' . $start_date;
-        $cache_key .= '-end-' . $end_date;
-
-        $cache_key .= $min_volume ? '-minvol-' . $min_volume : null;
-        $cache_key .= $min_close ? '-minclose-' . $min_close : null;
-
-        if ($use_cached) {
-            $cached_results = Cache::get($cache_key);
-            if ($cached_results) {
-                return $cached_results;
-            }
-        }
-
-        $query =  DB::table('prices')
-            ->where('volume', '>=', $min_volume ?: 0)
-            ->where('close', '>=', $min_close ?: 0)
-            ->whereBetween('date', [$start_date, $end_date])
-            ->join('securities', 'prices.security_id', 'securities.id')
-            ->select('ticker', 'date', 'close')
-            ->distinct('ticker')
-            ->orderBy('ticker');
-
-        $earliest_prices = (clone $query)->oldest('date')->get();
-        $latest_prices = $query->latest('date')->get();
-
-        [$winners, $losers] = self::buildWinnersLosers(
-            $earliest_prices, $latest_prices
-        );
-
-        $results = [
-            'winners' => $winners->sortByDesc('increase')->values(),
-            'losers' => $losers->sortByDesc('decrease')->values(),
-        ];
-
-        Cache::put($cache_key, $results, now()->addDays(1));
-        return $results;
-    }
-
-    /**
-     * Calculate the security momentum.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function getMomentum(Request $request)
-    {
-        $start_date = ($dates = explode(' ', $request->input('dates')))[0];
-
-        $end_date = (count($dates) > 1) ?
-            $dates[2] : // date range, e.g. "1995-01-01 to 1995-02-01"
-            $dates[0]; // single date, e.g. "1995-01-01"
-
-        $min_volume = $request->input('min_volume');
-        $min_close = $request->input('min_close');
-
-        $request->session()->put([
-            'security_dates' => [$start_date, $end_date],
-            'security_min_volume' => $min_volume,
-            'security_min_close' => $min_close,
-        ]);
-
-        $results = $this->calculateMomentum($start_date, $end_date, $min_volume, $min_close);
-
-        return response()->json($results, 200, [], JSON_NUMERIC_CHECK);
     }
 
     /**
@@ -210,43 +259,5 @@ class SecurityController extends Controller
         });
 
         return response()->json($prices, 200, [], JSON_NUMERIC_CHECK);
-    }
-
-    /**
-     * Build the winners and losers list from prices.
-     *
-     * @param   \Illuminate\Support\Collection  $earliest_prices
-     * @param   \Illuminate\Support\Collection  $latest_prices
-     * @return  array
-     */
-    protected static function buildWinnersLosers(Collection $earliestPrices, Collection $latestPrices)
-    {
-        [$winners, $losers] = [collect(), collect()];
-
-        $latest_prices = $latestPrices->keyBy->ticker;
-
-        foreach ($earliestPrices as $earliest_price) {
-            $ticker = $earliest_price->ticker;
-
-            $latest_price = $latest_prices->get($ticker);
-
-            if (! $latest_price) continue;
-
-            $coeff = $latest_price->close / $earliest_price->close;
-
-            $base = [
-                'ticker' => $ticker,
-                'earliest_close' => $earliest_price->close,
-                'latest_close' => $latest_price->close,
-            ];
-
-            if ($coeff >= 1) {
-                $winners->push($base + ['increase' => $coeff - 1]);
-            } else {
-                $losers->push($base + ['decrease' => 1 - $coeff]);
-            }
-        }
-
-        return [$winners, $losers];
     }
 }
