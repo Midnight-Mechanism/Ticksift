@@ -79,10 +79,7 @@
         timeConfig.toImageButtonOptions.filename = filename;
         switch (chartType) {
             case "line":
-                for (const security of Object.entries(securityPrices)) {
-                    let ticker = security[0];
-                    let prices = security[1];
-
+                for (const [ticker, prices] of Object.entries(securityPrices)) {
                     traces.push({
                         name: ticker,
                         legendgroup: ticker,
@@ -96,10 +93,7 @@
                 break;
             case "candlestick":
             case "ohlc":
-                for (const security of Object.entries(securityPrices)) {
-                    let ticker = security[0];
-                    let prices = security[1];
-
+                for (const [ticker, prices] of Object.entries(securityPrices)) {
                     traces.push({
                         name: ticker,
                         legendgroup: ticker,
@@ -117,16 +111,14 @@
                 // determine max volume across all securities
                 // this factors into bubble size
                 let maxVolume = 0;
-                for (const security of Object.entries(securityPrices)) {
+                for (const securityData of Object.values(securityPrices)) {
                     maxVolume = Math.max(
                         maxVolume,
-                        Math.max(...security[1].map(a => a.volume))
+                        Math.max(...securityData.map(a => a.volume))
                     );
                 }
 
-                for (const security of Object.entries(securityPrices)) {
-                    let ticker = security[0];
-                    let prices = security[1];
+                for (const [ticker, prices] of Object.entries(securityPrices)) {
                     let volume = prices.map(a => a.volume);
 
                     traces.push({
@@ -176,18 +168,14 @@
         ].join("_").split(" ").join("_");
 
         const sortedSecurityPrices = _(_.cloneDeep(securityPrices)).toPairs().sortBy(0).fromPairs().value();
-        for (const security of Object.entries(sortedSecurityPrices)) {
-            let ticker = security[0];
-            let prices = security[1];
-
+        for (let [ticker, prices] of Object.entries(sortedSecurityPrices)) {
             let dates = prices.map(a => a.date);
             let close = prices.map(a => a.close);
 
             lastDates.push(moment(dates[dates.length - 1]));
 
             // calculate correlation data for security
-            for (const compSecurity of Object.entries(sortedSecurityPrices)) {
-                let compTicker = compSecurity[0];
+            for (let [compTicker, compPrices] of Object.entries(sortedSecurityPrices)) {
                 let coeff;
                 let oldCoeff;
 
@@ -213,7 +201,6 @@
                 } else if (oldCoeff != undefined) {
                     coeff = oldCoeff;
                 } else {
-                    let compPrices = compSecurity[1];
                     let compDates = compPrices.map(a => a.date);
                     let compClose = compPrices.map(a => a.close);
 
