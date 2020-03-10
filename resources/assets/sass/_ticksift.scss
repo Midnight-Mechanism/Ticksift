@@ -112,7 +112,7 @@ body.waiting * {
 
 .select2-selection {
     background-color: $brand-dark !important;
-    #select2-select-ticker-container {
+    .select2-selection__rendered {
         color: white !important;
     }
     .select2-selection__choice {

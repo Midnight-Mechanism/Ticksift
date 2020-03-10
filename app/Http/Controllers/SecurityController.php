@@ -184,7 +184,7 @@ class SecurityController extends Controller
             return response()->json([], 200, [], JSON_NUMERIC_CHECK);
         }
 
-        $prices = [];
+        $prices = collect([]);
 
         foreach ($security_ids as $security_id) {
             $security = Security::findOrFail($security_id);
@@ -196,9 +196,18 @@ class SecurityController extends Controller
                     'open',
                     'high',
                     'low',
-                    'close'
+                    'close',
+                    'volume'
                 )->get();
         }
+
+        $prices = $prices->sortByDesc(function ($security_prices, $security) {
+            if (count($security_prices) > 0) {
+                return $security_prices->last()->close;
+            } else {
+                return 0;
+            }
+        });
 
         return response()->json($prices, 200, [], JSON_NUMERIC_CHECK);
     }

@@ -17,12 +17,24 @@
                 <select id="select-tickers" multiple="multiple" style="display: none"></select>
             </div>
         </div>
-        <div class="row">
-            <div class="col-12 col-lg-6 my-2">
-                <div id="candlestick-chart" class="chart"></div>
+        <div id="security-results" style="visibility: hidden">
+            <div class="row">
+                <div class="col-12 col-lg-6">
+                    <select id="select-time-chart-type" style="display: none">
+                        <option value="line" selected>Line</option>
+                        <option value="candlestick">Candlestick</option>
+                        <option value="ohlc">OHLC</option>
+                        <option value="bubble">Bubble</option>
+                    </select>
+                </div>
             </div>
-            <div class="col-12 col-lg-6 my-2">
-                <div id="correlation-chart" class="chart"></div>
+            <div class="row">
+                <div class="col-12 col-lg-6 my-2">
+                    <div id="time-chart" class="chart"></div>
+                </div>
+                <div class="col-12 col-lg-6 my-2">
+                    <div id="correlation-chart" class="chart"></div>
+                </div>
             </div>
         </div>
     </div>
