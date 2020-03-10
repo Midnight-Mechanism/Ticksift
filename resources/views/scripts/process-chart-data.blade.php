@@ -175,8 +175,8 @@
             $("#input-dates").val(),
         ].join("_").split(" ").join("_");
 
-
-        for (const security of Object.entries(securityPrices)) {
+        const sortedSecurityPrices = _(_.cloneDeep(securityPrices)).toPairs().sortBy(0).fromPairs().value();
+        for (const security of Object.entries(sortedSecurityPrices)) {
             let ticker = security[0];
             let prices = security[1];
 
@@ -186,7 +186,7 @@
             lastDates.push(moment(dates[dates.length - 1]));
 
             // calculate correlation data for security
-            for (const compSecurity of Object.entries(securityPrices)) {
+            for (const compSecurity of Object.entries(sortedSecurityPrices)) {
                 let compTicker = compSecurity[0];
                 let coeff;
                 let oldCoeff;
