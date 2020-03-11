@@ -118,6 +118,10 @@ class SecurityController extends Controller
             // date range, e.g. "1995-01-01 to 1995-02-01"
             $start_date = $dates[0];
             $end_date = $dates[2];
+
+            $request->session()->put([
+                'security_dates' => [$start_date, $end_date],
+            ]);
         } else {
             // single date, e.g. "1995-01-01"
             // we want the start date to be the prior trading day
@@ -129,18 +133,13 @@ class SecurityController extends Controller
                 ->first()
                 ->date;
             $end_date = $dates[0];
+
+            $request->session()->put([
+                'security_dates' => [$end_date, $end_date],
+            ]);
         }
 
-        $min_volume = $request->input('min_volume');
-        $min_close = $request->input('min_close');
-
-        $request->session()->put([
-            'security_dates' => [$start_date, $end_date],
-            'security_min_volume' => $min_volume,
-            'security_min_close' => $min_close,
-        ]);
-
-        $results = $this->calculateMomentum($start_date, $end_date, $min_volume, $min_close);
+        $results = $this->calculateMomentum($start_date, $end_date);
 
         return response()->json($results, 200, [], JSON_NUMERIC_CHECK);
     }
