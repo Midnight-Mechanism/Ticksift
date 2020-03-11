@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
 use App\Http\Controllers\SecurityController;
+use Carbon\Carbon;
 
 class CalculateMomentumPresets extends Command
 {
@@ -38,14 +39,13 @@ class CalculateMomentumPresets extends Command
      */
     public function handle()
     {
-        $today = now()->toDateString();
+        $max_date = \App\Models\Price::max('date');
         $date_ranges = [
-            [now()->subWeeks(1)->toDateString(), $today],
-            [now()->subMonths(1)->toDateString(), $today],
-            [now()->firstOfYear()->toDateString(), $today],
-            [now()->subYears(1)->toDateString(), $today],
-            [now()->subYears(5)->toDateString(), $today],
-            [\App\Models\Price::min('date'), $today],
+            [Carbon::parse($max_date)->subWeeks(1)->toDateString(), $max_date],
+            [Carbon::parse($max_date)->subMonths(1)->toDateString(), $max_date],
+            [Carbon::parse($max_date)->firstOfYear()->toDateString(), $max_date],
+            [Carbon::parse($max_date)->subYears(1)->toDateString(), $max_date],
+            [Carbon::parse($max_date)->subYears(5)->toDateString(), $max_date],
         ];
 
         foreach ($date_ranges as [$start_date, $end_date]) {
