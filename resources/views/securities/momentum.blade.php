@@ -137,26 +137,27 @@
                 texts.push(null);
                 colors.push(null);
                 for (const securityData of Object.values(sectorData)) {
-                    labels.push("<b><span style='font-size: 200%'>" + securityData.ticker + "</span></b>");
                     parents.push(sector);
+
+                    let label = "<b><span style='font-size: 200%'>" + securityData.ticker + "</span></b>";
+                    let text = securityData.name;
 
                     let absChange = Math.abs(securityData.change);
                     let colorChange = Math.min(absChange * 15, 8.5);
                     let percent = absChange * 100;
 
-                    let text = securityData.name;
-
-                    text += "<br><b>";
+                    text += "<b><span style='font-size: 150%;";
                     if (securityData.change < 0) {
-                        text += "<span style='color: #FFE6E6'>-" + percent.toFixed(2) + "%</span>";
+                        text += "color: #FFE6E6'><br><br>-";
                         colors.push(Color("#1A0000").lighten(colorChange).hex());
                     } else {
-                        text += "<span style='color: #E6FFEA'>+" + percent.toFixed(2) + "%</span>";
+                        text += "color: #E6FFEA'><br><br>+";
                         colors.push(Color("#001A04").lighten(colorChange).hex());
                     }
-                    text += "</b>";
-
+                    text += percent.toFixed(2) + "%</span></b>";
                     text += "<br>" + formatCurrency(securityData.latest_close, securityData.currency_code);
+
+                    labels.push(label);
                     texts.push(text);
                 }
             }
@@ -168,6 +169,7 @@
                     labels: labels,
                     parents: parents,
                     text: texts,
+                    textposition: "middle center",
                     marker: {
                         colors: colors,
                     },
