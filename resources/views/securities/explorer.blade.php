@@ -149,6 +149,7 @@
                         });
                     }
                     timeLayout.title = "Closing Prices";
+                    timeLayout.xaxis.rangeslider = null;
                     break;
                 case "candlestick":
                 case "ohlc":
@@ -172,6 +173,7 @@
                         });
                     }
                     timeLayout.title = "Prices";
+                    timeLayout.xaxis.rangeslider = {};
                     break;
                 case "bubble":
                     // determine max volume across all securities
@@ -204,6 +206,7 @@
                         });
                     }
                     timeLayout.title = "Closing Prices Weighted by Trading Volume";
+                    timeLayout.xaxis.rangeslider = null;
                     break;
             }
             Plotly.newPlot(
