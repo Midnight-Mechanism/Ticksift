@@ -128,29 +128,36 @@
 
             let labels = [];
             let parents = [];
-            let changes = [];
+            let texts = [];
             let colors = [];
 
             for (const[sector, sectorData] of Object.entries(data)) {
                 labels.push(sector);
                 parents.push("");
-                changes.push(null);
+                texts.push(null);
                 colors.push(null);
                 for (const securityData of Object.values(sectorData)) {
-                    labels.push("<b>" + securityData.ticker + "</b><br>" + securityData.name);
+                    labels.push("<b><span style='font-size: 200%'>" + securityData.ticker + "</span></b>");
                     parents.push(sector);
 
                     let absChange = Math.abs(securityData.change);
                     let colorChange = Math.min(absChange * 15, 8.5);
                     let percent = absChange * 100;
 
+                    let text = securityData.name;
+
+                    text += "<br><b>";
                     if (securityData.change < 0) {
-                        changes.push("-" + percent.toFixed(2) + "%");
+                        text += "<span style='color: #FFE6E6'>-" + percent.toFixed(2) + "%</span>";
                         colors.push(Color("#1A0000").lighten(colorChange).hex());
                     } else {
-                        changes.push("+" + percent.toFixed(2) + "%");
+                        text += "<span style='color: #E6FFEA'>+" + percent.toFixed(2) + "%</span>";
                         colors.push(Color("#001A04").lighten(colorChange).hex());
                     }
+                    text += "</b>";
+
+                    text += "<br>" + formatCurrency(securityData.latest_close, securityData.currency_code);
+                    texts.push(text);
                 }
             }
 
@@ -160,7 +167,7 @@
                     type: "treemap",
                     labels: labels,
                     parents: parents,
-                    text: changes,
+                    text: texts,
                     marker: {
                         colors: colors,
                     },
