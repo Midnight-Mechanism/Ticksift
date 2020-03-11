@@ -132,12 +132,15 @@
             let colors = [];
 
             for (const[sector, sectorData] of Object.entries(data)) {
-                labels.push(sector);
+                let sectorLabel = "<b><span style='text-transform: uppercase'>" +
+                    sector +
+                    "</span></b>";
+                labels.push(sectorLabel);
                 parents.push("");
                 texts.push(null);
                 colors.push(null);
                 for (const securityData of Object.values(sectorData)) {
-                    parents.push(sector);
+                    parents.push(sectorLabel);
 
                     let label = "<b><span style='font-size: 200%'>" + securityData.ticker + "</span></b>";
                     let text = securityData.name;

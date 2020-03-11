@@ -256,7 +256,7 @@ class SecurityController extends Controller
                         'high',
                         'low',
                         'close',
-                        'volume',
+                        'volume'
                     )->get(),
             ]);
         }
