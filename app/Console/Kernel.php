@@ -13,8 +13,6 @@ class Kernel extends ConsoleKernel
      * @var array
      */
     protected $commands = [
-        Commands\RerunSimulations::class,
-        Commands\DeleteUnsavedSimulations::class,
         Commands\UpdateQuandl::class,
         Commands\CalculateMomentumPresets::class,
     ];
@@ -28,11 +26,9 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        $schedule->command('simulation:clean')->daily();
-        $schedule->command('quandl:update')->dailyAt('00:00');
-        $schedule->command('quandl:update')->dailyAt('04:00');
-        $schedule->command('quandl:update')->dailyAt('08:00');
-        $schedule->command('momentum:calculate-presets')->cron('30 */4 * * *');
+        $schedule->command('quandl:update')->cron('0 */4 * * *')->then(function() {
+            $this->call('momentum:calculate-presets');
+        });
     }
 
     /**
