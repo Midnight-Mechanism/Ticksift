@@ -12,3 +12,4 @@ window.jStat = require('jstat');
 window.flatpickr = require('flatpickr');
 window.Tabulator = require('tabulator-tables');
 window._ = require('lodash');
+window.Color = require('color');

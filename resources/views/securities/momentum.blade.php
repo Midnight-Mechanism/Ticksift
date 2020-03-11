@@ -17,7 +17,7 @@
                 <div id="table-losers" style="height: 400px"></div>
             </div>
             <div class="chart col-12 text-center pb-3">
-                <h3 class="table-title">Sectors</h3>
+                <h3 class="table-title">Mega-Cap Securities</h3>
                 <div id="treemap-chart" class="chart"></div>
             </div>
         </div>
@@ -110,35 +110,41 @@
                     securityData.change = securityData.decrease * -1;
                     delete securityData["decrease"];
                 }
-                return(securityData);
-            }).orderBy([function(securityData) {
-                // order by percent change
+                // only keep mega-cap stocks
+                if (securityData.scale_marketcap >= 6) {
+                    return(securityData);
+                }
+            }).without(undefined).orderBy([function(securityData) {
                 return Math.abs(securityData.change);
-            }], ['desc']).value();
-
-            // group by sector, limit to most changed
-            sectors = _(data).groupBy("sector").mapValues(function (sectorData) {
-                return sectorData.slice(0, 10);
-            }).value();
+            }], ['desc']).groupBy("sector").value();
 
             // remove securities with no sector
-            delete sectors[""];
+            delete data[""];
 
             let labels = [];
             let parents = [];
             let changes = [];
+            let colors = [];
 
-            for (const[sector, sectorData] of Object.entries(sectors)) {
+            for (const[sector, sectorData] of Object.entries(data)) {
                 labels.push(sector);
                 parents.push("");
                 changes.push(null);
+                colors.push(null);
                 for (const securityData of Object.values(sectorData)) {
-                    labels.push(securityData.name);
+                    labels.push("<b>" + securityData.ticker + "</b><br>" + securityData.name);
                     parents.push(sector);
+
+                    let absChange = Math.abs(securityData.change);
+                    let colorChange = Math.min(absChange * 15, 8.5);
+                    let percent = absChange * 100;
+
                     if (securityData.change < 0) {
-                        changes.push((securityData.change * 100).toFixed(2) + "%");
+                        changes.push("-" + percent.toFixed(2) + "%");
+                        colors.push(Color("#1A0000").lighten(colorChange).hex());
                     } else {
-                        changes.push("+" + (securityData.change * 100).toFixed(2) + "%");
+                        changes.push("+" + percent.toFixed(2) + "%");
+                        colors.push(Color("#001A04").lighten(colorChange).hex());
                     }
                 }
             }
@@ -150,13 +156,15 @@
                     labels: labels,
                     parents: parents,
                     text: changes,
+                    marker: {
+                        colors: colors,
+                    },
                 }],
                 layout = {
                     autosize: true,
                     height: 800,
                     font: {
                         family: "Hind Madurai",
-                        color: "white",
                     },
                     paper_bgcolor: chartColor,
                     plot_bgcolor: chartColor,

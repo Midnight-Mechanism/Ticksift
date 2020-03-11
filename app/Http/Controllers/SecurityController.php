@@ -82,6 +82,7 @@ class SecurityController extends Controller
                 'ticker',
                 'securities.name',
                 'sectors.name AS sector',
+                'scale_marketcap',
                 'date',
                 'close'
             )
