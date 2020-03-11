@@ -63,7 +63,6 @@
             },
             yaxis: {
                 title: "Price",
-                tickprefix: "$",
                 gridcolor: gridColor,
             },
             paper_bgcolor: chartColor,
@@ -104,11 +103,18 @@
         var timeChart = document.getElementById('time-chart');
         var correlationChart = document.getElementById('correlation-chart');
 
+        function formatCurrency(number, code) {
+            return new Intl.NumberFormat('en-US', {
+                style: 'currency',
+                currency: code,
+            }).format(number);
+        }
+
         function buildTimeChart(chartType) {
             let traces = [];
             let timeConfig = _.cloneDeep(config);
             const dates = $("#input-dates").val();
-            const tickers = Object.keys(securityPrices);
+            const tickers = securityPrices.map(a => a.ticker);
 
             let filename = [
                 "ticksift",
@@ -120,33 +126,49 @@
                 filename.splice(1, 0, tickers[0]);
             }
             filename = filename.join("_").split(" ").join("_");
+
+            if (securityPrices.every(a => a.currency_code === "USD")) {
+                timeLayout.yaxis.tickprefix = "$";
+            } else {
+                timeLayout.yaxis.tickprefix = null;
+            }
+
             timeConfig.toImageButtonOptions.filename = filename;
             switch (chartType) {
                 case "line":
-                    for (const [ticker, prices] of Object.entries(securityPrices)) {
+                    for (const securityData of Object.values(securityPrices)) {
                         traces.push({
-                            name: ticker,
-                            legendgroup: ticker,
+                            name: securityData.ticker,
+                            legendgroup: securityData.ticker,
                             type: "scattergl",
                             mode: "line",
-                            x: prices.map(a => a.date),
-                            y: prices.map(a => a.close),
+                            x: securityData.prices.map(a => a.date),
+                            y: securityData.prices.map(a => a.close),
+                            text: securityData.prices.map(a => formatCurrency(a.close, securityData.currency_code)),
+                            hovertemplate: "Close: %{text}",
                         });
                     }
                     timeLayout.title = "Closing Prices";
                     break;
                 case "candlestick":
                 case "ohlc":
-                    for (const [ticker, prices] of Object.entries(securityPrices)) {
+                    for (const securityData of Object.values(securityPrices)) {
                         traces.push({
-                            name: ticker,
-                            legendgroup: ticker,
+                            name: securityData.ticker,
+                            legendgroup: securityData.ticker,
                             type: chartType,
-                            x: prices.map(a => a.date),
-                            open: prices.map(a => a.open),
-                            high: prices.map(a => a.high),
-                            low: prices.map(a => a.low),
-                            close: prices.map(a => a.close),
+                            x: securityData.prices.map(a => a.date),
+                            open: securityData.prices.map(a => a.open),
+                            high: securityData.prices.map(a => a.high),
+                            low: securityData.prices.map(a => a.low),
+                            close: securityData.prices.map(a => a.close),
+                            text: securityData.prices.map(a => {
+                                return "Open: " + formatCurrency(a.open, securityData.currency_code) + "<br>" +
+                                    "High: " + formatCurrency(a.high, securityData.currency_code) + "<br>" +
+                                    "Low: " + formatCurrency(a.low, securityData.currency_code) + "<br>" +
+                                    "Close: " + formatCurrency(a.close, securityData.currency_code);
+                            }),
+                            hoverinfo: "text",
                         });
                     }
                     timeLayout.title = "Prices";
@@ -158,26 +180,27 @@
                     for (const securityData of Object.values(securityPrices)) {
                         maxVolume = Math.max(
                             maxVolume,
-                            Math.max(...securityData.map(a => a.volume))
+                            Math.max(...securityData.prices.map(a => a.volume))
                         );
                     }
 
-                    for (const [ticker, prices] of Object.entries(securityPrices)) {
-                        let volume = prices.map(a => a.volume);
+                    for (const securityData of Object.values(securityPrices)) {
+                        let volume = securityData.prices.map(a => a.volume);
 
                         traces.push({
-                            name: ticker,
-                            legendgroup: ticker,
+                            name: securityData.ticker,
+                            legendgroup: securityData.ticker,
                             type: "scattergl",
                             mode: "markers",
-                            x: prices.map(a => a.date),
-                            y: prices.map(a => a.close),
+                            x: securityData.prices.map(a => a.date),
+                            y: securityData.prices.map(a => a.close),
                             marker: {
                                 size: volume,
                                 sizemode: "area",
                                 sizeref: 2.0 * (maxVolume) / (15**2),
                             },
-                            hovertemplate: "Close: %{y}<br>Volume: %{marker.size:,} shares",
+                            text: securityData.prices.map(a => formatCurrency(a.close, securityData.currency_code)),
+                            hovertemplate: "Close: %{text}<br>Volume: %{marker.size:,} shares",
                         });
                     }
                     timeLayout.title = "Closing Prices Weighted by Trading Volume";
@@ -211,24 +234,24 @@
                 $("#input-dates").val(),
             ].join("_").split(" ").join("_");
 
-            const sortedSecurityPrices = _(_.cloneDeep(securityPrices)).toPairs().sortBy(0).fromPairs().value();
-            for (let [ticker, prices] of Object.entries(sortedSecurityPrices)) {
-                let dates = prices.map(a => a.date);
-                let close = prices.map(a => a.close);
+            const sortedSecurityPrices = _(_.cloneDeep(securityPrices)).sortBy("ticker").value();
+            for (let securityData of Object.values(sortedSecurityPrices)) {
+                let dates = securityData.prices.map(a => a.date);
+                let close = securityData.prices.map(a => a.close);
 
                 lastDates.push(moment(dates[dates.length - 1]));
 
                 // calculate correlation data for security
-                for (let [compTicker, compPrices] of Object.entries(sortedSecurityPrices)) {
+                for (let compSecurityData of Object.values(sortedSecurityPrices)) {
                     let coeff;
                     let oldCoeff;
 
                     // check existing points for reverse of ticker pair
-                    if (ticker !== compTicker) {
+                    if (securityData.ticker !== compSecurityData.ticker) {
                         for (const pointIndex in correlationTraces[0].x) {
                             if (
-                                correlationTraces[0].x[pointIndex] === compTicker &&
-                                correlationTraces[0].y[pointIndex] === ticker
+                                correlationTraces[0].x[pointIndex] === securityData.ticker &&
+                                correlationTraces[0].y[pointIndex] === compSecurityData.ticker
                             ) {
                                 oldCoeff = correlationTraces[0].z[pointIndex];
                             }
@@ -236,7 +259,7 @@
                     }
 
                     // skip expensive computations if comparing ticker against itself
-                    if (ticker === compTicker) {
+                    if (securityData.ticker === compSecurityData.ticker) {
                         if (dates.length <= 1) {
                             continue;
                         }
@@ -245,8 +268,9 @@
                     } else if (oldCoeff != undefined) {
                         coeff = oldCoeff;
                     } else {
-                        let compDates = compPrices.map(a => a.date);
-                        let compClose = compPrices.map(a => a.close);
+
+                        let compDates = compSecurityData.prices.map(a => a.date);
+                        let compClose = compSecurityData.prices.map(a => a.close);
 
                         let overlappingDates = dates.filter(date => compDates.includes(date));
                         if (overlappingDates.length <= 1) {
@@ -272,12 +296,12 @@
                         coeff = coeff < -1 ? -1 : coeff;
                     }
 
-                    correlationTraces[0].x.push(ticker);
-                    correlationTraces[0].y.push(compTicker);
+                    correlationTraces[0].x.push(securityData.ticker);
+                    correlationTraces[0].y.push(compSecurityData.ticker);
                     correlationTraces[0].z.push(coeff);
                     correlationLayout.annotations.push({
-                        x: ticker,
-                        y: compTicker,
+                        x: securityData.ticker,
+                        y: compSecurityData.ticker,
                         text: coeff,
                         font: {
                             color: coeff > 0 ? "black" : "white",
@@ -333,7 +357,7 @@
                 ids: ids,
                 dates: dates,
             }).done(function(prices) {
-                securityPrices = prices;
+                securityPrices = Object.values(prices);
                 if (ids.length > 0) {
                     processChartData();
                     $("#security-results").css("visibility", "visible");

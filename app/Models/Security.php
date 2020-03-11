@@ -43,6 +43,14 @@ class Security extends Model
     ];
 
     /**
+     * A security has a currency.
+     */
+    public function currency()
+    {
+        return $this->belongsTo('App\Models\Currency');
+    }
+
+    /**
      * A security has prices.
      */
     public function prices()

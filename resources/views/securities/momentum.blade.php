@@ -32,6 +32,13 @@
 
         var treemapChart = document.getElementById("treemap-chart");
 
+        function formatCurrency(number, code) {
+            return new Intl.NumberFormat('en-US', {
+                style: 'currency',
+                currency: code,
+            }).format(number);
+        }
+
         var baseColumns = [
             {
                 title: "Ticker",
@@ -55,18 +62,16 @@
                 title: "Earliest Close",
                 field: "earliest_close",
                 sorter: "number",
-                formatter: "money",
-                formatterParams: {
-                    symbol: "$",
+                formatter: function(cell, formatterParams, onRendered) {
+                    return formatCurrency(cell.getValue(), cell.getData().currency_code);
                 },
             },
             {
                 title: "Latest Close",
                 field: "latest_close",
                 sorter: "number",
-                formatter: "money",
-                formatterParams: {
-                    symbol: "$",
+                formatter: function(cell, formatterParams, onRendered) {
+                    return formatCurrency(cell.getValue(), cell.getData().currency_code);
                 },
             },
         ]

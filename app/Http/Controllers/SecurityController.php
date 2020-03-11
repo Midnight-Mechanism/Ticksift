@@ -77,12 +77,14 @@ class SecurityController extends Controller
             ->join('securities', 'prices.security_id', 'securities.id')
             ->join('industries', 'securities.industry_id', 'industries.id')
             ->join('sectors', 'industries.sector_id', 'sectors.id')
-            ->where('securities.scale_marketcap', '>=', 3)
+            ->join('currencies', 'securities.currency_id', 'currencies.id')
+            ->where('scale_marketcap', '>=', 3)
             ->select(
                 'ticker',
                 'securities.name',
                 'sectors.name AS sector',
                 'scale_marketcap',
+                'currencies.code AS currency_code',
                 'date',
                 'close'
             )
@@ -238,31 +240,35 @@ class SecurityController extends Controller
             return response()->json([], 200, [], JSON_NUMERIC_CHECK);
         }
 
-        $prices = collect([]);
+        $security_prices = collect([]);
 
         foreach ($security_ids as $security_id) {
             $security = Security::findOrFail($security_id);
-            $prices[$security->ticker] = $security
-                ->prices()
-                ->whereBetween('date', [$start_date, $end_date,])
-                ->select(
-                    'date',
-                    'open',
-                    'high',
-                    'low',
-                    'close',
-                    'volume'
-                )->get();
+            $security_prices->push([
+                'ticker' => $security->ticker,
+                'currency_code' => $security->currency->code,
+                'prices' => $security
+                    ->prices()
+                    ->whereBetween('date', [$start_date, $end_date,])
+                    ->select(
+                        'date',
+                        'open',
+                        'high',
+                        'low',
+                        'close',
+                        'volume',
+                    )->get(),
+            ]);
         }
 
-        $prices = $prices->sortByDesc(function ($security_prices, $security) {
-            if (count($security_prices) > 0) {
-                return $security_prices->last()->close;
+        $security_prices = $security_prices->sortByDesc(function ($security_data, $security) {
+            if (count($security_data['prices']) > 0) {
+                return $security_data['prices']->last()->close;
             } else {
                 return 0;
             }
         });
 
-        return response()->json($prices, 200, [], JSON_NUMERIC_CHECK);
+        return response()->json($security_prices->values(), 200, [], JSON_NUMERIC_CHECK);
     }
 }
