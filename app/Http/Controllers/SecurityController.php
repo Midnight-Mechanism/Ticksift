@@ -34,11 +34,12 @@ class SecurityController extends Controller
 
             $coeff = $latest_price->close / $earliest_price->close;
 
-            $base = [
-                'ticker' => $ticker,
+            $base = (array)$earliest_price + [
                 'earliest_close' => $earliest_price->close,
                 'latest_close' => $latest_price->close,
             ];
+            unset($base['close']);
+            unset($base['date']);
 
             if ($coeff >= 1) {
                 $winners->push($base + ['increase' => $coeff - 1]);
@@ -74,9 +75,14 @@ class SecurityController extends Controller
         $query =  DB::table('prices')
             ->whereBetween('date', [$start_date, $end_date])
             ->join('securities', 'prices.security_id', 'securities.id')
+            ->join('industries', 'securities.industry_id', 'industries.id')
+            ->join('sectors', 'industries.sector_id', 'sectors.id')
             ->where('securities.scale_marketcap', '>=', 3)
             ->select(
                 'ticker',
+                'securities.name',
+                'sectors.name AS sector',
+                'scale_marketcap',
                 'date',
                 'close'
             )
