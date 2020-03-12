@@ -2,7 +2,7 @@
     {{-- Header --}}
     @slot('header')
         @component('mail::header', ['url' => config('app.url')])
-            <img src="{{ url('/images/ticksift.svg') }}"></img>
+            <img style="height: 30px" src="{{ url('/images/ticksift.png') }}"></img>
         @endcomponent
     @endslot
 

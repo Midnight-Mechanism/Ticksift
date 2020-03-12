@@ -271,4 +271,14 @@ class SecurityController extends Controller
 
         return response()->json($security_prices->values(), 200, [], JSON_NUMERIC_CHECK);
     }
+
+    /**
+     * Store chart type in session
+     *
+     * @param chart_type
+     */
+    public function storeChartType(Request $request) {
+        $request->session()->put('chart_type', $request->input('chart_type'));
+    }
+
 }

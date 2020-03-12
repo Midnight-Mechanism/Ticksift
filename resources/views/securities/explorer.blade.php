@@ -431,8 +431,14 @@
         $("#select-tickers").change(getSecurityData);
 
         $("#select-time-chart-type").select2().on("select2:select", function() {
+            $.post("{{ route('securities.store-chart-type') }}", data = {chart_type: $(this).val()});
             buildTimeChart($(this).val());
         });
+
+        @if(Session::has('chart_type'))
+            $("#select-time-chart-type").val("{{ Session::get('chart_type') }}");
+            $("#select-time-chart-type").trigger("change");
+        @endif
 
         @if($old_securities)
             @foreach($old_securities as $security)

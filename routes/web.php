@@ -22,13 +22,10 @@ Route::group(['middleware' => ['web']], function () {
     Route::redirect('/', 'securities/explorer');
 
     // Activation Routes
-    Route::get('/activate', ['as' => 'activate', 'uses' => 'Auth\ActivateController@initial']);
-
-    Route::get('/activate/{token}', ['as' => 'authenticated.activate', 'uses' => 'Auth\ActivateController@activate']);
-    Route::get('/activation', ['as' => 'authenticated.activation-resend', 'uses' => 'Auth\ActivateController@resend']);
-    Route::get('/exceeded', ['as' => 'exceeded', 'uses' => 'Auth\ActivateController@exceeded']);
-
-    Route::get('activate/{code}', ['as' => 'activate',   'uses' => 'UserController@activate']);
+    Route::get('activate', 'Auth\ActivateController@initial')->name('activate');
+    Route::get('activate/{token}', 'Auth\ActivateController@activate')->name('authenticated.activate');
+    Route::get('activation', 'Auth\ActivateController@resend')->name('authenticated.activation-resend');
+    Route::get('exceeded', 'Auth\ActivateController@exceeded')->name('exceeded');
 
     Route::resource('simulations', 'SimulationController', [
         'except' => [
@@ -36,16 +33,17 @@ Route::group(['middleware' => ['web']], function () {
         ],
     ]);
 
-    Route::get('securities/explorer', ['as' => 'securities.explorer', 'uses' => 'SecurityController@explorer']);
-    Route::get('securities/momentum', ['as' => 'securities.momentum', 'uses' => 'SecurityController@momentum']);
+    Route::get('securities/explorer', 'SecurityController@explorer')->name('securities.explorer');
+    Route::get('securities/momentum', 'SecurityController@momentum')->name('securities.momentum');
 
-    Route::get('securities/find', ['as' => 'securities.find', 'uses' => 'SecurityController@find']);
-    Route::get('securities/search', ['as' => 'securities.search', 'uses' => 'SecurityController@search']);
-    Route::get('portfolios/search', ['as' => 'portfolios.search', 'uses' => 'PortfolioController@search']);
+    Route::get('securities/find', 'SecurityController@find')->name('securities.find');
+    Route::get('securities/search', 'SecurityController@search')->name('securities.search');
+    Route::get('portfolios/search', 'PortfolioController@search')->name('portfolios.search');
 
-    Route::post('portfolios/securities', ['as' => 'portfolios.securities', 'uses' => 'PortfolioController@securities']);
-    Route::post('securities/prices', ['as' => 'securities.prices', 'uses' => 'SecurityController@prices']);
-    Route::post('securities/get-momentum', ['as' => 'securities.get-momentum', 'uses' => 'SecurityController@getMomentum']);
+    Route::post('portfolios/securities', 'PortfolioController@securities')->name('portfolios.securities');
+    Route::post('securities/prices', 'SecurityController@prices')->name('securities.prices');
+    Route::post('securities/get-momentum', 'SecurityController@getMomentum')->name('securities.get-momentum');
+    Route::post('securities/store-chart-type', 'SecurityController@storeChartType')->name('securities.store-chart-type');
 
 });
 
@@ -53,18 +51,19 @@ Route::group(['middleware' => ['web']], function () {
 Route::group(['middleware' => ['auth']], function () {
 
     //  Homepage Route - Redirect based on user role is in controller.
-    Route::get('home', ['as' => 'public.home',   'uses' => 'UserController@index']);
+    Route::get('home', 'UserController@index')->name('public.home');
     Route::get('/activation-required', ['uses' => 'Auth\ActivateController@activationRequired'])->name('activation-required');
-    Route::get('logout', ['uses' => 'Auth\LoginController@logout'])->name('logout');
+    Route::get('/activation-required', 'Auth\ActivateController@activationRequired')->name('activation-required');
+    Route::get('logout', 'Auth\LoginController@logout')->name('logout');
 
 });
 
 // Registered and is current user routes.
 Route::group(['middleware' => ['auth', 'activated', 'currentUser']], function () {
 
-    Route::get('profile', ['as' => 'profile',   'uses' => 'UserController@profile']);
-    Route::post('update-password', ['as' => 'update-password',   'uses' => 'UserController@updatePassword']);
-    Route::post('update-profile', ['as' => 'update-profile',   'uses' => 'UserController@updateProfile']);
+    Route::get('profile', 'UserController@profile')->name('profile');
+    Route::post('update-password', 'UserController@updatePassword')->name('update-password');
+    Route::post('update-profile', 'UserController@updateProfile')->name('update-profile');
 
 });
 
