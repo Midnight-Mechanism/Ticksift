@@ -33,10 +33,13 @@ class SecurityController extends Controller
             if (! $latest_price || $earliest_price->close == $latest_price->close) continue;
 
             $coeff = $latest_price->close / $earliest_price->close;
+            $volume = round(($latest_price->volume + $earliest_price->volume) / 2);
 
+            unset($earliest_price->volume);
             $base = (array)$earliest_price + [
                 'earliest_close' => $earliest_price->close,
                 'latest_close' => $latest_price->close,
+                'volume' => $volume,
             ];
             unset($base['close']);
             unset($base['date']);
@@ -86,7 +89,8 @@ class SecurityController extends Controller
                 'scale_marketcap',
                 'currencies.code AS currency_code',
                 'date',
-                'close'
+                'close',
+                'volume'
             )
             ->distinct('ticker')
             ->orderBy('ticker');

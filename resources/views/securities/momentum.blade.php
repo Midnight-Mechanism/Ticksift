@@ -132,6 +132,7 @@
             let parents = [];
             let texts = [];
             let colors = [];
+            let values = [];
             let customdata = [];
 
             for (const[sector, sectorData] of Object.entries(data)) {
@@ -142,6 +143,7 @@
                 parents.push("");
                 texts.push(null);
                 colors.push(null);
+                values.push(0);
                 customdata.push(null);
                 for (const securityData of Object.values(sectorData)) {
                     parents.push(sectorLabel);
@@ -167,6 +169,7 @@
 
                     labels.push(label);
                     texts.push(text);
+                    values.push(securityData.latest_close * securityData.volume);
                 }
             }
 
@@ -177,7 +180,9 @@
                     labels: labels,
                     parents: parents,
                     text: texts,
+                    values: values,
                     customdata: customdata,
+                    hoverinfo: "label+text",
                     textposition: "middle center",
                     marker: {
                         colors: colors,
@@ -206,7 +211,7 @@
                         width: 1920,
                         filename: [
                             "ticksift",
-                            "sectors",
+                            "mega_cap",
                             $("#input-dates").val(),
                         ].join("_").split(" ").join("_"),
                     },
