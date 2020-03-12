@@ -130,6 +130,7 @@
             let parents = [];
             let texts = [];
             let colors = [];
+            let customdata = [];
 
             for (const[sector, sectorData] of Object.entries(data)) {
                 let sectorLabel = "<b><span style='text-transform: uppercase'>" +
@@ -139,8 +140,10 @@
                 parents.push("");
                 texts.push(null);
                 colors.push(null);
+                customdata.push(null);
                 for (const securityData of Object.values(sectorData)) {
                     parents.push(sectorLabel);
+                    customdata.push(securityData.ticker);
 
                     let label = "<b><span style='font-size: 200%'>" + securityData.ticker + "</span></b>";
                     let text = securityData.name;
@@ -172,6 +175,7 @@
                     labels: labels,
                     parents: parents,
                     text: texts,
+                    customdata: customdata,
                     textposition: "middle center",
                     marker: {
                         colors: colors,
@@ -209,6 +213,15 @@
                     },
                 },
             );
+
+
+            treemapChart.on('plotly_treemapclick', function(data) {
+                ticker = data.points[0].customdata;
+                if (ticker) {
+                    window.location = "/securities/explorer?add_ticker=" + ticker;
+                    return false;
+                }
+            });
         }
 
         function updateMomentum() {
