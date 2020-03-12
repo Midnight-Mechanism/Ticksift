@@ -10,7 +10,7 @@
         <div id="security-results" style="visibility: hidden">
             <div class="row">
                 <div class="chart col-12 text-center pb-3">
-                    <h3 class="table-title">Mega-Cap Securities</h3>
+                    <h3 class="table-title">Mega Cap</h3>
                     <div id="treemap-chart" class="chart"></div>
                 </div>
                 <div class="chart col-12 col-lg-6 text-center pb-3">
@@ -186,9 +186,6 @@
                 layout = {
                     autosize: true,
                     height: 800,
-                    font: {
-                        family: "Hind Madurai",
-                    },
                     paper_bgcolor: chartColor,
                     plot_bgcolor: chartColor,
                     margin: {

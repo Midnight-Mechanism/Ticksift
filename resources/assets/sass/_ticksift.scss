@@ -6,6 +6,13 @@ body {
     color: white;
 }
 
+h1, h2, h3, h4, h5 {
+    text-transform: uppercase;
+    font-family: $font-family-sans-serif-bold;
+    font-weight: bold;
+    font-size: 200%;
+}
+
 .btn {
     font-weight: bold;
     letter-spacing: 1px;
@@ -39,59 +46,6 @@ body {
 a:not(.btn), .btn-link {
     color: #666;
     text-decoration: underline;
-}
-
-.card-container {
-    padding: 0 5rem 0 5rem;
-}
-
-a.row-card {
-    border-radius: 0px;
-    box-shadow: 0px 0px 10px $brand-light;
-    text-decoration: none;
-    &:hover {
-        box-shadow: 0px 0px 10px lightgray;
-        text-decoration: none;
-    }
-    .card-header {
-        font-weight: bold;
-    }
-}
-
-.card-header {
-    background-color: darken($brand-primary, 5%);
-    h3, h4, h5 {
-        color: white;
-        margin-bottom: 0px;
-        font-family: $font-family-sans-serif-bold;
-    }
-}
-
-.card-body {
-    background-color: lighten($brand-primary, 5%);
-    color: white;
-    form {
-        margin: 0;
-    }
-    .btn-link {
-        color: white;
-        padding: 0;
-    }
-}
-
-.card-content {
-    display: flex;
-    flex-direction: column;
-    height: 200px;
-    p {
-        align-self: flex-start;
-    }
-    img {
-        align-self: center;
-        margin:auto;
-        max-height: 80%;
-        max-width: 80%;
-    }
 }
 
 body {
@@ -144,16 +98,6 @@ input {
     }
 }
 
-.sim-card {
-    display: none;
-    justify-content: center;
-    align-content: center;
-    background-color: $brand-dark;
-    margin: 0.5rem 0 0.5rem 0;
-    padding: 0.5rem;
-    font-size: 1.5rem;
-}
-
 .has-error input {
     border-color: $brand-danger;
     border-width: 4px;
@@ -197,7 +141,6 @@ input {
 
 .table-title {
     margin-bottom: 0px;
-    text-transform: uppercase;
     background-color: $brand-dark;
     padding: 0.75rem;
     border: 1px solid #333;
