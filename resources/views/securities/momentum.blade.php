@@ -7,18 +7,20 @@
 @section('content')
     <div class="container-fluid">
         @include('partials/date-picker')
-        <div class="row">
-            <div class="chart col-12 col-lg-6 text-center pb-3">
-                <h3 class="table-title">Winners</h3>
-                <div id="table-winners" style="height: 400px"></div>
-            </div>
-            <div class="chart col-12 col-lg-6 text-center pb-3">
-                <h3 class="table-title">Losers</h3>
-                <div id="table-losers" style="height: 400px"></div>
-            </div>
-            <div class="chart col-12 text-center pb-3">
-                <h3 class="table-title">Mega-Cap Securities</h3>
-                <div id="treemap-chart" class="chart"></div>
+        <div id="security-results" style="visibility: hidden">
+            <div class="row">
+                <div class="chart col-12 text-center pb-3">
+                    <h3 class="table-title">Mega-Cap Securities</h3>
+                    <div id="treemap-chart" class="chart"></div>
+                </div>
+                <div class="chart col-12 col-lg-6 text-center pb-3">
+                    <h3 class="table-title">Winners</h3>
+                    <div id="table-winners" style="height: 400px"></div>
+                </div>
+                <div class="chart col-12 col-lg-6 text-center pb-3">
+                    <h3 class="table-title">Losers</h3>
+                    <div id="table-losers" style="height: 400px"></div>
+                </div>
             </div>
         </div>
     </div>
@@ -240,6 +242,7 @@
 
                 $("body").removeClass("waiting");
                 $(".chart").removeClass("outdated");
+                $("#security-results").css("visibility", "visible");
             });
         }
 
