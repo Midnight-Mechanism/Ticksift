@@ -10,7 +10,7 @@
         <div id="security-results" style="visibility: hidden">
             <div class="row">
                 <div class="chart col-12 text-center pb-3">
-                    <h3 class="table-title">Mega Cap</h3>
+                    <h3 class="table-title">Large Cap</h3>
                     <div id="treemap-chart" class="chart"></div>
                 </div>
                 <div class="chart col-12 col-lg-6 text-center pb-3">
@@ -46,6 +46,8 @@
                 title: "Ticker",
                 field: "ticker",
                 sorter: "string",
+                responsive: 0,
+                minWidth: 60,
                 cellClick: function(event, cell) {
                     window.location = "/securities/explorer?add_ticker=" + cell._cell.value;
                 },
@@ -54,16 +56,29 @@
                 title: "Name",
                 field: "name",
                 sorter: "string",
+                responsive: 1,
+                minWidth: 150,
             },
             {
                 title: "Sector",
                 field: "sector",
                 sorter: "string",
+                responsive: 2,
+                minWidth: 150,
+            },
+            {
+                title: "Industry",
+                field: "industry",
+                sorter: "string",
+                responsive: 2,
+                minWidth: 150,
             },
             {
                 title: "Earliest Close",
                 field: "earliest_close",
                 sorter: "number",
+                responsive: 2,
+                minWidth: 80,
                 formatter: function(cell, formatterParams, onRendered) {
                     return formatCurrency(cell.getValue(), cell.getData().currency_code);
                 },
@@ -72,6 +87,8 @@
                 title: "Latest Close",
                 field: "latest_close",
                 sorter: "number",
+                responsive: 2,
+                minWidth: 80,
                 formatter: function(cell, formatterParams, onRendered) {
                     return formatCurrency(cell.getValue(), cell.getData().currency_code);
                 },
@@ -84,12 +101,15 @@
                     title: "Increase",
                     field: "increase",
                     sorter: "number",
+                    responsive: 0,
+                    minWidth: 80,
                     formatter: function(cell, formatterParams, onRendered) {
                         return (100 * cell.getValue()).toFixed(2) + "%";
                     },
                 },
             ]),
             layout:"fitColumns",
+            responsiveLayout: "hide",
         });
 
         var losersTable = new Tabulator("#table-losers", {
@@ -98,12 +118,15 @@
                     title: "Decrease",
                     field: "decrease",
                     sorter: "number",
+                    responsive: 0,
+                    minWidth: 80,
                     formatter: function(cell, formatterParams, onRendered) {
                         return (100 * cell.getValue()).toFixed(2) + "%";
                     },
                 },
             ]),
             layout:"fitColumns",
+            responsiveLayout: "hide",
         });
 
         function buildTreemap(data) {
@@ -117,13 +140,13 @@
                     securityData.change = securityData.decrease * -1;
                     delete securityData["decrease"];
                 }
-                // only keep mega-cap stocks
-                if (securityData.scale_marketcap >= 6) {
+                // only include > large cap stocks
+                if (securityData.scale_marketcap >= 5) {
                     return(securityData);
                 }
-            }).without(undefined).orderBy([function(securityData) {
-                return Math.abs(securityData.change);
-            }], ['desc']).groupBy("sector").value();
+            }).without(undefined).groupBy('sector').mapValues(function(securities) {
+                return _.groupBy(securities, 'industry');
+            }).value();
 
             // remove securities with no sector
             delete data[""];
@@ -145,31 +168,42 @@
                 colors.push(null);
                 values.push(0);
                 customdata.push(null);
-                for (const securityData of Object.values(sectorData)) {
+                for (const[industry, industryData] of Object.entries(sectorData)) {
+                    let industryLabel = "<b><span style='text-transform: uppercase'>" +
+                        industry +
+                        "</span></b>";
+                    labels.push(industryLabel);
                     parents.push(sectorLabel);
-                    customdata.push(securityData.ticker);
+                    texts.push(null);
+                    colors.push(null);
+                    values.push(0);
+                    customdata.push(null);
+                    for (const securityData of Object.values(industryData)) {
+                        parents.push(industryLabel);
+                        customdata.push(securityData.ticker);
 
-                    let label = "<b><span style='font-size: 200%'>" + securityData.ticker + "</span></b>";
-                    let text = securityData.name;
+                        let label = "<b><span style='font-size: 200%'>" + securityData.ticker + "</span></b>";
+                        let text = securityData.name;
 
-                    let absChange = Math.abs(securityData.change);
-                    let colorChange = Math.min(absChange * 15, 8.5);
-                    let percent = absChange * 100;
+                        let absChange = Math.abs(securityData.change);
+                        let colorChange = Math.min(absChange * 15, 8.5);
+                        let percent = absChange * 100;
 
-                    text += "<b><span style='font-size: 150%;";
-                    if (securityData.change < 0) {
-                        text += "color: #FFE6E6'><br><br>-";
-                        colors.push(Color("#1A0000").lighten(colorChange).hex());
-                    } else {
-                        text += "color: #E6FFEA'><br><br>+";
-                        colors.push(Color("#001A04").lighten(colorChange).hex());
+                        text += "<b><span style='font-size: 150%;";
+                        if (securityData.change < 0) {
+                            text += "color: #FFE6E6'><br><br>-";
+                            colors.push(Color("#1A0000").lighten(colorChange).hex());
+                        } else {
+                            text += "color: #E6FFEA'><br><br>+";
+                            colors.push(Color("#001A04").lighten(colorChange).hex());
+                        }
+                        text += percent.toFixed(2) + "%</span></b>";
+                        text += "<br>" + formatCurrency(securityData.latest_close, securityData.currency_code);
+
+                        labels.push(label);
+                        texts.push(text);
+                        values.push(securityData.latest_close * securityData.volume);
                     }
-                    text += percent.toFixed(2) + "%</span></b>";
-                    text += "<br>" + formatCurrency(securityData.latest_close, securityData.currency_code);
-
-                    labels.push(label);
-                    texts.push(text);
-                    values.push(securityData.latest_close * securityData.volume);
                 }
             }
 
@@ -211,7 +245,7 @@
                         width: 1920,
                         filename: [
                             "ticksift",
-                            "mega_cap",
+                            "large-cap",
                             $("#input-dates").val(),
                         ].join("_").split(" ").join("_"),
                     },

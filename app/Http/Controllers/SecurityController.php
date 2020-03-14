@@ -81,10 +81,10 @@ class SecurityController extends Controller
             ->join('industries', 'securities.industry_id', 'industries.id')
             ->join('sectors', 'industries.sector_id', 'sectors.id')
             ->join('currencies', 'securities.currency_id', 'currencies.id')
-            ->where('scale_marketcap', '>=', 3)
             ->select(
                 'ticker',
                 'securities.name',
+                'industries.name AS industry',
                 'sectors.name AS sector',
                 'scale_marketcap',
                 'currencies.code AS currency_code',
