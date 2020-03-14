@@ -378,7 +378,7 @@
                 return text;
             },
             ajax: {
-                url: "/securities/search",
+                url: "{{ route('securities.search') }}",
                 delay: 250,
                 processResults: function (data) {
                     return {
@@ -409,7 +409,7 @@
                 return text;
             },
             ajax: {
-                url: "/portfolios/search",
+                url: "{{ route('portfolios.search') }}",
                 delay: 250,
                 processResults: function (data) {
                     return {
