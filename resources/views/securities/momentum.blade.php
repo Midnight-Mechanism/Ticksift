@@ -159,6 +159,7 @@
             let parents = [];
             let texts = [];
             let colors = [];
+            let lineColors = [];
             let values = [];
             let customdata = [];
 
@@ -169,17 +170,19 @@
                 labels.push(sectorLabel);
                 parents.push("");
                 texts.push(null);
-                colors.push(sectorData.color);
+                colors.push(Color(sectorData.color).darken(0.75).hex());
+                lineColors.push(sectorData.color);
                 values.push(0);
                 customdata.push(null);
                 for (const[industry, industryData] of Object.entries(sectorData.industries)) {
-                    let industryLabel = "<b><span style='text-transform: uppercase'>" +
+                    let industryLabel = "<span style='text-transform: uppercase'>" +
                         industry +
-                        "</span></b>";
+                        "</span>";
                     labels.push(industryLabel);
                     parents.push(sectorLabel);
                     texts.push(null);
-                    colors.push(sectorData.color);
+                    colors.push(null);
+                    lineColors.push(sectorData.color);
                     values.push(0);
                     customdata.push(null);
                     for (const securityData of Object.values(industryData)) {
@@ -207,6 +210,7 @@
                         labels.push(label);
                         texts.push(text);
                         values.push(securityData.latest_close * securityData.volume);
+                        lineColors.push(null);
                     }
                 }
             }
@@ -224,6 +228,9 @@
                     textposition: "middle center",
                     marker: {
                         colors: colors,
+                        line: {
+                            color: lineColors,
+                        },
                     },
                 }],
                 layout = {
