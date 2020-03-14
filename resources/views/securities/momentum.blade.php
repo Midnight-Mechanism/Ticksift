@@ -145,7 +145,11 @@
                     return(securityData);
                 }
             }).without(undefined).groupBy('sector').mapValues(function(securities) {
-                return _.groupBy(securities, 'industry');
+                sector_color = securities[0].sector_color;
+                return {
+                    'color': sector_color ? "#" + sector_color : null,
+                    'industries': _.groupBy(securities, 'industry'),
+                };
             }).value();
 
             // remove securities with no sector
@@ -165,17 +169,17 @@
                 labels.push(sectorLabel);
                 parents.push("");
                 texts.push(null);
-                colors.push(null);
+                colors.push(sectorData.color);
                 values.push(0);
                 customdata.push(null);
-                for (const[industry, industryData] of Object.entries(sectorData)) {
+                for (const[industry, industryData] of Object.entries(sectorData.industries)) {
                     let industryLabel = "<b><span style='text-transform: uppercase'>" +
                         industry +
                         "</span></b>";
                     labels.push(industryLabel);
                     parents.push(sectorLabel);
                     texts.push(null);
-                    colors.push(null);
+                    colors.push(sectorData.color);
                     values.push(0);
                     customdata.push(null);
                     for (const securityData of Object.values(industryData)) {

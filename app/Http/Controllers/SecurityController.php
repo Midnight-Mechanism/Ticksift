@@ -86,6 +86,7 @@ class SecurityController extends Controller
                 'securities.name',
                 'industries.name AS industry',
                 'sectors.name AS sector',
+                'sectors.color AS sector_color',
                 'scale_marketcap',
                 'currencies.code AS currency_code',
                 'date',
