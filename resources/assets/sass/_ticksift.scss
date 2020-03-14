@@ -4,6 +4,10 @@ main {
 
 body {
     color: white;
+    background-color: $brand-background;
+    .waiting * {
+        cursor: progress;
+    }
 }
 
 h1, h2, h3, h4, h5 {
@@ -11,6 +15,10 @@ h1, h2, h3, h4, h5 {
     font-family: $font-family-sans-serif-bold;
     font-weight: bold;
     font-size: 200%;
+}
+
+.outdated {
+    opacity: 0.5;
 }
 
 .btn {
@@ -48,16 +56,40 @@ a:not(.btn), .btn-link {
     text-decoration: underline;
 }
 
-body {
-    background-color: $brand-background;
+.card-header {
+    background-color: darken($brand-primary, 5%);
+    h3, h4, h5 {
+        color: white;
+        margin-bottom: 0px;
+        font-family: $font-family-sans-serif-bold;
+    }
 }
 
-body.waiting * {
-    cursor: progress;
+.card-body {
+    background-color: lighten($brand-primary, 5%);
+    color: white;
+    form {
+        margin: 0;
+    }
+    .btn-link {
+        color: white;
+        padding: 0;
+    }
 }
 
-.outdated {
-    opacity: 0.5;
+.card-content {
+    display: flex;
+    flex-direction: column;
+    height: 200px;
+    p {
+        align-self: flex-start;
+    }
+    img {
+        align-self: center;
+        margin:auto;
+        max-height: 80%;
+        max-width: 80%;
+    }
 }
 
 .select2-dropdown {
