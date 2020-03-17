@@ -15,7 +15,7 @@ class Kernel extends ConsoleKernel
     protected $commands = [
         Commands\UpdateQuandl::class,
         Commands\CalculateMomentumPresets::class,
-        Commands\CalculateCorrelations::class,
+        Commands\CalculateSecurityRelationships::class,
     ];
 
     /**
@@ -30,6 +30,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('quandl:update')->cron('0 */4 * * *')->then(function() {
             $this->call('momentum:calculate-presets');
         });
+        $schedule->command('securities:calculate-relationships')->weekly();
     }
 
     /**

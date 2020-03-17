@@ -79,13 +79,18 @@ class Security extends Model
     }
 
     /**
-     * A security has many correlations.
-     * 
+     * A security relates to many securities.
+     *
      * @var array
      */
-    public function correlations()
+    public function securities()
     {
-        return $this->hasMany('App\Model\Correlation', 'security_id', 'id');
+        return $this->belongsToMany(
+            'App\Models\Security',
+            'security_security',
+            'security_id',
+            'comp_security_id'
+        )->withPivot('correlation');
     }
 
 }

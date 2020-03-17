@@ -37,7 +37,6 @@
                 </div>
             </div>
         </div>
-        <div id="related-securities-container" class="row"></div>
     </div>
 @endsection
 
@@ -475,48 +474,10 @@
             $.post("{{ route('securities.related-securities') }}", data = {
                 ids: $("#select-tickers").val()
             }).done(function(relatedSecurities) {
-                // Iterate over related securities data
-                for (let security of relatedSecurities) {
-                    // Check if security has any correlated securities to display
-                    if (security.correlated_securities && security.correlated_securities.length > 0 && $('#table-' + security.security_id).length == 0) {
-                        // Add html table for security, identified by security_id
-                        let tableHtml = $('<div class="col-12 col-lg-6 pb-3 text-center"><h3 class="table-title" id="table-title-' + security.security_id + '"></h3><div id="table-' + security.security_id + '" style="400px"></div></div>');
-                        $('#related-securities-container').append(tableHtml);
-                        // Populate Tabulator table with related securities data
-                        let tableID = '#table-' + security.security_id;
-                        var table = new Tabulator(tableID, {
-                            columns: [
-                                {
-                                    title: "Ticker",
-                                    field: "ticker",
-                                    sorter: "string",
-                                    cellClick: function(event, cell) {
-                                        window.location = "/securities/explorer?add_ticker=" + cell._cell.value;
-                                    },
-                                },
-                                {
-                                    title: "Name",
-                                    field: "name",
-                                    sorter: "string"
-                                },
-                                {
-                                    title: "Correlation",
-                                    field: "correlation",
-                                    sorter: "number",
-                                },
-                            ],
-                            layout: "fitColumns",
-                        });
-                        table.setData(security.correlated_securities);
-                        // Set table title
-                        let tableHeader = security.name + ' (' + security.ticker + ') Related Securities';
-                        $('#table-title-' + security.security_id).text(tableHeader);
-                    }
-                }
+                console.log(relatedSecurities);
             });
         }
 
-        $("#input-dates").change(updateRelatedSecurities);
         $("#select-portfolios").change(updateRelatedSecurities);
         $("#select-tickers").change(updateRelatedSecurities);
 

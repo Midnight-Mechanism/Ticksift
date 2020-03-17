@@ -4,10 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Price;
 use App\Models\Security;
-use App\Models\Correlation;
 use DB;
 use Illuminate\Http\Request;
-use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 
 class SecurityController extends Controller
@@ -290,37 +288,28 @@ class SecurityController extends Controller
             return response()->json([], 200);
         }
 
-        $related_securities = [];
+        $related_securities = collect([]);
         foreach ($security_ids as $security_id) {
-            $security = Security::where('id', $security_id)->first();
-            // Find related securities with highest correlations
-            $corr = Correlation::where('security_id', $security_id)
-                        ->where('compared_security_id', '!=', $security_id)
-                        ->select('compared_security_id', 'correlation')
-                        ->orderBy('correlation', 'DESC')
-                        ->limit(10)->get()->toArray();
-            // Collect data for all correlated securities
-            $correlated_securities = [];
-            foreach($corr as $c) {
-                $corrSec = Security::where('id', $c['compared_security_id'])
-                            ->select('id', 'ticker', 'name')->first();
-                array_push($correlated_securities, [
-                    'correlation' => $c['correlation'],
-                    'compared_security_id' => $corrSec->id,
-                    'ticker' => $corrSec->ticker,
-                    'name' => $corrSec->name
-                ]);
-            }
-            // Add security to response array with correlations
-            array_push($related_securities, [
-                'security_id' => $security_id,
-                'ticker' => $security->ticker,
-                'name' => $security->name,
-                'correlated_securities' => $correlated_securities
-            ]);
+            $corr = Security::findOrFail($security_id)
+                ->securities()
+                ->select(
+                    'id',
+                    'ticker',
+                    'name',
+                    'correlation'
+                )
+                ->get();
+            $related_securities = $related_securities->merge($corr);
         }
 
-        return response()->json($related_securities, 200);
+        return response()->json(
+            $related_securities
+                ->whereNotIn('id', $security_ids)
+                ->sortByDesc('correlation')
+                ->take(5)
+                ->values(),
+            200
+        );
     }
 
     /**
