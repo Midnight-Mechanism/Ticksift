@@ -14,6 +14,9 @@ class PricesTableSeeder extends Seeder
      */
     public function run()
     {
+        $missing_tickers = [];
+        $securities = Security::select('id', 'ticker')->get()->keyBy('ticker');
+
         foreach (['SEP', 'SFP'] as $source_table) {
             $filename = glob('stock_data/SHARADAR_' . $source_table . '*.csv')[0];
             $file = fopen($filename,"r");
@@ -21,13 +24,11 @@ class PricesTableSeeder extends Seeder
             $header = TRUE;
             $chunk = [];
             $insertCount = 0;
-            $missing_tickers = [];
             while (($line = fgetcsv($file)) !== FALSE) {
                 if (!$header) {
-                    $security = Security::where('ticker', $line[0])->first();
                     try {
                         $chunk[] = [
-                            'security_id' => $security->id,
+                            'security_id' => $securities->get($line[0])->id,
                             'date' => $line[1],
                             'open' => $line[2],
                             'high' => $line[3],
@@ -44,11 +45,10 @@ class PricesTableSeeder extends Seeder
                         if (!in_array($line[0], $missing_tickers)) {
                             $missing_tickers[] = $line[0];
                         }
-                        continue;
                     }
                     if (count($chunk) > 1000) {
                         $insertCount = $insertCount + count($chunk);
-                        Price::insert($chunk);
+                        DB::table('prices')->insert($chunk);
                         $chunk = [];
                         \Log::info($insertCount . ' inserted');
                     }
@@ -58,15 +58,16 @@ class PricesTableSeeder extends Seeder
             }
 
             $insertCount = $insertCount + count($chunk);
-            Price::insert($chunk);
+            DB::table('prices')->insert($chunk);
             $chunk = [];
             \Log::info($insertCount . ' inserted');
 
             fclose($file);
-            if (count($missing_tickers) > 0) {
+        }
+
+        if (count($missing_tickers) > 0) {
                 $this->command->error("There was price data for unknown securities:");
                 $this->command->error(implode(' ', $missing_tickers));
-            }
         }
     }
 }

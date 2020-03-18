@@ -62,7 +62,7 @@ class SecuritiesTableSeeder extends Seeder
                         'exchange_id' => $exchange_id,
                         'is_delisted' => $line[5],
                         'category_id' => $category_id,
-                        'sic_industry_id' => $sic_industry_id,
+                        'sic_industry_id' => isset($sic_industry_id) ? $sic_industry_id : null,
                         'industry_id' => $industry_id,
                         'scale_marketcap' => intval($line[15]),
                         'scale_revenue' => intval($line[16]),

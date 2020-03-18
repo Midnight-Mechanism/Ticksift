@@ -32,7 +32,7 @@ return [
     'channels' => [
         'stack' => [
             'driver'   => 'stack',
-            'channels' => ['errorlog', 'gelf'],
+            'channels' => ['errorlog'],
         ],
 
         'single' => [
@@ -65,18 +65,6 @@ return [
             'driver' => 'errorlog',
             'level'  => 'debug',
         ],
-
-        'gelf' => [
-            'driver' => 'custom',
-            'via' => \Hedii\LaravelGelfLogger\GelfLoggerFactory::class,
-            'processors' => [
-                \Hedii\LaravelGelfLogger\Processors\NullStringProcessor::class,
-            ],
-            'level' => 'debug',
-            'host' => 'logbox.midnightmechanism.com',
-            'port' => 12203,
-        ],
-
     ],
 
 ];
