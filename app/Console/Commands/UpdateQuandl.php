@@ -221,65 +221,67 @@ class UpdateQuandl extends Command
     private function updatePrices() {
         // get link to bulk download file
         $curl = curl_init();
-        $url = 'https://www.quandl.com/api/v3/datatables/SHARADAR/SEP';
-        $url .= '?api_key=' . env('QUANDL_KEY');
-        $url .= '&qopts.export=true';
+        foreach(['SEP', 'SFP'] as $source_table) {
+            $url = 'https://www.quandl.com/api/v3/datatables/SHARADAR/' . $source_table;
+            $url .= '?api_key=' . env('QUANDL_KEY');
+            $url .= '&qopts.export=true';
 
-        if ($this->argument('start_date')) {
-            $url .= '&lastupdated.gte=' . $this->argument('start_date');
-        } else {
-            $url .= '&lastupdated.gte=' . Price::max('source_last_updated');
-        }
-        if ($this->argument('end_date')) {
-            $url .= '&lastupdated.lte=' . $this->argument('end_date');
-        }
-
-        curl_setopt($curl, CURLOPT_URL, $url);
-        curl_setopt($curl, CURLOPT_RETURNTRANSFER, TRUE);
-        $results = json_decode(curl_exec($curl), TRUE);
-        $bulk_link = $results['datatable_bulk_download']['file']['link'];
-        curl_close($curl);
-
-        // save bulk download file
-        $curl = curl_init();
-        $zip_filename = tempnam(sys_get_temp_dir(), 'quandl_prices_');
-        $zip_file = fopen($zip_filename, 'w');
-        curl_setopt($curl, CURLOPT_URL, $bulk_link);
-        curl_setopt($curl, CURLOPT_FILE, $zip_file);
-        $results = curl_exec($curl);
-        curl_close($curl);
-        fclose($zip_file);
-
-        // read bulk download file
-        $zip = new ZipArchive();
-        $file = $zip->open($zip_filename);
-        $lines = explode(PHP_EOL, $zip->getFromIndex(0));
-        // delete header row
-        array_shift($lines);
-        $zip->close();
-        foreach ($lines as $line) {
-            if (!$line) {
-                continue;
+            if ($this->argument('start_date')) {
+                $url .= '&lastupdated.gte=' . $this->argument('start_date');
+            } else {
+                $url .= '&lastupdated.gte=' . Price::max('source_last_updated');
             }
-            $line = str_getcsv($line);
-            $security = Security::where('ticker', $line[0])->first();
-            if ($security) {
-                $price = Price::updateOrCreate(
-                    [
-                        'security_id' => $security->id,
-                        'date' => $line[1],
-                    ],
-                    [
-                        'open' => $line[2],
-                        'high' => $line[3],
-                        'low' => $line[4],
-                        'close' => $line[5],
-                        'volume' => $line[6] ?: null,
-                        'dividends' => $line[7],
-                        'close_unadj' => $line[8],
-                        'source_last_updated' => $line[9],
-                    ]
-                );
+            if ($this->argument('end_date')) {
+                $url .= '&lastupdated.lte=' . $this->argument('end_date');
+            }
+
+            curl_setopt($curl, CURLOPT_URL, $url);
+            curl_setopt($curl, CURLOPT_RETURNTRANSFER, TRUE);
+            $results = json_decode(curl_exec($curl), TRUE);
+            $bulk_link = $results['datatable_bulk_download']['file']['link'];
+            curl_close($curl);
+
+            // save bulk download file
+            $curl = curl_init();
+            $zip_filename = tempnam(sys_get_temp_dir(), 'quandl_prices_');
+            $zip_file = fopen($zip_filename, 'w');
+            curl_setopt($curl, CURLOPT_URL, $bulk_link);
+            curl_setopt($curl, CURLOPT_FILE, $zip_file);
+            $results = curl_exec($curl);
+            curl_close($curl);
+            fclose($zip_file);
+
+            // read bulk download file
+            $zip = new ZipArchive();
+            $file = $zip->open($zip_filename);
+            $lines = explode(PHP_EOL, $zip->getFromIndex(0));
+            // delete header row
+            array_shift($lines);
+            $zip->close();
+            foreach ($lines as $line) {
+                if (!$line) {
+                    continue;
+                }
+                $line = str_getcsv($line);
+                $security = Security::where('ticker', $line[0])->first();
+                if ($security) {
+                    $price = Price::updateOrCreate(
+                        [
+                            'security_id' => $security->id,
+                            'date' => $line[1],
+                        ],
+                        [
+                            'open' => $line[2],
+                            'high' => $line[3],
+                            'low' => $line[4],
+                            'close' => $line[5],
+                            'volume' => $line[6] ?: null,
+                            'dividends' => $line[7],
+                            'close_unadj' => $line[8],
+                            'source_last_updated' => $line[9],
+                        ]
+                    );
+                }
             }
         }
         \Log::info('Price data successfully updated from Quandl.');

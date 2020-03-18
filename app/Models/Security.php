@@ -43,6 +43,14 @@ class Security extends Model
     ];
 
     /**
+     * A security has a source table.
+     */
+    public function source_table()
+    {
+        return $this->belongsTo('App\Models\SourceTable');
+    }
+
+    /**
      * A security has a currency.
      */
     public function currency()

@@ -208,10 +208,30 @@ class SecurityController extends Controller
     public function search(Request $request)
     {
         $query = $request->input('q');
-        $results = Security::where('ticker', 'ILIKE', '%' . $query . '%')
+        $equities_and_funds = Security::where('ticker', 'ILIKE', '%' . $query . '%')
             ->orWhere('name', 'ILIKE', '%' . $query . '%')
-            ->select('id', 'ticker', 'name')
-            ->get();
+            ->select(
+                'id',
+                'source_table_id',
+                DB::raw("CONCAT(ticker, ' - ', name) AS text")
+            )
+            ->get()
+            ->partition(function($security) {
+                $source_table_id = $security->source_table_id;
+                unset($security->source_table_id);
+                return $source_table_id != 3;
+            });
+
+        $results = [
+            [
+                'text' => 'Equities',
+                'children' => $equities_and_funds[0]->values(),
+            ],
+            [
+                'text' => 'Funds',
+                'children' => $equities_and_funds[1]->values(),
+            ]
+        ];
 
         return response()->json($results);
     }

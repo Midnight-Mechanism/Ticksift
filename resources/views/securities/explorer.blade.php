@@ -14,7 +14,7 @@
         </div>
         <div class="row pb-3">
             <div class="col-12">
-                <select id="select-tickers" multiple="multiple" style="display: none"></select>
+                <select id="select-securities" multiple="multiple" style="display: none"></select>
             </div>
         </div>
         <div id="security-results" style="visibility: hidden">
@@ -340,18 +340,18 @@
                     id: id,
                 }).done(function(securities) {
                     for (security of securities) {
-                        if (!$("#select-tickers").val().includes(security.id.toString())) {
+                        if (!$("#select-securities").val().includes(security.id.toString())) {
                             let option = new Option(security.ticker + " - " + security.name, security.id, true, true);
-                            $("#select-tickers").append(option);
+                            $("#select-securities").append(option);
                         }
                     }
-                    $("#select-tickers").trigger("change");
+                    $("#select-securities").trigger("change");
                 });
             }
         }
 
         function getSecurityData() {
-            let ids = $("#select-tickers").val();
+            let ids = $("#select-securities").val();
             let dates = $("#input-dates").val();
 
             $("body").addClass("waiting");
@@ -370,7 +370,7 @@
             });
         }
 
-        $("#select-tickers").select2(({
+        $("#select-securities").select2(({
             placeholder: "Please enter a security ticker or name (AAPL, Apple, etc.)...",
             allowClear: true,
             minimumInputLength: 1,
@@ -381,21 +381,14 @@
                 url: "{{ route('securities.search') }}",
                 delay: 250,
                 processResults: function (data) {
-                    return {
-                        results: $.map(data, function (item) {
-                            return {
-                                text: item.ticker + " - " + item.name,
-                                id: item.id
-                            }
-                        })
-                    };
+                    return {"results": data};
                 },
             },
         })).on("select2:select", function() {
             // clear results to prevent option list getting too large
             $(".select2-results__option").remove();
         }).on("select2:unselect", function () {
-            let vals = $("#select-tickers").val();
+            let vals = $("#select-securities").val();
             if (!vals || !vals.length) {
                 $("#security-results").css("visibility", "hidden");
                 $("body").removeClass("waiting");
@@ -428,7 +421,7 @@
         });
 
         $("#input-dates").change(getSecurityData);
-        $("#select-tickers").change(getSecurityData);
+        $("#select-securities").change(getSecurityData);
 
         $("#select-time-chart-type").select2().on("select2:select", function() {
             $.post("{{ route('securities.store-chart-type') }}", data = {chart_type: $(this).val()});
@@ -442,8 +435,8 @@
 
         @if($old_securities)
             @foreach($old_securities as $security)
-                if (!$("#select-tickers").val().includes("{{ $security->id }}")) {
-                    $("#select-tickers").append(new Option(
+                if (!$("#select-securities").val().includes("{{ $security->id }}")) {
+                    $("#select-securities").append(new Option(
                         "{{ $security->ticker }} - {{ $security->name }}",
                         {{ $security->id }},
                         true,
@@ -451,7 +444,7 @@
                     ));
                 }
             @endforeach
-            $("#select-tickers").trigger("change");
+            $("#select-securities").trigger("change");
         @endif
 
         let tickerToAdd = new URLSearchParams(location.search).get("add_ticker");
@@ -459,11 +452,11 @@
             $.get("{{ route('securities.find') }}", data = {
                 ticker: tickerToAdd,
             }).done(function(security) {
-                if (!$("#select-tickers").val().includes(security.id.toString())) {
+                if (!$("#select-securities").val().includes(security.id.toString())) {
                     let option = new Option(security.ticker + " - " + security.name, security.id, true, true);
-                    $("#select-tickers").append(option);
+                    $("#select-securities").append(option);
                 }
-                $("#select-tickers").trigger("change");
+                $("#select-securities").trigger("change");
             });
         }
     </script>
