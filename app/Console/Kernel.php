@@ -27,9 +27,12 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        $schedule->command('quandl:update')->cron('0 */4 * * *')->then(function() {
-            $this->call('momentum:calculate-presets');
-        });
+        $schedule->command('quandl:update')
+                 ->withoutOverlapping()
+                 ->cron('0 */4 * * *')
+                 ->then(function() {
+                     $this->call('momentum:calculate-presets');
+                 });
     }
 
     /**
