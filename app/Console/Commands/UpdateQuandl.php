@@ -220,8 +220,8 @@ class UpdateQuandl extends Command
 
     private function updatePrices() {
         // get link to bulk download file
-        $curl = curl_init();
         foreach(['SEP', 'SFP'] as $source_table) {
+            $curl = curl_init();
             $url = 'https://www.quandl.com/api/v3/datatables/SHARADAR/' . $source_table;
             $url .= '?api_key=' . env('QUANDL_KEY');
             $url .= '&qopts.export=true';
