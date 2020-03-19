@@ -30,7 +30,7 @@
                 <div class="col-6 col-lg-3">
                     <select id="select-time-chart-scale" style="display: none">
                         <option value="linear" selected>Linear Scale</option>
-                        <option value="logarithmic">Logarithmic Scale</option>
+                        <option value="log">Logarithmic Scale</option>
                     </select>
                 </div>
             </div>
@@ -143,25 +143,12 @@
                 timeLayout.yaxis.tickprefix = null;
             }
 
-            let chartSecurityPrices = _.cloneDeep(securityPrices);
-
-            if (chartScale == "logarithmic") {
-                chartSecurityPrices = chartSecurityPrices.map(security => {
-                    security.prices = security.prices.map( day => {
-                        day.open = Math.log(day.open);
-                        day.high = Math.log(day.high);
-                        day.low = Math.log(day.low);
-                        day.close = Math.log(day.close);
-                        return day;
-                    });
-                    return security;
-                });
-            }
+            timeLayout.yaxis.type = chartScale;
 
             timeConfig.toImageButtonOptions.filename = filename;
             switch (chartType) {
                 case "line":
-                    for (const securityData of Object.values(chartSecurityPrices)) {
+                    for (const securityData of Object.values(securityPrices)) {
                         traces.push({
                             name: securityData.ticker,
                             legendgroup: securityData.ticker,
@@ -178,7 +165,7 @@
                     break;
                 case "candlestick":
                 case "ohlc":
-                    for (const securityData of Object.values(chartSecurityPrices)) {
+                    for (const securityData of Object.values(securityPrices)) {
                         traces.push({
                             name: securityData.ticker,
                             legendgroup: securityData.ticker,
@@ -204,14 +191,14 @@
                     // determine max volume across all securities
                     // this factors into bubble size
                     let maxVolume = 0;
-                    for (const securityData of Object.values(chartSecurityPrices)) {
+                    for (const securityData of Object.values(securityPrices)) {
                         maxVolume = Math.max(
                             maxVolume,
                             Math.max(...securityData.prices.map(a => a.volume))
                         );
                     }
 
-                    for (const securityData of Object.values(chartSecurityPrices)) {
+                    for (const securityData of Object.values(securityPrices)) {
                         let volume = securityData.prices.map(a => a.volume);
 
                         traces.push({
@@ -233,10 +220,6 @@
                     timeLayout.title = "Closing Prices Weighted by Trading Volume";
                     timeLayout.xaxis.rangeslider = null;
                     break;
-            }
-
-            if (chartScale == "logarithmic") {
-                timeLayout.title += " (Logarithmic Scale)";
             }
 
             Plotly.newPlot(
