@@ -2,7 +2,6 @@
 
 use Illuminate\Database\Seeder;
 use App\Models\Security;
-use App\Models\Price;
 use App\Models\SourceTable;
 use Carbon\Carbon;
 
@@ -60,7 +59,7 @@ class PricesTableSeeder extends Seeder
                     }
                     if (count($chunk) > 1000) {
                         $insertCount = $insertCount + count($chunk);
-                        Price::insert($chunk);
+                        DB::table('prices')->insert($chunk);
                         $chunk = [];
                         \Log::info($insertCount . ' inserted');
                     }
@@ -71,7 +70,7 @@ class PricesTableSeeder extends Seeder
             }
 
             $insertCount = $insertCount + count($chunk);
-            Price::insert($chunk);
+            DB::table('prices')->insert($chunk);
             $chunk = [];
             \Log::info($insertCount . ' inserted');
 
