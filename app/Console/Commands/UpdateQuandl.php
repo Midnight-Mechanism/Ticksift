@@ -220,9 +220,10 @@ class UpdateQuandl extends Command
 
     private function updatePrices() {
         // get link to bulk download file
-        foreach(['SEP', 'SFP'] as $source_table) {
+        foreach(['SEP', 'SFP'] as $source_table_name) {
+            $source_table = SourceTable::where('name', $source_table_name)->first();
             $curl = curl_init();
-            $url = 'https://www.quandl.com/api/v3/datatables/SHARADAR/' . $source_table;
+            $url = 'https://www.quandl.com/api/v3/datatables/SHARADAR/' . $source_table_name;
             $url .= '?api_key=' . env('QUANDL_KEY');
             $url .= '&qopts.export=true';
 
@@ -263,7 +264,9 @@ class UpdateQuandl extends Command
                     continue;
                 }
                 $line = str_getcsv($line);
-                $security = Security::where('ticker', $line[0])->first();
+                $security = Security::where('source_table_id', $source_table->id)
+                    ->where('ticker', $line[0])
+                    ->first();
                 if ($security) {
                     Price::updateOrCreate(
                         [
@@ -281,6 +284,8 @@ class UpdateQuandl extends Command
                             'source_last_updated' => $line[9],
                         ]
                     );
+                } else {
+                    \Log::info('Security ' . $line[0] . ' on table ' . $source_table->name . ' not found');
                 }
             }
         }
