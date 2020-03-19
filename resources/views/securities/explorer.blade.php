@@ -448,7 +448,7 @@
         function saveChartData() {
             $.post("{{ route('securities.store-chart-options') }}", data = {
                 chart_type: $("#select-time-chart-type").val(),
-                scale_type: $("#select-time-chart-scale").val()
+                chart_scale: $("#select-time-chart-scale").val()
             });
             buildTimeChart();
         }
