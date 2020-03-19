@@ -19,12 +19,18 @@
         </div>
         <div id="security-results" style="visibility: hidden">
             <div class="row">
-                <div class="col-12 col-lg-6">
+                <div class="col-6 col-lg-3">
                     <select id="select-time-chart-type" style="display: none">
                         <option value="line" selected>Line</option>
                         <option value="candlestick">Candlestick</option>
                         <option value="ohlc">OHLC</option>
                         <option value="bubble">Bubble</option>
+                    </select>
+                </div>
+                <div class="col-6 col-lg-3">
+                    <select id="select-time-chart-scale" style="display: none">
+                        <option value="linear" selected>Linear Scale</option>
+                        <option value="logarithmic">Logarithmic Scale</option>
                     </select>
                 </div>
             </div>
@@ -110,11 +116,15 @@
             }).format(number);
         }
 
-        function buildTimeChart(chartType) {
-            let traces = [];
-            let timeConfig = _.cloneDeep(config);
+        function buildTimeChart() {
+            const chartType = $("#select-time-chart-type").val();
+            const chartScale = $("#select-time-chart-scale").val();
+
             const dates = $("#input-dates").val();
             const tickers = securityPrices.map(a => a.ticker);
+
+            let traces = [];
+            let timeConfig = _.cloneDeep(config);
 
             let filename = [
                 "ticksift",
@@ -133,10 +143,25 @@
                 timeLayout.yaxis.tickprefix = null;
             }
 
+            let chartSecurityPrices = _.cloneDeep(securityPrices);
+
+            if (chartScale == "logarithmic") {
+                chartSecurityPrices = chartSecurityPrices.map(security => {
+                    security.prices = security.prices.map( day => {
+                        day.open = Math.log(day.open);
+                        day.high = Math.log(day.high);
+                        day.low = Math.log(day.low);
+                        day.close = Math.log(day.close);
+                        return day;
+                    });
+                    return security;
+                });
+            }
+
             timeConfig.toImageButtonOptions.filename = filename;
             switch (chartType) {
                 case "line":
-                    for (const securityData of Object.values(securityPrices)) {
+                    for (const securityData of Object.values(chartSecurityPrices)) {
                         traces.push({
                             name: securityData.ticker,
                             legendgroup: securityData.ticker,
@@ -153,7 +178,7 @@
                     break;
                 case "candlestick":
                 case "ohlc":
-                    for (const securityData of Object.values(securityPrices)) {
+                    for (const securityData of Object.values(chartSecurityPrices)) {
                         traces.push({
                             name: securityData.ticker,
                             legendgroup: securityData.ticker,
@@ -179,14 +204,14 @@
                     // determine max volume across all securities
                     // this factors into bubble size
                     let maxVolume = 0;
-                    for (const securityData of Object.values(securityPrices)) {
+                    for (const securityData of Object.values(chartSecurityPrices)) {
                         maxVolume = Math.max(
                             maxVolume,
                             Math.max(...securityData.prices.map(a => a.volume))
                         );
                     }
 
-                    for (const securityData of Object.values(securityPrices)) {
+                    for (const securityData of Object.values(chartSecurityPrices)) {
                         let volume = securityData.prices.map(a => a.volume);
 
                         traces.push({
@@ -209,6 +234,11 @@
                     timeLayout.xaxis.rangeslider = null;
                     break;
             }
+
+            if (chartScale == "logarithmic") {
+                timeLayout.title += " (Logarithmic Scale)";
+            }
+
             Plotly.newPlot(
                 timeChart,
                 traces,
@@ -317,19 +347,11 @@
             // hide correlations and expand time chart if no correlations
             if (correlationTraces[0].z.length > 0) {
                 Plotly.newPlot(correlationChart, correlationTraces, correlationLayout, correlationConfig);
-                $.merge(
-                    $(timeChart).parent(),
-                    $("#select-time-chart-type").parent()
-                ).addClass("col-lg-6");
             }
             else {
                 Plotly.purge(correlationChart);
-                $.merge(
-                    $(timeChart).parent(),
-                    $("#select-time-chart-type").parent()
-                ).removeClass("col-lg-6");
             }
-            buildTimeChart($("#select-time-chart-type").val());
+            buildTimeChart();
         }
 
         function getPortfolioData() {
@@ -423,14 +445,31 @@
         $("#input-dates").change(getSecurityData);
         $("#select-securities").change(getSecurityData);
 
-        $("#select-time-chart-type").select2().on("select2:select", function() {
-            $.post("{{ route('securities.store-chart-type') }}", data = {chart_type: $(this).val()});
-            buildTimeChart($(this).val());
+        function saveChartData() {
+            $.post("{{ route('securities.store-chart-options') }}", data = {
+                chart_type: $("#select-time-chart-type").val(),
+                scale_type: $("#select-time-chart-scale").val()
+            });
+            buildTimeChart();
+        }
+
+        $("#select-time-chart-type").select2({
+            minimumResultsForSearch: -1,
         });
+        $("#select-time-chart-type").change(saveChartData);
+
+        $("#select-time-chart-scale").select2({
+            minimumResultsForSearch: -1,
+        });
+        $("#select-time-chart-scale").change(saveChartData);
 
         @if(Session::has('chart_type'))
             $("#select-time-chart-type").val("{{ Session::get('chart_type') }}");
-            $("#select-time-chart-type").trigger("change");
+            $("#select-time-chart-type").trigger("change.select2");
+        @endif
+        @if(Session::has('chart_scale'))
+            $("#select-time-chart-scale").val("{{ Session::get('chart_scale') }}");
+            $("#select-time-chart-scale").trigger("change.select2");
         @endif
 
         @if($old_securities)

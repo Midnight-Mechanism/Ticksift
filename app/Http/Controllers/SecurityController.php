@@ -298,12 +298,14 @@ class SecurityController extends Controller
     }
 
     /**
-     * Store chart type in session
+     * Store chart options in session
      *
-     * @param chart_type
      */
-    public function storeChartType(Request $request) {
-        $request->session()->put('chart_type', $request->input('chart_type'));
+    public function storeChartOptions(Request $request) {
+        $request->session()->put([
+            'chart_type' => $request->input('chart_type'),
+            'chart_scale' => $request->input('chart_scale'),
+        ]);
     }
 
 }
