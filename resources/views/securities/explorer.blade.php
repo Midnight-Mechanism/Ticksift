@@ -237,6 +237,7 @@
                 z: [],
                 type: "heatmap",
                 colorscale: "Electric",
+                hovertemplate: "%{x} to %{y} correlation: %{z}<extra></extra>",
                 zmin: -1,
                 zmax: 1,
             }];
