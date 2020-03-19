@@ -27,6 +27,11 @@ class SecuritiesTableSeeder extends Seeder
         $header = TRUE;
         while (($line = fgetcsv($file)) !== FALSE) {
             if (!$header) {
+                // only include securities for which we have price data
+                if (!in_array($line[0], ['SEP', 'SFP'])) {
+                    continue;
+                }
+
                 $source_table_id = SourceTable::firstOrCreate(['name' => $line[0]])->id;
                 $exchange_id = Exchange::firstOrCreate(['name' => $line[4]])->id;
                 $category_id = Category::firstOrCreate(['name' => $line[6]])->id;
@@ -53,10 +58,10 @@ class SecuritiesTableSeeder extends Seeder
 
                 $security = Security::updateOrCreate(
                     [
+                        'source_table_id' => $source_table_id,
                         'source_id' => $line[1]
                     ],
                     [
-                        'source_table_id' => $source_table_id,
                         'ticker' => $line[2],
                         'name' => $line[3],
                         'exchange_id' => $exchange_id,

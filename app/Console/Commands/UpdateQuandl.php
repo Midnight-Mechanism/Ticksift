@@ -51,7 +51,7 @@ class UpdateQuandl extends Command
     public function handle()
     {
         $this->updateSecurities();
-        $this->updateActions();
+        //$this->updateActions();
         $this->updatePrices();
     }
 
@@ -95,11 +95,11 @@ class UpdateQuandl extends Command
         array_shift($lines);
         $zip->close();
         foreach ($lines as $line) {
-            if (!$line) {
+            if (!$line || !SourceTable::where('name', $line[0])->exists()) {
                 continue;
             }
             $line = str_getcsv($line);
-            $source_table_id = SourceTable::firstOrCreate(['name' => $line[0]])->id;
+            $source_table_id = SourceTable::where('name', $line[0])->name;
             $exchange_id = Exchange::firstOrCreate(['name' => $line[4]])->id;
             $category_id = Category::firstOrCreate(['name' => $line[6]])->id;
             $cusips = explode(' ', $line[7]);
@@ -125,10 +125,10 @@ class UpdateQuandl extends Command
 
             $security = Security::updateOrCreate(
                 [
+                    'source_table_id' => $source_table_id,
                     'source_id' => $line[1],
                 ],
                 [
-                    'source_table_id' => $source_table_id,
                     'ticker' => $line[2],
                     'name' => $line[3],
                     'exchange_id' => $exchange_id,
@@ -265,7 +265,7 @@ class UpdateQuandl extends Command
                 $line = str_getcsv($line);
                 $security = Security::where('ticker', $line[0])->first();
                 if ($security) {
-                    $price = Price::updateOrCreate(
+                    Price::updateOrCreate(
                         [
                             'security_id' => $security->id,
                             'date' => $line[1],
