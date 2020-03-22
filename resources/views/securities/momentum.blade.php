@@ -49,7 +49,7 @@
                 responsive: 0,
                 minWidth: 60,
                 cellClick: function(event, cell) {
-                    window.location = "/securities/explorer?add_ticker=" + cell._cell.value;
+                    window.location = "{{ route('securities.explorer') }}?add_tickers=" + cell._cell.value;
                 },
             },
             {
@@ -267,7 +267,7 @@
             treemapChart.on('plotly_treemapclick', function(data) {
                 ticker = data.points[0].customdata;
                 if (ticker) {
-                    window.location = "/securities/explorer?add_ticker=" + ticker;
+                    window.location = "{{ route('securities.explorer') }}?add_tickers=" + ticker;
                     return false;
                 }
             });
@@ -276,7 +276,7 @@
         function updateMomentum() {
             $("body").addClass("waiting");
             $(".chart").addClass("outdated");
-            $.post("{{ route('securities.get-momentum') }}", data = {
+            $.get("{{ route('securities.get-momentum') }}", data = {
                 dates: $("#input-dates").val(),
                 min_volume: $("#input-min-volume").val(),
                 min_close: $("#input-min-close").val(),

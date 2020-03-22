@@ -1,8 +1,8 @@
-<div class="modal fade" id="saveSim" role="dialog" tabindex="-1">
+<div class="modal fade" id="create-portfolio" role="dialog" tabindex="-1">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Save Simulation</h5>
+                <h5 class="modal-title">Create Portfolio</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                     <span class="sr-only">close</span>
@@ -10,10 +10,9 @@
             </div>
             {!! Form::open([
                 'route' => [
-                    'simulations.update',
-                    $simulation->id,
+                    'portfolios.store'
                 ],
-                'method' => 'PUT',
+                'method' => 'POST',
                 'role' => 'form',
                 'class' => 'needs-validation',
             ]) !!}
@@ -25,16 +24,8 @@
                 {!! Form::label('name', 'Name', [
                     'class' => 'control-label'
                 ]); !!}
-                {!! Form::text('name', $simulation->name, [
+                {!! Form::text('name', NULL, [
                     'id' => 'name',
-                    'class' => 'form-control',
-                ]) !!}
-
-                {!! Form::label('description', 'Description', [
-                    'class' => 'control-label'
-                ]); !!}
-                {!! Form::textarea('description', $simulation->description, [
-                    'id' => 'description',
                     'class' => 'form-control',
                 ]) !!}
 
@@ -42,7 +33,7 @@
             <div class="modal-footer">
                 <div class="d-flex justify-content-around">
                     <span class="float-right mb-1">
-                        {!! Form::button('Save', [
+                        {!! Form::button('Create', [
                             'class' => 'btn btn-success mx-2',
                             'type' => 'submit',
                         ]) !!}

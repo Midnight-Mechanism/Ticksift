@@ -8,27 +8,37 @@
     <div class="container-fluid">
         @include('partials/date-picker')
         <div class="row pb-3">
-            <div class="col-12">
-                <select id="select-portfolios" style="display: none"></select>
+            <div class="col-12 d-flex">
+                <select id="select-portfolios" class="invisible"></select>
             </div>
         </div>
         <div class="row pb-3">
-            <div class="col-12">
-                <select id="select-securities" multiple="multiple" style="display: none"></select>
+            <div class="col-12 d-flex">
+                <select id="select-securities" multiple="multiple" class="invisible"></select>
+                @auth
+                    <button
+                        id="create-portfolio-button"
+                        class="btn btn-primary d-none"
+                        data-toggle="modal"
+                        data-target="#create-portfolio">
+                        create Portfolio
+                    </button>
+                    @include('modals.create-portfolio')
+                @endauth
             </div>
         </div>
-        <div id="security-results" style="visibility: hidden">
+        <div id="security-results" class="invisible">
             <div class="row">
-                <div class="col-6 col-lg-3">
-                    <select id="select-time-chart-type" style="display: none">
+                <div class="col-6 col-lg-3 d-flex">
+                    <select id="select-time-chart-type" class="invisible">
                         <option value="line" selected>Line</option>
                         <option value="candlestick">Candlestick</option>
                         <option value="ohlc">OHLC</option>
                         <option value="bubble">Bubble</option>
                     </select>
                 </div>
-                <div class="col-6 col-lg-3">
-                    <select id="select-time-chart-scale" style="display: none">
+                <div class="col-6 col-lg-3 d-flex">
+                    <select id="select-time-chart-scale" class="invisible">
                         <option value="linear" selected>Linear Scale</option>
                         <option value="log">Logarithmic Scale</option>
                     </select>
@@ -153,7 +163,7 @@
                             name: securityData.ticker,
                             legendgroup: securityData.ticker,
                             type: "scattergl",
-                            mode: "line",
+                            mode: "lines",
                             x: securityData.prices.map(a => a.date),
                             y: securityData.prices.map(a => a.close),
                             text: securityData.prices.map(a => formatCurrency(a.close, securityData.currency_code)),
@@ -342,8 +352,8 @@
             let id = $("#select-portfolios").val();
 
             if (id) {
-                $.post("{{ route('portfolios.securities') }}", data = {
-                    id: id,
+                $.get("{{ route('portfolios.securities') }}", data = {
+                    portfolio_ids: [id],
                 }).done(function(securities) {
                     for (security of securities) {
                         if (!$("#select-securities").val().includes(security.id.toString())) {
@@ -357,19 +367,20 @@
         }
 
         function getSecurityData() {
-            let ids = $("#select-securities").val();
+            let security_ids = $("#select-securities").val();
             let dates = $("#input-dates").val();
 
             $("body").addClass("waiting");
             $(".chart").addClass("outdated");
-            $.post("{{ route('securities.prices') }}", data = {
-                ids: ids,
+            $.get("{{ route('securities.prices') }}", data = {
+                security_ids: security_ids,
                 dates: dates,
             }).done(function(prices) {
                 securityPrices = Object.values(prices);
-                if (ids.length > 0) {
+                if (security_ids.length > 0) {
                     processChartData();
-                    $("#security-results").css("visibility", "visible");
+                    $("#create-portfolio-button").removeClass("d-none");
+                    $("#security-results").removeClass("invisible");
                 }
                 $("body").removeClass("waiting");
                 $(".chart").removeClass("outdated");
@@ -396,13 +407,19 @@
         }).on("select2:unselect", function () {
             let vals = $("#select-securities").val();
             if (!vals || !vals.length) {
-                $("#security-results").css("visibility", "hidden");
+                $("#create-portfolio-button").addClass("d-none");
+                $("#security-results").addClass("invisible");
                 $("body").removeClass("waiting");
             }
         });
 
         $("#select-portfolios").select2(({
-            placeholder: "Add entire portfolios (e.g. FAANG)...",
+            @auth
+                placeholder: "Add any of your portfolios...",
+            @endauth
+            @guest
+                placeholder: "Add entire portfolios (e.g. FAANG)...",
+            @endguest
             minimumInputLength: 1,
             escapeMarkup: function (text) {
                 return text;
@@ -470,14 +487,31 @@
             $("#select-securities").trigger("change");
         @endif
 
-        let tickerToAdd = new URLSearchParams(location.search).get("add_ticker");
-        if (tickerToAdd) {
+        let portfoliosToAdd = new URLSearchParams(location.search).get("add_portfolios");
+        if (portfoliosToAdd) {
+            $.get("{{ route('portfolios.securities') }}", data = {
+                portfolio_ids: portfoliosToAdd.split(",")
+            }).done(function(securities) {
+                for (let security of securities) {
+                    if (!$("#select-securities").val().includes(security.id.toString())) {
+                        let option = new Option(security.ticker + " - " + security.name, security.id, true, true);
+                        $("#select-securities").append(option);
+                    }
+                }
+                $("#select-securities").trigger("change");
+            });
+        }
+
+        let tickersToAdd = new URLSearchParams(location.search).get("add_tickers");
+        if (tickersToAdd) {
             $.get("{{ route('securities.find') }}", data = {
-                ticker: tickerToAdd,
-            }).done(function(security) {
-                if (!$("#select-securities").val().includes(security.id.toString())) {
-                    let option = new Option(security.ticker + " - " + security.name, security.id, true, true);
-                    $("#select-securities").append(option);
+                tickers: tickersToAdd.split(","),
+            }).done(function(securities) {
+                for (let security of securities) {
+                    if (!$("#select-securities").val().includes(security.id.toString())) {
+                        let option = new Option(security.ticker + " - " + security.name, security.id, true, true);
+                        $("#select-securities").append(option);
+                    }
                 }
                 $("#select-securities").trigger("change");
             });

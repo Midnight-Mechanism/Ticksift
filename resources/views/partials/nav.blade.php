@@ -21,13 +21,13 @@
                         <a class="nav-link" href="{{ route('securities.momentum') }}">Momentum</a>
                     </li>
                 @endif
-                @if(Route::currentRouteName() !== 'simulations.index')
-                    <!--
+                @auth
+                    @if(Route::currentRouteName() !== 'portfolios.index')
                         <li>
-                        <a class="nav-link" href="{{ route('simulations.index') }}">Simulations</a>
+                            <a class="nav-link" href="{{ route('portfolios.index') }}">Portfolios</a>
                         </li>
-                    -->
-                @endif
+                    @endif
+                @endauth
             </ul>
             {{-- Right Side Of Navbar --}}
             <ul class="navbar-nav ml-auto">
