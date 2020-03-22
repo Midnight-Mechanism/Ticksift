@@ -50,7 +50,7 @@ deploy_review:
     - eval $(ssh-agent -s)
     - echo "$DEPLOY_KEY" | ssh-add -
   script:
-    - rsync -a --exclude=.git ./ gitlab-runner@$REVIEW_DOMAIN:/web/review/$CI_ENVIRONMENT_SLUG
+    - rsync -a --exclude=.git --delete ./ gitlab-runner@$REVIEW_DOMAIN:/web/review/$CI_ENVIRONMENT_SLUG
     - ssh gitlab-runner@$REVIEW_DOMAIN "php /web/review/$CI_ENVIRONMENT_SLUG/artisan migrate --force"
   environment:
     name: review/$CI_PROJECT_PATH/$CI_MERGE_REQUEST_SOURCE_BRANCH_NAME

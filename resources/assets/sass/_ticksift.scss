@@ -26,6 +26,7 @@ h1, h2, h3, h4, h5 {
     letter-spacing: 1px;
     border-radius: 0.5rem;
     text-transform: uppercase;
+    white-space: nowrap;
     &:focus, &:active {
         box-shadow: none !important;
     }
@@ -44,11 +45,6 @@ h1, h2, h3, h4, h5 {
 .btn-success {
     @include button-variant($brand-success, darken($brand-success, 10%));
     color: white;
-}
-
-.btn:not(.btn-link) {
-    padding-left: 0.5rem !important;
-    padding-right: 0.5rem !important;
 }
 
 a:not(.btn), .btn-link {
@@ -107,7 +103,7 @@ a:not(.btn), .btn-link {
 }
 
 .select2 {
-    width: 100% !important;
+    flex-grow: 1;
 }
 
 input {

@@ -195,8 +195,14 @@ class SecurityController extends Controller
      */
     public function find(Request $request)
     {
-        $ticker = $request->input('ticker');
-        $security = Security::where('ticker', $ticker)->first();
+        $tickers = $request->input('tickers');
+        $security = Security::whereIn('ticker', $tickers)
+            ->select(
+                'id',
+                'ticker',
+                'name'
+            )
+            ->get();
 
         return response()->json($security);
     }
@@ -245,7 +251,7 @@ class SecurityController extends Controller
     public function prices(Request $request)
     {
         $dates = explode(' ', $request->input('dates'));
-        $security_ids = $request->input('ids');
+        $security_ids = $request->input('security_ids');
 
         $start_date = $dates[0];
         if (count($dates) > 1) {

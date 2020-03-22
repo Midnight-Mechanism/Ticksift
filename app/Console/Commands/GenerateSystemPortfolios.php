@@ -39,11 +39,11 @@ class GenerateSystemPortfolios extends Command
      */
     public function handle()
     {
-        $portfolio_faang = Portfolio::firstOrCreate([
-            'name' => 'FAANG',
-        ]);
-        $portfolio_faang->securities()->detach();
-        $portfolio_faang->securities()->attach([
+        $portfolio_faang = Portfolio::doesntHave('users')
+            ->firstOrCreate([
+                'name' => 'FAANG',
+            ]);
+        $portfolio_faang->securities()->sync([
             Security::where('ticker', 'FB')->first()->id,
             Security::where('ticker', 'AMZN')->first()->id,
             Security::where('ticker', 'AAPL')->first()->id,

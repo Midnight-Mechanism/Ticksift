@@ -27,12 +27,6 @@ Route::group(['middleware' => ['web']], function () {
     Route::get('activation', 'Auth\ActivateController@resend')->name('authenticated.activation-resend');
     Route::get('exceeded', 'Auth\ActivateController@exceeded')->name('exceeded');
 
-    Route::resource('simulations', 'SimulationController', [
-        'except' => [
-            'edit',
-        ],
-    ]);
-
     Route::get('securities/explorer', 'SecurityController@explorer')->name('securities.explorer');
     Route::get('securities/momentum', 'SecurityController@momentum')->name('securities.momentum');
 
@@ -40,9 +34,10 @@ Route::group(['middleware' => ['web']], function () {
     Route::get('securities/search', 'SecurityController@search')->name('securities.search');
     Route::get('portfolios/search', 'PortfolioController@search')->name('portfolios.search');
 
-    Route::post('portfolios/securities', 'PortfolioController@securities')->name('portfolios.securities');
-    Route::post('securities/prices', 'SecurityController@prices')->name('securities.prices');
-    Route::post('securities/get-momentum', 'SecurityController@getMomentum')->name('securities.get-momentum');
+    Route::get('portfolios/securities', 'PortfolioController@securities')->name('portfolios.securities');
+    Route::get('securities/prices', 'SecurityController@prices')->name('securities.prices');
+    Route::get('securities/get-momentum', 'SecurityController@getMomentum')->name('securities.get-momentum');
+
     Route::post('securities/store-chart-options', 'SecurityController@storeChartOptions')->name('securities.store-chart-options');
 
 });
@@ -56,14 +51,17 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('/activation-required', 'Auth\ActivateController@activationRequired')->name('activation-required');
     Route::get('logout', 'Auth\LoginController@logout')->name('logout');
 
-});
-
-// Registered and is current user routes.
-Route::group(['middleware' => ['auth', 'activated', 'currentUser']], function () {
-
     Route::get('profile', 'UserController@profile')->name('profile');
     Route::post('update-password', 'UserController@updatePassword')->name('update-password');
     Route::post('update-profile', 'UserController@updateProfile')->name('update-profile');
+
+    Route::resource('portfolios', 'PortfolioController', [
+        'except' => [
+            'create',
+            'show',
+            'edit',
+        ],
+    ]);
 
 });
 

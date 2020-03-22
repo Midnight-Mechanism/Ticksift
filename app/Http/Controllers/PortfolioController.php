@@ -8,6 +8,71 @@ use Auth;
 
 class PortfolioController extends Controller
 {
+
+    /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function index()
+    {
+        $user = Auth::user();
+        return view('portfolios.index')->with(
+            'portfolios',
+            $user->portfolios()
+                 ->with('securities:securities.id,ticker')
+                 ->get()
+                 ->map(function($item, $key) {
+                     return [
+                         'id' => $item->id,
+                         'name' => $item->name,
+                         'tickers' => $item->securities->pluck('ticker')->join(', '),
+                         'created_at' => $item->created_at,
+                     ];
+                 })
+        );
+    }
+
+    /**
+     * Store a new resource.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function store(Request $request)
+    {
+        $user = Auth::user();
+        $security_ids = $request->session()->get('security_ids');
+
+        $portfolio = Portfolio::create([
+            'name' => $request->input('name'),
+        ]);
+        $portfolio->users()->attach($user->id);
+        $portfolio->securities()->attach($security_ids);
+
+        return back()->with('success', 'Your portfolio has been saved.');
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     *
+     * @param int $id
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function destroy($id)
+    {
+        $user = Auth::user();
+        $portfolio = Portfolio::findOrFail($id);
+
+        if ($user->can('delete', $portfolio)) {
+            $portfolio->delete();
+            return back()->with('success', 'The portfolio was deleted.');
+        }
+
+        return back()->with('error', 'You do not have permission to delete this portfolio.');
+    }
+
     /**
      * Search for the specified resource.
      *
@@ -15,9 +80,20 @@ class PortfolioController extends Controller
      */
     public function search(Request $request)
     {
+        $user = Auth::user();
         $query = $request->input('q');
-        $results = Portfolio::where('name', 'ILIKE', '%' . $query . '%')->get();
-        return response()->json($results);
+
+        if (isset($user)) {
+            $portfolios = $user->portfolios();
+        } else {
+            $portfolios = Portfolio::doesntHave('users');
+        }
+
+        return response()->json(
+            $portfolios
+                ->where('name', 'ILIKE', '%' . $query . '%')
+                ->get()
+        );
     }
 
     /**
@@ -27,15 +103,29 @@ class PortfolioController extends Controller
      */
     public function securities(Request $request)
     {
-        $portfolio = Portfolio::findOrFail($request->input('id'));
-        $securities = $portfolio
-            ->securities()
-            ->select(
-                'securities.id',
-                'securities.ticker',
-                'securities.name'
-            )
-            ->get();
+        $user = Auth::user();
+        $portfolio_ids = $request->input('portfolio_ids');
+
+        $securities = [];
+        foreach($portfolio_ids as $portfolio_id) {
+            $portfolio = Portfolio::find($portfolio_id);
+            if (
+                (!isset($user) && $portfolio->users->isEmpty()) ||
+                (isset($user) && $user->can('view', $portfolio))
+            ) {
+                $securities = array_merge($securities, $portfolio
+                    ->securities()
+                    ->select(
+                        'securities.id',
+                        'securities.ticker',
+                        'securities.name'
+                    )
+                    ->get()
+                    ->toArray()
+                );
+            }
+
+        }
         return response()->json($securities, 200, [], JSON_NUMERIC_CHECK);
     }
 }
