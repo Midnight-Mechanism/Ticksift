@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\SourceTable;
 use App\Models\Price;
 use App\Models\Security;
 use DB;
@@ -215,6 +216,7 @@ class SecurityController extends Controller
     public function search(Request $request)
     {
         $query = $request->input('q');
+        $sep_table = SourceTable::where('name', 'SEP')->first();
         $equities_and_funds = Security::where('ticker', 'ILIKE', '%' . $query . '%')
             ->orWhere('name', 'ILIKE', '%' . $query . '%')
             ->select(
@@ -223,10 +225,10 @@ class SecurityController extends Controller
                 DB::raw("CONCAT(ticker, ' - ', name) AS text")
             )
             ->get()
-            ->partition(function($security) {
+            ->partition(function($security) use ($sep_table) {
                 $source_table_id = $security->source_table_id;
                 unset($security->source_table_id);
-                return $source_table_id != 3;
+                return $source_table_id == $sep_table->id;
             });
 
         $results = [
