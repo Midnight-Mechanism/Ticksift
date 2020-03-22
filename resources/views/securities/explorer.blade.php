@@ -21,7 +21,7 @@
                         class="btn btn-primary d-none"
                         data-toggle="modal"
                         data-target="#create-portfolio">
-                        create Portfolio
+                        Create Portfolio
                     </button>
                     @include('modals.create-portfolio')
                 @endauth
