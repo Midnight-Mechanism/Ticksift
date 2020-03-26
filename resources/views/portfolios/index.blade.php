@@ -79,7 +79,7 @@
                 },
             ],
             layout: "fitColumns",
-            placeholder: "You don't have any saved portfolios. Try saving a new portfolio in the <a href='{{ route('securities.explorer') }}'>Security Explorer</a>!",
+            placeholder: "You don't have any saved portfolios.",
             rowSelected: function(row) {
                 fetchPortfolioData([row._row.data.id]);
             },
