@@ -79,7 +79,7 @@
                 },
             ],
             layout: "fitColumns",
-            placeholder: "You don't have any saved portfolios.",
+            placeholder: "Try saving a portfolio below!",
             rowSelected: function(row) {
                 fetchPortfolioData([row._row.data.id]);
             },
