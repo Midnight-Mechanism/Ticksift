@@ -6,27 +6,13 @@
 
 @section('content')
     <div class="container-fluid">
-        @include('partials/date-picker')
+        @include('partials.date-picker')
         <div class="row pb-3">
             <div class="col-12 d-flex">
                 <select id="select-portfolios" class="invisible"></select>
             </div>
         </div>
-        <div class="row pb-3">
-            <div class="col-12 d-flex">
-                <select id="select-securities" multiple="multiple" class="invisible"></select>
-                @auth
-                    <button
-                        id="create-portfolio-button"
-                        class="btn btn-primary d-none"
-                        data-toggle="modal"
-                        data-target="#create-portfolio">
-                        Create Portfolio
-                    </button>
-                    @include('modals.create-portfolio')
-                @endauth
-            </div>
-        </div>
+        @include('partials.security-picker')
         <div id="security-results" class="invisible">
             <div class="row">
                 <div class="col-6 col-lg-3 d-flex">
@@ -57,7 +43,8 @@
 @endsection
 
 @section('footer_scripts')
-    @include('scripts/date-picker')
+    @include('scripts.date-picker')
+    @include('scripts.security-picker')
     <script type="text/javascript">
 
         const chartColor = "#000F0F";
@@ -354,15 +341,7 @@
             if (id) {
                 $.get("{{ route('portfolios.securities') }}", data = {
                     portfolio_ids: [id],
-                }).done(function(securities) {
-                    for (security of securities) {
-                        if (!$("#select-securities").val().includes(security.id.toString())) {
-                            let option = new Option(security.ticker + " - " + security.name, security.id, true, true);
-                            $("#select-securities").append(option);
-                        }
-                    }
-                    $("#select-securities").trigger("change");
-                });
+                }).done(appendSecurities);
             }
         }
 
@@ -387,29 +366,10 @@
             });
         }
 
-        $("#select-securities").select2(({
-            placeholder: "Please enter a security ticker or name (AAPL, Apple, etc.)...",
-            allowClear: true,
-            minimumInputLength: 1,
-            escapeMarkup: function (text) {
-                return text;
-            },
-            ajax: {
-                url: "{{ route('securities.search') }}",
-                delay: 250,
-                processResults: function (data) {
-                    return {"results": data};
-                },
-            },
-        })).on("select2:select", function() {
-            // clear results to prevent option list getting too large
-            $(".select2-results__option").remove();
-        }).on("select2:unselect", function () {
+        $("#select-securities").on("select2:unselect", function () {
             let vals = $("#select-securities").val();
             if (!vals || !vals.length) {
-                $("#create-portfolio-button").addClass("d-none");
                 $("#security-results").addClass("invisible");
-                $("body").removeClass("waiting");
             }
         });
 
@@ -440,14 +400,14 @@
             },
         })).on("select2:select", function() {
             getPortfolioData();
-            $("#select-portfolios").val(null).trigger("change");
+            $("#select-portfolios").empty();
         });
 
         $("#input-dates").change(getSecurityData);
         $("#select-securities").change(getSecurityData);
 
         function saveChartData() {
-            $.post("{{ route('securities.store-chart-options') }}", data = {
+            $.post("{{ route('users.store-chart-options') }}", data = {
                 chart_type: $("#select-time-chart-type").val(),
                 chart_scale: $("#select-time-chart-scale").val()
             });
@@ -473,48 +433,23 @@
             $("#select-time-chart-scale").trigger("change.select2");
         @endif
 
-        @if($old_securities)
-            @foreach($old_securities as $security)
-                if (!$("#select-securities").val().includes("{{ $security->id }}")) {
-                    $("#select-securities").append(new Option(
-                        "{{ $security->ticker }} - {{ $security->name }}",
-                        {{ $security->id }},
-                        true,
-                        true,
-                    ));
-                }
-            @endforeach
-            $("#select-securities").trigger("change");
+        @if($securities = \App\Models\Security::findMany(Session::get('security_ids'), ['id', 'ticker', 'name']))
+            appendSecurities({!! $securities !!});
         @endif
+        $("#select-securities").trigger("change");
 
         let portfoliosToAdd = new URLSearchParams(location.search).get("add_portfolios");
         if (portfoliosToAdd) {
             $.get("{{ route('portfolios.securities') }}", data = {
                 portfolio_ids: portfoliosToAdd.split(",")
-            }).done(function(securities) {
-                for (let security of securities) {
-                    if (!$("#select-securities").val().includes(security.id.toString())) {
-                        let option = new Option(security.ticker + " - " + security.name, security.id, true, true);
-                        $("#select-securities").append(option);
-                    }
-                }
-                $("#select-securities").trigger("change");
-            });
+            }).done(appendSecurities);
         }
 
         let tickersToAdd = new URLSearchParams(location.search).get("add_tickers");
         if (tickersToAdd) {
             $.get("{{ route('securities.find') }}", data = {
                 tickers: tickersToAdd.split(","),
-            }).done(function(securities) {
-                for (let security of securities) {
-                    if (!$("#select-securities").val().includes(security.id.toString())) {
-                        let option = new Option(security.ticker + " - " + security.name, security.id, true, true);
-                        $("#select-securities").append(option);
-                    }
-                }
-                $("#select-securities").trigger("change");
-            });
+            }).done(appendSecurities);
         }
     </script>
 @endsection

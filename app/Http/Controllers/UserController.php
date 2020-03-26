@@ -80,4 +80,15 @@ class UserController extends Controller
     {
         return redirect()->route('securities.explorer');
     }
+
+    /**
+     * Store chart options in session
+     *
+     */
+    public function storeChartOptions(Request $request) {
+        $request->session()->put([
+            'chart_type' => $request->input('chart_type'),
+            'chart_scale' => $request->input('chart_scale'),
+        ]);
+    }
 }

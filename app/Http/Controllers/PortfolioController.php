@@ -42,7 +42,7 @@ class PortfolioController extends Controller
     public function store(Request $request)
     {
         $user = Auth::user();
-        $security_ids = $request->session()->get('security_ids');
+        $security_ids = explode(',', $request->input('security_ids'));
 
         $portfolio = Portfolio::create([
             'name' => $request->input('name'),
@@ -51,6 +51,26 @@ class PortfolioController extends Controller
         $portfolio->securities()->attach($security_ids);
 
         return back()->with('success', 'Your portfolio has been saved.');
+    }
+
+    /**
+     * Update an existing resource.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function update(Request $request, $id)
+    {
+        $user = Auth::user();
+        $portfolio = Portfolio::findOrFail($id);
+        $security_ids = explode(',', $request->input('security_ids'));
+
+        if ($user->can('update', $portfolio)) {
+            $portfolio->securities()->sync($security_ids);
+            return back()->with('success', 'Your portfolio has been updated.');
+        }
+        return back()->with('error', 'You do not have permission to update this portfolio.');
     }
 
     /**

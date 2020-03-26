@@ -63,8 +63,12 @@ class SecurityController extends Controller
      * @param use_cached
      * @return array
      */
-    public static function calculateMomentum($start_date, $end_date, $use_cached = TRUE) {
+    public static function calculateMomentum($start_date, $end_date, $use_cached = TRUE, $security_ids = null) {
         $cache_key = 'momentum';
+
+        if ($security_ids) {
+            $cache_key .= '-' . implode('-', $security_ids);
+        }
 
         $cache_key .= '-start-' . $start_date;
         $cache_key .= '-end-' . $end_date;
@@ -81,22 +85,27 @@ class SecurityController extends Controller
             ->join('securities', 'prices.security_id', 'securities.id')
             ->join('industries', 'securities.industry_id', 'industries.id')
             ->join('sectors', 'industries.sector_id', 'sectors.id')
-            ->join('currencies', 'securities.currency_id', 'currencies.id')
-            ->where('scale_marketcap', '>', 0)
-            ->select(
-                'ticker',
-                'securities.name',
-                'industries.name AS industry',
-                'sectors.name AS sector',
-                'sectors.color AS sector_color',
-                'scale_marketcap',
-                'currencies.code AS currency_code',
-                'date',
-                'close',
-                'volume'
-            )
-            ->distinct('ticker')
-            ->orderBy('ticker');
+            ->join('currencies', 'securities.currency_id', 'currencies.id');
+
+        if ($security_ids) {
+            $query->whereIn('security_id', $security_ids);
+        } else {
+            $query->where('scale_marketcap', '>=', 5);
+        }
+
+        $query->select(
+            'ticker',
+            'securities.name',
+            'industries.name AS industry',
+            'sectors.name AS sector',
+            'sectors.color AS sector_color',
+            'scale_marketcap',
+            'currencies.code AS currency_code',
+            'date',
+            'close',
+            'volume'
+        )->distinct('ticker')
+         ->orderBy('ticker');
 
         $earliest_prices = (clone $query)->oldest('date')->get();
         $latest_prices = $query->latest('date')->get();
@@ -148,7 +157,7 @@ class SecurityController extends Controller
             ]);
         }
 
-        $results = $this->calculateMomentum($start_date, $end_date);
+        $results = $this->calculateMomentum($start_date, $end_date, TRUE, $request->input('security_ids'));
 
         return response()->json($results, 200, [], JSON_NUMERIC_CHECK);
     }
@@ -160,20 +169,7 @@ class SecurityController extends Controller
      */
     public function explorer(Request $request)
     {
-        $old_dates = $request->session()->get('security_dates');
-        $old_security_ids = $request->session()->get('security_ids');
-
-        $old_securities = [];
-
-        if ($old_security_ids) {
-            $old_securities = Security::whereIn('id', $old_security_ids)
-                ->select('id', 'ticker', 'name')
-                ->get();
-        }
-
-        return view('securities.explorer')
-            ->with('old_dates', $old_dates)
-            ->with('old_securities', $old_securities);
+        return view('securities.explorer');
     }
 
     /**
@@ -304,17 +300,6 @@ class SecurityController extends Controller
         });
 
         return response()->json($security_prices->values(), 200, [], JSON_NUMERIC_CHECK);
-    }
-
-    /**
-     * Store chart options in session
-     *
-     */
-    public function storeChartOptions(Request $request) {
-        $request->session()->put([
-            'chart_type' => $request->input('chart_type'),
-            'chart_scale' => $request->input('chart_scale'),
-        ]);
     }
 
 }

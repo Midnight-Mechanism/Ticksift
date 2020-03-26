@@ -9,8 +9,9 @@
                 </button>
             </div>
             {!! Form::open([
+                'id' => 'create-portfolio-form',
                 'route' => [
-                    'portfolios.store'
+                    'portfolios.store',
                 ],
                 'method' => 'POST',
                 'role' => 'form',
