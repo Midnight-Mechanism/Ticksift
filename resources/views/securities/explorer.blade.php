@@ -360,6 +360,8 @@
                     processChartData();
                     $("#create-portfolio-button").removeClass("d-none");
                     $("#security-results").removeClass("invisible");
+                } else {
+                    $("#create-portfolio-button").addClass("d-none");
                 }
                 $("body").removeClass("waiting");
                 $(".chart").removeClass("outdated");
