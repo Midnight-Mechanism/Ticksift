@@ -38,7 +38,10 @@
                 responsive: 0,
                 minWidth: 60,
                 cellClick: function(event, cell) {
-                    window.location = "{{ route('securities.explorer') }}?add_tickers=" + cell._cell.value;
+                    let ticker = cell._cell.value;
+                    if (ticker) {
+                        window.location = "{{ route('securities.explorer') }}?add_tickers=" + ticker;
+                    }
                 },
             },
             {

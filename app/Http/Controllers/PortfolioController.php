@@ -20,13 +20,15 @@ class PortfolioController extends Controller
         return view('portfolios.index')->with(
             'portfolios',
             $user->portfolios()
-                 ->with('securities:securities.id,ticker')
+                 ->with('securities:securities.id,ticker,name')
                  ->get()
                  ->map(function($item, $key) {
                      return [
                          'id' => $item->id,
                          'name' => $item->name,
-                         'tickers' => $item->securities->pluck('ticker')->join(', '),
+                         'securities' => $item->securities->map(function($security) {
+                             return $security->ticker ?? $security->name;
+                         })->join(', '),
                          'created_at' => $item->created_at,
                      ];
                  })

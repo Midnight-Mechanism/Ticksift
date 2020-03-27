@@ -35,11 +35,7 @@
                 portfolio_ids: ids,
             }).done(function(securities) {
                 $("#select-securities").empty();
-                for (security of securities) {
-                    let option = new Option(security.ticker + " - " + security.name, security.id, true, true);
-                    $("#select-securities").append(option);
-                }
-                $("#select-securities").trigger("change");
+                appendSecurities(securities);
             });
         }
 
@@ -54,7 +50,7 @@
                 },
                 {
                     title: "Securities",
-                    field: "tickers",
+                    field: "securities",
                     headerSort: false,
                 },
                 {

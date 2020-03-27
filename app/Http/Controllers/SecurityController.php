@@ -24,12 +24,12 @@ class SecurityController extends Controller
     {
         [$winners, $losers] = [collect(), collect()];
 
-        $latest_prices = $latestPrices->keyBy->ticker;
+        $latest_prices = $latestPrices->keyBy->short_name;
 
         foreach ($earliestPrices as $earliest_price) {
-            $ticker = $earliest_price->ticker;
+            $short_name = $earliest_price->short_name;
 
-            $latest_price = $latest_prices->get($ticker);
+            $latest_price = $latest_prices->get($short_name);
 
             if (! $latest_price || $earliest_price->close == $latest_price->close) continue;
 
@@ -83,8 +83,8 @@ class SecurityController extends Controller
         $query =  DB::table('prices')
             ->whereBetween('date', [$start_date, $end_date])
             ->join('securities', 'prices.security_id', 'securities.id')
-            ->join('industries', 'securities.industry_id', 'industries.id')
-            ->join('sectors', 'industries.sector_id', 'sectors.id')
+            ->leftJoin('industries', 'securities.industry_id', 'industries.id')
+            ->leftJoin('sectors', 'industries.sector_id', 'sectors.id')
             ->join('currencies', 'securities.currency_id', 'currencies.id');
 
         if ($security_ids) {
@@ -96,6 +96,7 @@ class SecurityController extends Controller
         $query->select(
             'ticker',
             'securities.name',
+            DB::raw("COALESCE(ticker, securities.name) AS short_name"),
             'industries.name AS industry',
             'sectors.name AS sector',
             'sectors.color AS sector_color',
@@ -104,8 +105,8 @@ class SecurityController extends Controller
             'date',
             'close',
             'volume'
-        )->distinct('ticker')
-         ->orderBy('ticker');
+        )->distinct('short_name')
+         ->orderBy('short_name');
 
         $earliest_prices = (clone $query)->oldest('date')->get();
         $latest_prices = $query->latest('date')->get();
@@ -143,13 +144,13 @@ class SecurityController extends Controller
         } else {
             // single date, e.g. "1995-01-01"
             // we want the start date to be the prior trading day
-            $start_date = Price::select('date')
+            $earlier_price = Price::select('date')
                 ->where('date', '<=', $dates[0])
                 ->distinct()
                 ->orderBy('date', 'desc')
                 ->skip(1)
-                ->first()
-                ->date;
+                ->first();
+            $start_date = $earlier_price ? $earlier_price->date : $dates[0];
             $end_date = $dates[0];
 
             $request->session()->put([
@@ -212,31 +213,36 @@ class SecurityController extends Controller
     public function search(Request $request)
     {
         $query = $request->input('q');
-        $sep_table = SourceTable::where('name', 'SEP')->first();
-        $equities_and_funds = Security::where('ticker', 'ILIKE', '%' . $query . '%')
+        $source_tables = SourceTable::all();
+        $results = Security::where('ticker', 'ILIKE', '%' . $query . '%')
             ->orWhere('name', 'ILIKE', '%' . $query . '%')
             ->select(
                 'id',
                 'source_table_id',
-                DB::raw("CONCAT(ticker, ' - ', name) AS text")
+                DB::raw("CASE WHEN ticker IS NULL THEN name ELSE CONCAT(ticker, ' - ', name) END AS text")
             )
             ->get()
-            ->partition(function($security) use ($sep_table) {
+            ->groupBy(function($security) use ($source_tables) {
                 $source_table_id = $security->source_table_id;
                 unset($security->source_table_id);
-                return $source_table_id == $sep_table->id;
-            });
-
-        $results = [
-            [
-                'text' => 'Equities',
-                'children' => $equities_and_funds[0]->values(),
-            ],
-            [
-                'text' => 'Funds',
-                'children' => $equities_and_funds[1]->values(),
-            ]
-        ];
+                $source_table_name = $source_tables->firstWhere('id', $source_table_id)->name;
+                switch($source_table_name) {
+                case 'SEP':
+                    return 'Equities';
+                    break;
+                case 'SFP':
+                    return 'Funds';
+                    break;
+                default:
+                    return 'Other';
+                    break;
+                }
+            })->map(function($securities, $table) {
+                return [
+                    'text' => $table,
+                    'children' => $securities,
+                ];
+            })->values();
 
         return response()->json($results);
     }
@@ -275,7 +281,7 @@ class SecurityController extends Controller
         foreach ($security_ids as $security_id) {
             $security = Security::findOrFail($security_id);
             $security_prices->push([
-                'ticker' => $security->ticker,
+                'short_name' => $security->ticker ?? $security->name,
                 'currency_code' => $security->currency->code,
                 'prices' => $security
                     ->prices()

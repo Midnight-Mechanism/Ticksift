@@ -50,12 +50,13 @@ class UpdateQuandl extends Command
      */
     public function handle()
     {
-        $this->updateSecurities();
+        $this->updateSharadarSecurities();
         //$this->updateActions();
-        $this->updatePrices();
+        $this->updateSharadarPrices();
+        $this->updateFredPrices();
     }
 
-    private function updateSecurities() {
+    private function updateSharadarSecurities() {
         // get link to bulk download file
         $curl = curl_init();
         $url = 'https://www.quandl.com/api/v3/datatables/SHARADAR/TICKERS';
@@ -95,11 +96,14 @@ class UpdateQuandl extends Command
         array_shift($lines);
         $zip->close();
         foreach ($lines as $line) {
-            if (!$line || !SourceTable::where('name', $line[0])->exists()) {
+            if (!$line) {
                 continue;
             }
             $line = str_getcsv($line);
-            $source_table_id = SourceTable::where('name', $line[0])->name;
+            if (!SourceTable::where('name', $line[0])->exists()) {
+                continue;
+            }
+            $source_table_id = SourceTable::where('name', $line[0])->first()->id;
             $exchange_id = Exchange::firstOrCreate(['name' => $line[4]])->id;
             $category_id = Category::firstOrCreate(['name' => $line[6]])->id;
             $cusips = explode(' ', $line[7]);
@@ -218,7 +222,7 @@ class UpdateQuandl extends Command
         \Log::info('Action data successfully updated from Quandl.');
     }
 
-    private function updatePrices() {
+    private function updateSharadarPrices() {
         // get link to bulk download file
         foreach(['SEP', 'SFP'] as $source_table_name) {
             $source_table = SourceTable::where('name', $source_table_name)->first();
@@ -244,7 +248,7 @@ class UpdateQuandl extends Command
 
             // save bulk download file
             $curl = curl_init();
-            $zip_filename = tempnam(sys_get_temp_dir(), 'quandl_prices_');
+            $zip_filename = tempnam(sys_get_temp_dir(), 'quandl_'.$source_table_name.'_prices_');
             $zip_file = fopen($zip_filename, 'w');
             curl_setopt($curl, CURLOPT_URL, $bulk_link);
             curl_setopt($curl, CURLOPT_FILE, $zip_file);
@@ -260,10 +264,10 @@ class UpdateQuandl extends Command
             array_shift($lines);
             $zip->close();
             foreach ($lines as $line) {
+                $line = str_getcsv($line);
                 if (!$line) {
                     continue;
                 }
-                $line = str_getcsv($line);
                 $security = Security::where('source_table_id', $source_table->id)
                     ->where('ticker', $line[0])
                     ->first();
@@ -289,7 +293,51 @@ class UpdateQuandl extends Command
                 }
             }
         }
-        \Log::info('Price data successfully updated from Quandl.');
+        \Log::info('SHARADAR price data successfully updated from Quandl.');
     }
 
+    private function updateFredPrices() {
+        $fed_debt_table = SourceTable::firstOrCreate(['name' => 'GFDEBTN']);
+        $usd = Currency::firstOrCreate(['code' => 'USD']);
+        $fed_debt_security = Security::firstOrCreate([
+            'source_table_id' => $fed_debt_table->id,
+            'name' => 'U.S. Federal Debt',
+        ], [
+            'is_delisted' => FALSE,
+            'currency_id' => $usd->id,
+            'scale_marketcap' => 0,
+            'scale_revenue' => 0,
+        ]);
+
+        $curl = curl_init();
+        $url = 'https://www.quandl.com/api/v3/datasets/FRED/' . $fed_debt_table->name . '.csv';
+        $url .= '?api_key=' . env('QUANDL_KEY');
+
+        curl_setopt($curl, CURLOPT_URL, $url);
+        curl_setopt($curl, CURLOPT_RETURNTRANSFER, TRUE);
+
+        $results = curl_exec($curl);
+        curl_close($curl);
+
+        $lines = explode(PHP_EOL, $results);
+        // delete header row
+        array_shift($lines);
+        foreach ($lines as $line) {
+            if (!$line) {
+                continue;
+            }
+            $line = str_getcsv($line);
+            Price::updateOrCreate(
+                [
+                    'security_id' => $fed_debt_security->id,
+                    'date' => $line[0],
+                ],
+                [
+                    'close' => $line[1] * 1000000,
+                    'close_unadj' => $line[1] * 1000000,
+                ]
+            );
+        }
+        \Log::info('FRED price data successfully updated from Quandl.');
+    }
 }

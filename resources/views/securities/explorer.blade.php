@@ -82,9 +82,11 @@
             dragmode: "zoom",
             xaxis: {
                 gridcolor: gridColor,
+                automargin: true,
             },
             yaxis: {
                 gridcolor: gridColor,
+                automargin: true,
             },
             annotations: [],
             paper_bgcolor: chartColor,
@@ -118,7 +120,7 @@
             const chartScale = $("#select-time-chart-scale").val();
 
             const dates = $("#input-dates").val();
-            const tickers = securityPrices.map(a => a.ticker);
+            const short_names = securityPrices.map(a => a.short_name);
 
             let traces = [];
             let timeConfig = _.cloneDeep(config);
@@ -129,9 +131,6 @@
                 "chart",
                 $("#input-dates").val(),
             ];
-            if (tickers.length === 1) {
-                filename.splice(1, 0, tickers[0]);
-            }
             filename = filename.join("_").split(" ").join("_");
 
             if (securityPrices.every(a => a.currency_code === "USD")) {
@@ -147,8 +146,8 @@
                 case "line":
                     for (const securityData of Object.values(securityPrices)) {
                         traces.push({
-                            name: securityData.ticker,
-                            legendgroup: securityData.ticker,
+                            name: securityData.short_name,
+                            legendgroup: securityData.short_name,
                             type: "scattergl",
                             mode: "lines",
                             x: securityData.prices.map(a => a.date),
@@ -164,8 +163,8 @@
                 case "ohlc":
                     for (const securityData of Object.values(securityPrices)) {
                         traces.push({
-                            name: securityData.ticker,
-                            legendgroup: securityData.ticker,
+                            name: securityData.short_name,
+                            legendgroup: securityData.short_name,
                             type: chartType,
                             x: securityData.prices.map(a => a.date),
                             open: securityData.prices.map(a => a.open),
@@ -199,8 +198,8 @@
                         let volume = securityData.prices.map(a => a.volume);
 
                         traces.push({
-                            name: securityData.ticker,
-                            legendgroup: securityData.ticker,
+                            name: securityData.short_name,
+                            legendgroup: securityData.short_name,
                             type: "scattergl",
                             mode: "markers",
                             x: securityData.prices.map(a => a.date),
@@ -248,7 +247,7 @@
                 $("#input-dates").val(),
             ].join("_").split(" ").join("_");
 
-            const sortedSecurityPrices = _(_.cloneDeep(securityPrices)).sortBy("ticker").value();
+            const sortedSecurityPrices = _(_.cloneDeep(securityPrices)).sortBy("short_name").value();
             for (let securityData of Object.values(sortedSecurityPrices)) {
                 let dates = securityData.prices.map(a => a.date);
                 let close = securityData.prices.map(a => a.close);
@@ -260,20 +259,20 @@
                     let coeff;
                     let oldCoeff;
 
-                    // check existing points for reverse of ticker pair
-                    if (securityData.ticker !== compSecurityData.ticker) {
+                    // check existing points for reverse of security pair
+                    if (securityData.short_name !== compSecurityData.short_name) {
                         for (const pointIndex in correlationTraces[0].x) {
                             if (
-                                correlationTraces[0].x[pointIndex] === securityData.ticker &&
-                                correlationTraces[0].y[pointIndex] === compSecurityData.ticker
+                                correlationTraces[0].x[pointIndex] === securityData.short_name &&
+                                correlationTraces[0].y[pointIndex] === compSecurityData.short_name
                             ) {
                                 oldCoeff = correlationTraces[0].z[pointIndex];
                             }
                         }
                     }
 
-                    // skip expensive computations if comparing ticker against itself
-                    if (securityData.ticker === compSecurityData.ticker) {
+                    // skip expensive computations if comparing security against itself
+                    if (securityData.short_name === compSecurityData.short_name) {
                         if (dates.length <= 1) {
                             continue;
                         }
@@ -291,16 +290,16 @@
                             continue;
                         }
 
-                        let tickerData = [];
-                        let compTickerData = [];
+                        let coeffData = [];
+                        let compCoeffData = [];
                         overlappingDates.forEach(function(date) {
                             let dateIndex = dates.indexOf(date);
                             let compDateIndex = compDates.indexOf(date);
-                            tickerData.push(close[dateIndex]);
-                            compTickerData.push(compClose[compDateIndex]);
+                            coeffData.push(close[dateIndex]);
+                            compCoeffData.push(compClose[compDateIndex]);
                         });
 
-                        coeff = jStat.corrcoeff(tickerData, compTickerData);
+                        coeff = jStat.corrcoeff(coeffData, compCoeffData);
                         if (coeff) {
                             coeff = parseFloat(coeff.toFixed(2));
                         }
@@ -310,12 +309,12 @@
                         coeff = coeff < -1 ? -1 : coeff;
                     }
 
-                    correlationTraces[0].x.push(securityData.ticker);
-                    correlationTraces[0].y.push(compSecurityData.ticker);
+                    correlationTraces[0].x.push(securityData.short_name);
+                    correlationTraces[0].y.push(compSecurityData.short_name);
                     correlationTraces[0].z.push(coeff);
                     correlationLayout.annotations.push({
-                        x: securityData.ticker,
-                        y: compSecurityData.ticker,
+                        x: securityData.short_name,
+                        y: compSecurityData.short_name,
                         text: coeff,
                         font: {
                             color: coeff > 0 ? "black" : "white",

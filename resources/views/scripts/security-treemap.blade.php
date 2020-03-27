@@ -12,6 +12,10 @@
     function buildTreemap(data, calculateSecuritySize) {
 
         data = _(data).map(function (securityData) {
+            if (!securityData.sector) {
+                securityData.sector = "No Sector"
+                securityData.industry = "No Industry"
+            }
             // consolidate "increase" and "decrease" into "change"
             if ("increase" in securityData) {
                 securityData.change = securityData.increase;
@@ -63,8 +67,8 @@
                     parents.push(industryLabel);
                     customdata.push(securityData.ticker);
 
-                    let label = "<b><span style='font-size: 200%'>" + securityData.ticker + "</span></b>";
-                    let text = securityData.name;
+                    let label = "<b><span style='font-size: 200%'>" + securityData.short_name + "</span></b>";
+                    let text = securityData.short_name == securityData.name ? "" : securityData.name;
 
                     let absChange = Math.abs(securityData.change);
                     let colorChange = Math.min(absChange * 15, 8.5);

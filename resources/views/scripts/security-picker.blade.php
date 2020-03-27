@@ -46,7 +46,7 @@
             let existing_option = $("#select-securities option[value="+security.id+"]");
             if (!existing_option.length) {
                 $("#select-securities").append(new Option(
-                    security.ticker + " - " + security.name,
+                    security.ticker ? security.ticker + " - " + security.name : security.name,
                     security.id,
                     true,
                     true
