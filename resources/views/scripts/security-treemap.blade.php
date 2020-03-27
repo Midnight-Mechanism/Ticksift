@@ -1,6 +1,7 @@
 <script>
     const chartColor = "#000F0F";
     var treemapChart = document.getElementById("treemap-chart");
+    var selectedTreemapLevel = null;
 
     function formatCurrency(number, code) {
         return new Intl.NumberFormat('en-US', {
@@ -101,6 +102,7 @@
                 parents: parents,
                 text: texts,
                 values: values,
+                level: selectedTreemapLevel,
                 customdata: customdata,
                 hoverinfo: "label+text",
                 textposition: "middle center",
@@ -147,6 +149,8 @@
                 window.location = "{{ route('securities.explorer') }}?add_tickers=" + ticker;
                 return false;
             }
+            selectedTreemapLevel = data.nextLevel;
         });
     }
+
 </script>
