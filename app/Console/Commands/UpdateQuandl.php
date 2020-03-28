@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
+use Illuminate\Database\Eloquent\Builder;
 use App\Models\SourceTable;
 use App\Models\Exchange;
 use App\Models\Category;
@@ -66,7 +67,7 @@ class UpdateQuandl extends Command
         if ($this->argument('start_date')) {
             $url .= '&lastupdated.gte=' . $this->argument('start_date');
         } else {
-            $url .= '&lastupdated.gte=' . Security::max('source_last_updated');
+            $url .= '&lastupdated.gt=' . Security::max('source_last_updated');
         }
         if ($this->argument('end_date')) {
             $url .= '&lastupdated.lte=' . $this->argument('end_date');
@@ -75,8 +76,11 @@ class UpdateQuandl extends Command
         curl_setopt($curl, CURLOPT_URL, $url);
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, TRUE);
         $results = json_decode(curl_exec($curl), TRUE);
-        $bulk_link = $results['datatable_bulk_download']['file']['link'];
         curl_close($curl);
+        $bulk_link = $results['datatable_bulk_download']['file']['link'];
+        if (!$bulk_link) {
+            return;
+        }
 
         // save bulk download file
         $curl = curl_init();
@@ -176,7 +180,7 @@ class UpdateQuandl extends Command
         if ($this->argument('start_date')) {
             $url .= '&date.gte=' . $this->argument('start_date');
         } else {
-            $url .= '&date.gte=' . \DB::table('action_security')->max('date');
+            $url .= '&date.gt=' . \DB::table('action_security')->max('date');
         }
         if ($this->argument('end_date')) {
             $url .= '&date.lte=' . $this->argument('end_date');
@@ -234,7 +238,12 @@ class UpdateQuandl extends Command
             if ($this->argument('start_date')) {
                 $url .= '&lastupdated.gte=' . $this->argument('start_date');
             } else {
-                $url .= '&lastupdated.gte=' . Price::max('source_last_updated');
+                $url .= '&lastupdated.gt=' . Price::whereHas(
+                    'security',
+                    function(Builder $query) use ($source_table) {
+                        $query->where('source_table_id', $source_table->id);
+                    }
+                )->max('source_last_updated');
             }
             if ($this->argument('end_date')) {
                 $url .= '&lastupdated.lte=' . $this->argument('end_date');
@@ -243,8 +252,12 @@ class UpdateQuandl extends Command
             curl_setopt($curl, CURLOPT_URL, $url);
             curl_setopt($curl, CURLOPT_RETURNTRANSFER, TRUE);
             $results = json_decode(curl_exec($curl), TRUE);
-            $bulk_link = $results['datatable_bulk_download']['file']['link'];
             curl_close($curl);
+
+            $bulk_link = $results['datatable_bulk_download']['file']['link'];
+            if (!$bulk_link) {
+                continue;
+            }
 
             // save bulk download file
             $curl = curl_init();

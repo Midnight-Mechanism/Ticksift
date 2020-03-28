@@ -32,4 +32,13 @@ class Price extends Model
         'close_unadj',
         'source_last_updated',
     ];
+
+    /**
+     * A price has a security.
+     */
+    public function security()
+    {
+        return $this->belongsTo('App\Models\Security');
+    }
+
 }
