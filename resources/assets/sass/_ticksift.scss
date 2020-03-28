@@ -61,8 +61,14 @@ a:not(.btn), .btn-link {
     }
 }
 
+.card {
+    overflow: hidden;
+    border-color: $dark-gray;
+    background-color: transparent;
+}
+
 .card-body {
-    background-color: lighten($brand-primary, 5%);
+    background-color: $brand-primary;
     color: white;
     form {
         margin: 0;
@@ -86,49 +92,6 @@ a:not(.btn), .btn-link {
         max-height: 80%;
         max-width: 80%;
     }
-}
-
-.select2-dropdown {
-    background-color: $brand-dark !important;
-}
-
-.select2-selection {
-    background-color: $brand-dark !important;
-    .select2-selection__rendered {
-        color: white !important;
-    }
-    .select2-selection__choice {
-        background-color: $brand-primary !important;
-    }
-}
-
-.select2 {
-    flex-grow: 1;
-}
-
-input {
-    background-color: $brand-dark !important;
-    color: white !important;
-    border: 1px gray solid;
-    border-radius: 0.5rem;
-    padding: 5px 10px;
-    width: 100%;
-}
-
-.select2-results, .select2-search__field {
-    background-color: $brand-dark !important;
-    color: white !important;
-    .select2-results__option[aria-selected="true"] {
-        background-color: #001F1F !important;
-    }
-    .select2-results__option--highlighted {
-        background-color: #073333 !important;
-    }
-}
-
-.has-error input {
-    border-color: $brand-danger;
-    border-width: 4px;
 }
 
 .navbar-laravel {
@@ -163,13 +126,27 @@ input {
     }
 }
 
-.table {
-    color: white;
-}
-
-.table-title {
+.chart-title {
     margin-bottom: 0px;
     background-color: $brand-dark;
     padding: 0.75rem;
-    border: 1px solid #333;
+    border: 1px solid $dark-gray;
+    border-top-left-radius: 0.25rem;
+    border-top-right-radius: 0.25rem;
+}
+
+.chart:not(:empty) {
+    border: 1px solid $dark-gray;
+    border-radius: 0.25rem;
+    overflow: hidden;
+}
+
+.chart-title + .chart {
+    border-top: none;
+    border-top-left-radius: 0px;
+    border-top-right-radius: 0px;
+}
+
+.table {
+    color: white;
 }

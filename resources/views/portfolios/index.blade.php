@@ -14,7 +14,7 @@
             </div>
         </div>
         @include('partials.security-picker')
-        <div class="chart col-12 text-center pb-3">
+        <div class="col-12 text-center pb-3">
             <div id="treemap-chart" class="chart"></div>
         </div>
     </div>

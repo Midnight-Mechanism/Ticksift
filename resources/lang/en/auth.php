@@ -33,7 +33,7 @@ return [
     // Labels
     'whoops'          => 'Whoops! ',
     'someProblems'    => 'There were some problems with your input.',
-    'email'           => 'E-Mail Address',
+    'email'           => 'Email Address',
     'password'        => 'Password',
     'rememberMe'      => ' Remember Me',
     'login'           => 'Login',
@@ -47,7 +47,7 @@ return [
 
     // Placeholders
     'ph_name'          => 'Username',
-    'ph_email'         => 'E-mail Address',
+    'ph_email'         => 'Email Address',
     'ph_firstname'     => 'First Name',
     'ph_lastname'      => 'Last Name',
     'ph_password'      => 'Password',

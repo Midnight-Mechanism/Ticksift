@@ -11,7 +11,7 @@
                         <input type="hidden" name="remember" value=true>
 
                         <div class="form-group row">
-                            <label for="email" class="col-sm-3 col-form-label text-md-right">Email:</label>
+                            <label for="email" class="col-sm-3 col-form-label text-md-right">{{ __('Email Address') }}:</label>
 
                             <div class="col-md-9">
                                 <input id="email" type="email" class="form-control{{ $errors->has('email') ? ' is-invalid' : '' }}" name="email" value="{{ old('email') }}" required autofocus>
@@ -25,7 +25,7 @@
                         </div>
 
                         <div class="form-group row">
-                            <label for="password" class="col-md-3 col-form-label text-md-right">Password:</label>
+                            <label for="password" class="col-md-3 col-form-label text-md-right">{{ __('Password') }}:</label>
 
                             <div class="col-md-9">
                                 <input id="password" type="password" class="form-control{{ $errors->has('password') ? ' is-invalid' : '' }}" name="password" required>
@@ -41,7 +41,7 @@
                         <div class="row">
                             <div class="col-md-12 d-flex justify-content-between align-items-baseline">
                                 <a class="btn btn-link" href="{{ route('password.request') }}">
-                                    Reset Password
+                                    {{ __('Reset Password') }}
                                 </a>
 
                                 <button type="submit" class="btn btn-success">Login</button>

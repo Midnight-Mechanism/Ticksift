@@ -9,17 +9,17 @@
         @include('partials/date-picker')
         <div id="security-results" style="visibility: hidden">
             <div class="row">
-                <div class="chart col-12 text-center pb-3">
-                    <h3 class="table-title">Large Cap</h3>
+                <div class="col-12 text-center pb-3">
+                    <h3 class="chart-title">Large Cap</h3>
                     <div id="treemap-chart" class="chart"></div>
                 </div>
-                <div class="chart col-12 col-lg-6 text-center pb-3">
-                    <h3 class="table-title">Winners</h3>
-                    <div id="table-winners" style="height: 400px"></div>
+                <div class="col-12 col-lg-6 text-center pb-3">
+                    <h3 class="chart-title">Winners</h3>
+                    <div id="table-winners" class="chart" style="height: 400px"></div>
                 </div>
-                <div class="chart col-12 col-lg-6 text-center pb-3">
-                    <h3 class="table-title">Losers</h3>
-                    <div id="table-losers" style="height: 400px"></div>
+                <div class="col-12 col-lg-6 text-center pb-3">
+                    <h3 class="chart-title">Losers</h3>
+                    <div id="table-losers" class="chart" style="height: 400px"></div>
                 </div>
             </div>
         </div>
@@ -35,8 +35,8 @@
                 title: "Ticker",
                 field: "ticker",
                 sorter: "string",
+                minWidth: 50,
                 responsive: 0,
-                minWidth: 60,
                 cellClick: function(event, cell) {
                     let ticker = cell._cell.value;
                     if (ticker) {
@@ -48,29 +48,29 @@
                 title: "Name",
                 field: "name",
                 sorter: "string",
-                responsive: 1,
                 minWidth: 150,
+                responsive: 1,
             },
             {
                 title: "Sector",
                 field: "sector",
                 sorter: "string",
-                responsive: 2,
                 minWidth: 150,
+                responsive: 2,
             },
             {
                 title: "Industry",
                 field: "industry",
                 sorter: "string",
-                responsive: 2,
                 minWidth: 150,
+                responsive: 2,
             },
             {
                 title: "Earliest Close",
                 field: "earliest_close",
                 sorter: "number",
+                minWidth: 50,
                 responsive: 2,
-                minWidth: 80,
                 formatter: function(cell, formatterParams, onRendered) {
                     return formatCurrency(cell.getValue(), cell.getData().currency_code);
                 },
@@ -79,8 +79,8 @@
                 title: "Latest Close",
                 field: "latest_close",
                 sorter: "number",
+                minWidth: 50,
                 responsive: 2,
-                minWidth: 80,
                 formatter: function(cell, formatterParams, onRendered) {
                     return formatCurrency(cell.getValue(), cell.getData().currency_code);
                 },
@@ -93,8 +93,8 @@
                     title: "Increase",
                     field: "increase",
                     sorter: "number",
+                    minWidth: 50,
                     responsive: 0,
-                    minWidth: 80,
                     formatter: function(cell, formatterParams, onRendered) {
                         return (100 * cell.getValue()).toFixed(2) + "%";
                     },
@@ -110,8 +110,8 @@
                     title: "Decrease",
                     field: "decrease",
                     sorter: "number",
+                    minWidth: 50,
                     responsive: 0,
-                    minWidth: 80,
                     formatter: function(cell, formatterParams, onRendered) {
                         return (100 * cell.getValue()).toFixed(2) + "%";
                     },
@@ -119,6 +119,7 @@
             ]),
             layout:"fitColumns",
             responsiveLayout: "hide",
+            layoutColumnsOnNewData: true,
         });
 
         function updateMomentum() {

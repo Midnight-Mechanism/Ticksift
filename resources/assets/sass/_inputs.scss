@@ -1,3 +1,55 @@
+input {
+    background-color: $brand-dark;
+    color: white;
+    border: 1px $dark-gray solid;
+    border-radius: 0.5rem;
+    padding: 5px 10px;
+    width: 100%;
+}
+
+.select2 {
+    flex-grow: 1;
+}
+
+.has-error input {
+    border-color: $brand-danger;
+    border-width: 4px;
+}
+
+.select2-dropdown {
+    background-color: $brand-dark !important;
+}
+
+.select2-dropdown,
+.select2-container .select2-selection--single,
+.select2-container .select2-selection--multiple,
+.select2-container .select2-selection__choice,
+.select2-dropdown .select2-search__field {
+    border: 1px $dark-gray solid !important;
+    border-radius: 0.25rem !important;
+}
+
+.select2-selection,  {
+    background-color: $brand-dark !important;
+    .select2-selection__rendered {
+        color: white !important;
+    }
+    .select2-selection__choice {
+        background-color: $brand-primary !important;
+    }
+}
+
+.select2-results, .select2-search__field {
+    background-color: $brand-dark !important;
+    color: white !important;
+    .select2-results__option[aria-selected="true"] {
+        background-color: #001F1F !important;
+    }
+    .select2-results__option--highlighted {
+        background-color: #073333 !important;
+    }
+}
+
 .flatpickr-calendar {
     background: $brand-dark !important;
 }

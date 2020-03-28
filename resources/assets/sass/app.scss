@@ -14,14 +14,10 @@
 @import '~@fortawesome/fontawesome-free/scss/solid';
 @import '~@fortawesome/fontawesome-free/scss/brands';
 
-// Dropzone
-@import "~dropzone/dist/basic";
-@import "~dropzone/dist/dropzone";
-@import "~@yaireo/tagify/src/tagify";
-
 @import "mixins";
 @import "margins";
 @import "helpers";
+@import "inputs";
 @import "typography";
 @import "buttons";
 @import "badges";
@@ -32,5 +28,4 @@
 @import "lists";
 @import "visibility";
 @import "ticksift";
-@import "flatpickr";
 @import "tabulator";
