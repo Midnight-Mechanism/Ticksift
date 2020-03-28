@@ -8,6 +8,7 @@
                 <div class="card-body">
                     <form method="POST" action="{{ route('login') }}">
                         @csrf
+                        <input type="hidden" name="remember" value=true>
 
                         <div class="form-group row">
                             <label for="email" class="col-sm-3 col-form-label text-md-right">Email:</label>
