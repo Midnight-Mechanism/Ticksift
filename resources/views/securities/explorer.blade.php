@@ -60,13 +60,16 @@
             },
             dragmode: "zoom",
             xaxis: {
-                title: "Date",
                 gridcolor: gridColor,
                 autorange: true,
+                automargin: true,
             },
             yaxis: {
-                title: "Price",
                 gridcolor: gridColor,
+                automargin: true,
+            },
+            legend: {
+                orientation: window.innerWidth < 576 ? "h" : "v",
             },
             paper_bgcolor: chartColor,
             plot_bgcolor: chartColor,
@@ -107,6 +110,13 @@
         var securityPrices = [];
         var timeChart = document.getElementById('time-chart');
         var correlationChart = document.getElementById('correlation-chart');
+
+        $(window).resize(function() {
+            let orientation = this.innerWidth < 576 ? "h" : "v";
+            Plotly.relayout(timeChart, {
+                "legend.orientation": orientation,
+            });
+        });
 
         function formatCurrency(number, code) {
             return new Intl.NumberFormat('en-US', {
@@ -149,7 +159,6 @@
                             name: securityData.short_name,
                             legendgroup: securityData.short_name,
                             type: "scattergl",
-                            mode: "lines",
                             x: securityData.prices.map(a => a.date),
                             y: securityData.prices.map(a => a.close),
                             text: securityData.prices.map(a => formatCurrency(a.close, securityData.currency_code)),
@@ -224,6 +233,7 @@
                 timeLayout,
                 timeConfig
             );
+
         }
 
         function processChartData() {
