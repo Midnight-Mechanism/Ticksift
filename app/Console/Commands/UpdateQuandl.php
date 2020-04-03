@@ -67,7 +67,7 @@ class UpdateQuandl extends Command
         if ($this->argument('start_date')) {
             $url .= '&lastupdated.gte=' . $this->argument('start_date');
         } else {
-            $url .= '&lastupdated.gt=' . Security::max('source_last_updated');
+            $url .= '&lastupdated.gte=' . Security::max('source_last_updated');
         }
         if ($this->argument('end_date')) {
             $url .= '&lastupdated.lte=' . $this->argument('end_date');
@@ -238,7 +238,7 @@ class UpdateQuandl extends Command
             if ($this->argument('start_date')) {
                 $url .= '&lastupdated.gte=' . $this->argument('start_date');
             } else {
-                $url .= '&lastupdated.gt=' . Price::whereHas(
+                $url .= '&lastupdated.gte=' . Price::whereHas(
                     'security',
                     function(Builder $query) use ($source_table) {
                         $query->where('source_table_id', $source_table->id);
