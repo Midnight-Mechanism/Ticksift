@@ -48,9 +48,11 @@
                 $("#select-securities").append(new Option(
                     security.ticker ? security.ticker + " - " + security.name : security.name,
                     security.id,
-                    true,
+                    false,
                     true
                 ));
+            } else {
+                existing_option.prop("selected", true);
             }
         }
         $("#select-securities").trigger("change");
