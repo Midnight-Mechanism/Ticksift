@@ -11,7 +11,7 @@
     "start": "php artisan serve --port=8008 --host=0.0.0.0 & npm run watch"
   },
   "devDependencies": {
-    "@fortawesome/fontawesome-free": "^5.12.1",
+    "@fortawesome/fontawesome-free": "^5.13.0",
     "axios": "^0.19",
     "bootstrap": "^4.4.1",
     "cross-env": "^7.0",
@@ -25,14 +25,14 @@
     "vue-template-compiler": "^2.6.11"
   },
   "dependencies": {
-    "@yaireo/tagify": "^3.6.2",
+    "@yaireo/tagify": "^3.6.6",
     "color": "^3.1.2",
     "dropzone": "^5.7.0",
     "flatpickr": "^4.6.3",
     "jstat": "^1.9.2",
     "moment": "^2.24.0",
-    "plotly.js-dist": "^1.52.3",
+    "plotly.js-dist": "^1.53.0",
     "select2": "^4.0.13",
-    "tabulator-tables": "^4.5.3"
+    "tabulator-tables": "^4.6.0"
   }
 }
