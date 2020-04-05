@@ -1,5 +1,5 @@
 <div class="row pb-3">
-    <div class="col-12 d-flex">
+    <div class="col-12 d-flex flex-column flex-sm-row">
         <select id="select-securities" multiple="multiple" class="invisible"></select>
         @auth
             <button
@@ -22,7 +22,7 @@
             ]) !!}
             <button
                 id="update-portfolio-button"
-                class="btn btn-primary d-none">
+                class="btn btn-primary d-none h-100 w-100">
                 Update Portfolio
             </button>
             {!! Form::close() !!}

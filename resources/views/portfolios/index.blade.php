@@ -9,7 +9,7 @@
         @include('partials.date-picker')
         <div class="row">
             <div class="col-12 text-center pb-3">
-                <h3 class="table-title">Your Portfolios</h3>
+                <h3 class="chart-title">Your Portfolios</h3>
                 <div id="table-portfolios"></div>
             </div>
         </div>
