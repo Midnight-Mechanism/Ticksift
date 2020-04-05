@@ -113,9 +113,11 @@
 
         $(window).resize(function() {
             let orientation = this.innerWidth < 576 ? "h" : "v";
-            Plotly.relayout(timeChart, {
-                "legend.orientation": orientation,
-            });
+            if (orientation != timeLayout.legend.orientation) {
+                Plotly.relayout(timeChart, {
+                    "legend.orientation": orientation,
+                });
+            }
         });
 
         function formatCurrency(number, code) {
