@@ -4,7 +4,9 @@
     <div class="container">
         <div class="row justify-content-center">
             <div class="login-box card">
-
+                <div class="card-header">
+                    <h3>Register</h3>
+                </div>
                 <div class="card-body">
                     <form method="POST" action="{{ route('register') }}">
                         @csrf
