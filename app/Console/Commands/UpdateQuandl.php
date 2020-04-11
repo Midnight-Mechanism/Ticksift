@@ -276,6 +276,7 @@ class UpdateQuandl extends Command
             // delete header row
             array_shift($lines);
             $zip->close();
+            $chunk = [];
             foreach ($lines as $line) {
                 $line = str_getcsv($line);
                 if (!$line) {
@@ -285,26 +286,27 @@ class UpdateQuandl extends Command
                     ->where('ticker', $line[0])
                     ->first();
                 if ($security) {
-                    Price::updateOrCreate(
-                        [
-                            'security_id' => $security->id,
-                            'date' => $line[1],
-                        ],
-                        [
-                            'open' => $line[2],
-                            'high' => $line[3],
-                            'low' => $line[4],
-                            'close' => $line[5],
-                            'volume' => $line[6] ?: null,
-                            'dividends' => $line[7],
-                            'close_unadj' => $line[8],
-                            'source_last_updated' => $line[9],
-                        ]
-                    );
+                    $chunk[] = [
+                        'security_id' => $security->id,
+                        'date' => $line[1],
+                        'open' => $line[2],
+                        'high' => $line[3],
+                        'low' => $line[4],
+                        'close' => $line[5],
+                        'volume' => $line[6] ?: null,
+                        'dividends' => $line[7],
+                        'close_unadj' => $line[8],
+                        'source_last_updated' => $line[9],
+                    ];
                 } else {
                     \Log::info('Security ' . $line[0] . ' on table ' . $source_table->name . ' not found');
                 }
+                if (count($chunk) > 1000) {
+                    \DB::table('prices')->upsert($chunk, ['security_id', 'date']);
+                    $chunk = [];
+                }
             }
+            \DB::table('prices')->upsert($chunk, ['security_id', 'date']);
         }
         \Log::info('SHARADAR price data successfully updated from Quandl.');
     }
@@ -335,22 +337,20 @@ class UpdateQuandl extends Command
         $lines = explode(PHP_EOL, $results);
         // delete header row
         array_shift($lines);
+        $prices = [];
         foreach ($lines as $line) {
             if (!$line) {
                 continue;
             }
             $line = str_getcsv($line);
-            Price::updateOrCreate(
-                [
-                    'security_id' => $fed_debt_security->id,
-                    'date' => $line[0],
-                ],
-                [
-                    'close' => $line[1] * 1000000,
-                    'close_unadj' => $line[1] * 1000000,
-                ]
-            );
+            $prices[] = [
+                'security_id' => $fed_debt_security->id,
+                'date' => $line[0],
+                'close' => $line[1] * 1000000,
+                'close_unadj' => $line[1] * 1000000,
+            ];
         }
+        \DB::table('prices')->upsert($prices, ['security_id', 'date']);
         \Log::info('FRED price data successfully updated from Quandl.');
     }
 }
