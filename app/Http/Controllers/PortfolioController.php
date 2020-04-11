@@ -96,29 +96,6 @@ class PortfolioController extends Controller
     }
 
     /**
-     * Search for the specified resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function search(Request $request)
-    {
-        $user = Auth::user();
-        $query = $request->input('q');
-
-        if (isset($user)) {
-            $portfolios = $user->portfolios();
-        } else {
-            $portfolios = Portfolio::doesntHave('users');
-        }
-
-        return response()->json(
-            $portfolios
-                ->where('name', 'ILIKE', '%' . $query . '%')
-                ->get()
-        );
-    }
-
-    /**
      * Fetch the security data for the specified resources.
      *
      * @return \Illuminate\Http\Response

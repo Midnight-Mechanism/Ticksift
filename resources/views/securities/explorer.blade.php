@@ -9,7 +9,17 @@
         @include('partials.date-picker')
         <div class="row pb-3">
             <div class="col-12 d-flex">
-                <select id="select-portfolios" class="invisible"></select>
+                <select id="select-portfolios" class="invisible">
+                    <option></option>
+                    @foreach(
+                        \Auth::check() ?
+                        \Auth::user()->portfolios :
+                        \App\Models\Portfolio::doesntHave('users')->get()
+                        as $portfolio
+                        )
+                        <option value="{{ $portfolio->id }}">{{$portfolio->name}}</option>
+                    @endforeach
+                </select>
             </div>
         </div>
         @include('partials.security-picker')
@@ -393,27 +403,12 @@
             @guest
                 placeholder: "Add entire portfolios (e.g. FAANG)...",
             @endguest
-            minimumInputLength: 1,
             escapeMarkup: function (text) {
                 return text;
             },
-            ajax: {
-                url: "{{ route('portfolios.search') }}",
-                delay: 250,
-                processResults: function (data) {
-                    return {
-                        results: $.map(data, function (item) {
-                            return {
-                                text: item.name,
-                                id: item.id
-                            }
-                        })
-                    };
-                },
-            },
         })).on("select2:select", function() {
             getPortfolioData();
-            $("#select-portfolios").empty();
+            $("#select-portfolios").val(null).trigger('change');
         });
 
         $("#input-dates").change(getSecurityData);
