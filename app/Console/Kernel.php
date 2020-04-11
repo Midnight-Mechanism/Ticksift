@@ -29,10 +29,7 @@ class Kernel extends ConsoleKernel
     {
         $schedule->command('quandl:update')
                  ->withoutOverlapping()
-                 ->cron('20 * * * *')
-                 ->then(function() {
-                     $this->call('momentum:calculate-presets');
-                 });
+                 ->cron('20 * * * *');
     }
 
     /**

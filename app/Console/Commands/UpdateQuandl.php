@@ -35,6 +35,13 @@ class UpdateQuandl extends Command
     protected $description = 'Pull the latest data from Quandl';
 
     /**
+     * Whether to update momentum on completion
+     *
+     * var boolean
+     */
+    private $update_momentum = FALSE;
+
+    /**
      * Create a new command instance.
      *
      * @return void
@@ -55,6 +62,9 @@ class UpdateQuandl extends Command
         //$this->updateActions();
         $this->updateSharadarPrices();
         $this->updateFredPrices();
+        if($this->update_momentum) {
+            \Artisan::call('momentum:calculate-presets');
+        }
     }
 
     private function updateSharadarSecurities() {
@@ -228,6 +238,7 @@ class UpdateQuandl extends Command
 
     private function updateSharadarPrices() {
         // get link to bulk download file
+        $newest_price_updated = Price::max('source_last_updated');
         foreach(['SEP', 'SFP'] as $source_table_name) {
             $source_table = SourceTable::where('name', $source_table_name)->first();
             $curl = curl_init();
@@ -307,6 +318,9 @@ class UpdateQuandl extends Command
                 }
             }
             \DB::table('prices')->upsert($chunk, ['security_id', 'date']);
+        }
+        if (Price::max('source_last_updated') > $newest_price_updated) {
+            $this->update_momentum = TRUE;
         }
         \Log::info('SHARADAR price data successfully updated from Quandl.');
     }
