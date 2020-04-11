@@ -21,7 +21,6 @@ mix.js('resources/assets/js/app.js', 'public/js')
     ], 'public/css/vendor.css')
     .scripts('resources/assets/js/stats.js', 'public/js/stats.js')
     .scripts([
-        'node_modules/bootstrap4-duallistbox/dist/jquery.bootstrap-duallistbox.min.js',
         'node_modules/select2/dist/js/select2.min.js'
     ], 'public/js/vendor.js')
     .webpackConfig({

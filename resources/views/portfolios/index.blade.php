@@ -42,6 +42,7 @@
         let portfolios = {!! $portfolios !!};
         var portfoliosTable = new Tabulator("#table-portfolios", {
             selectable: 1,
+            selectableRangeMode: "click",
             columns: [
                 {
                     title: "Name",
