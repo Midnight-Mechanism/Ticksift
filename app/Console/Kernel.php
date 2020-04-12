@@ -29,7 +29,7 @@ class Kernel extends ConsoleKernel
     {
         $schedule->command('quandl:update')
                  ->withoutOverlapping()
-                 ->cron('20 * * * *');
+                 ->cron('20 21-23,0-4 * * *');
     }
 
     /**
