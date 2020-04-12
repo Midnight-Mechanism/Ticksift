@@ -42,7 +42,6 @@
         let portfolios = {!! $portfolios !!};
         var portfoliosTable = new Tabulator("#table-portfolios", {
             selectable: 1,
-            selectableRangeMode: "click",
             columns: [
                 {
                     title: "Name",
@@ -55,8 +54,8 @@
                     headerSort: false,
                 },
                 {
-                    title: "Created",
-                    field: "created_at",
+                    title: "Last Updated",
+                    field: "updated_at",
                     formatter: "datetimediff",
                     formatterParams: {
                         inputFormat: "YYYY-MM-DDTHH:mm:ssZ",
@@ -77,11 +76,13 @@
             ],
             layout: "fitColumns",
             placeholder: "Try saving a portfolio below!",
-            rowSelected: function(row) {
-                fetchPortfolioData([row._row.data.id]);
-            },
-            rowDeselected: function(row) {
-                $("#select-securities").empty().trigger("change");
+            rowSelectionChanged: function(data, rows) {
+                if(data.length > 0) {
+                    fetchPortfolioData([data[0].id]);
+                } else {
+                    $("#create-portfolio-button").removeClass("d-none");
+                    $("#update-portfolio-button").addClass("d-none");
+                }
             },
         });
         portfoliosTable.setData(portfolios);

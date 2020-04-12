@@ -29,7 +29,7 @@ class PortfolioController extends Controller
                          'securities' => $item->securities->map(function($security) {
                              return $security->ticker ?? $security->name;
                          })->join(', '),
-                         'created_at' => $item->created_at,
+                         'updated_at' => $item->updated_at,
                      ];
                  })
         );
