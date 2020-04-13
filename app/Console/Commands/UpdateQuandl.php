@@ -16,6 +16,7 @@ use App\Models\Security;
 use App\Models\Cusip;
 use App\Models\Action;
 use App\Models\Price;
+use Carbon\Carbon;
 use ZipArchive;
 
 class UpdateQuandl extends Command
@@ -59,7 +60,7 @@ class UpdateQuandl extends Command
     public function handle()
     {
         $this->updateSharadarSecurities();
-        //$this->updateActions();
+        $this->updateActions();
         $this->updateSharadarPrices();
         $this->updateFredPrices();
         if($this->update_momentum) {
@@ -67,48 +68,66 @@ class UpdateQuandl extends Command
         }
     }
 
-    private function updateSharadarSecurities() {
-        // get link to bulk download file
+    private function fetchQuandlCSV($url, $params = [], $bulk_export = FALSE) {
+        $params['api_key'] = env('QUANDL_KEY');
+        if ($bulk_export) {
+            $params['qopts.export'] = TRUE;
+        }
+
+        $url .= '?' . http_build_query($params);
+
         $curl = curl_init();
-        $url = 'https://www.quandl.com/api/v3/datatables/SHARADAR/TICKERS';
-        $url .= '?api_key=' . env('QUANDL_KEY');
-        $url .= '&qopts.export=true';
-
-        if ($this->argument('start_date')) {
-            $url .= '&lastupdated.gte=' . $this->argument('start_date');
-        } else {
-            $url .= '&lastupdated.gte=' . Security::max('source_last_updated');
-        }
-        if ($this->argument('end_date')) {
-            $url .= '&lastupdated.lte=' . $this->argument('end_date');
-        }
-
         curl_setopt($curl, CURLOPT_URL, $url);
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, TRUE);
-        $results = json_decode(curl_exec($curl), TRUE);
-        curl_close($curl);
-        $bulk_link = $results['datatable_bulk_download']['file']['link'];
-        if (!$bulk_link) {
-            return;
-        }
-
-        // save bulk download file
-        $curl = curl_init();
-        $zip_filename = tempnam(sys_get_temp_dir(), 'quandl_securities_');
-        $zip_file = fopen($zip_filename, 'w');
-        curl_setopt($curl, CURLOPT_URL, $bulk_link);
-        curl_setopt($curl, CURLOPT_FILE, $zip_file);
         $results = curl_exec($curl);
         curl_close($curl);
-        fclose($zip_file);
 
-        // read bulk download file
-        $zip = new ZipArchive();
-        $file = $zip->open($zip_filename);
-        $lines = explode(PHP_EOL, $zip->getFromIndex(0));
+        if ($bulk_export) {
+            $results = json_decode($results, TRUE);
+            $bulk_link = $results['datatable_bulk_download']['file']['link'];
+            if (!$bulk_link) {
+                return;
+            }
+
+            // save bulk download file
+            $curl = curl_init();
+            $zip_filename = tempnam(sys_get_temp_dir(), 'quandl_bulk_');
+            $zip_file = fopen($zip_filename, 'w');
+            curl_setopt($curl, CURLOPT_URL, $bulk_link);
+            curl_setopt($curl, CURLOPT_FILE, $zip_file);
+            $results = curl_exec($curl);
+            curl_close($curl);
+            fclose($zip_file);
+
+            // read bulk download file
+            $zip = new ZipArchive();
+            $zip->open($zip_filename);
+            $results = $zip->getFromIndex(0);
+            $zip->close();
+        }
+
+        $lines = explode(PHP_EOL, $results);
         // delete header row
         array_shift($lines);
-        $zip->close();
+        return($lines);
+    }
+
+    private function updateSharadarSecurities() {
+        // get link to bulk download file
+        $url = 'https://www.quandl.com/api/v3/datatables/SHARADAR/TICKERS';
+        $params = [];
+
+        if ($this->argument('start_date')) {
+            $params['lastupdated.gte'] = $this->argument('start_date');
+        } else {
+            $params['lastupdated.gte'] = Security::max('source_last_updated');
+        }
+        if ($this->argument('end_date')) {
+            $params['lastupdated.lte'] = $this->argument('end_date');
+        }
+
+        $lines = $this->fetchQuandlCSV($url, $params, $bulk_export = TRUE);
+
         foreach ($lines as $line) {
             if (!$line) {
                 continue;
@@ -181,44 +200,21 @@ class UpdateQuandl extends Command
     }
 
     private function updateActions() {
-        // get link to bulk download file
-        $curl = curl_init();
         $url = 'https://www.quandl.com/api/v3/datatables/SHARADAR/ACTIONS';
-        $url .= '?api_key=' . env('QUANDL_KEY');
-        $url .= '&qopts.export=true';
+        $params = [];
 
         if ($this->argument('start_date')) {
-            $url .= '&date.gte=' . $this->argument('start_date');
+            $params['date.gte'] = $this->argument('start_date');
         } else {
-            $url .= '&date.gt=' . \DB::table('action_security')->max('date');
+            $params['date.gte'] = \DB::table('action_security')->max('date');
         }
         if ($this->argument('end_date')) {
-            $url .= '&date.lte=' . $this->argument('end_date');
+            $params['date.lte'] = $this->argument('end_date');
         }
 
-        curl_setopt($curl, CURLOPT_URL, $url);
-        curl_setopt($curl, CURLOPT_RETURNTRANSFER, TRUE);
-        $results = json_decode(curl_exec($curl), TRUE);
-        $bulk_link = $results['datatable_bulk_download']['file']['link'];
-        curl_close($curl);
+        $lines = $this->fetchQuandlCSV($url, $params, $bulk_export = TRUE);
 
-        // save bulk download file
-        $curl = curl_init();
-        $zip_filename = tempnam(sys_get_temp_dir(), 'quandl_actions_');
-        $zip_file = fopen($zip_filename, 'w');
-        curl_setopt($curl, CURLOPT_URL, $bulk_link);
-        curl_setopt($curl, CURLOPT_FILE, $zip_file);
-        $results = curl_exec($curl);
-        curl_close($curl);
-        fclose($zip_file);
-
-        // read bulk download file
-        $zip = new ZipArchive();
-        $file = $zip->open($zip_filename);
-        $lines = explode(PHP_EOL, $zip->getFromIndex(0));
-        // delete header row
-        array_shift($lines);
-        $zip->close();
+        $chunk = [];
         foreach ($lines as $line) {
             if (!$line) {
                 continue;
@@ -227,12 +223,30 @@ class UpdateQuandl extends Command
             $action = Action::firstOrCreate(['name' => $line[1]]);
             $security = Security::where('ticker', $line[2])->first();
             if ($security) {
-                $action->securities()->attach($security->id, [
+                $chunk[] = [
                     'date' => $line[0],
+                    'action_id' => $action->id,
+                    'security_id' => $security->id,
                     'value' => $line[4] ?: null,
+                    'contraticker' => $line[5] ?: null,
+                ];
+            }
+            if (count($chunk) > 1000) {
+                \DB::table('action_security')->upsert($chunk, [
+                    'date',
+                    'action_id',
+                    'security_id',
+                    'contraticker',
                 ]);
+                $chunk = [];
             }
         }
+        \DB::table('action_security')->upsert($chunk, [
+            'date',
+            'action_id',
+            'security_id',
+            'contraticker',
+        ]);
         \Log::info('Action data successfully updated from Quandl.');
     }
 
@@ -241,52 +255,26 @@ class UpdateQuandl extends Command
         $newest_price_updated = Price::max('source_last_updated');
         foreach(['SEP', 'SFP'] as $source_table_name) {
             $source_table = SourceTable::where('name', $source_table_name)->first();
-            $curl = curl_init();
             $url = 'https://www.quandl.com/api/v3/datatables/SHARADAR/' . $source_table_name;
-            $url .= '?api_key=' . env('QUANDL_KEY');
-            $url .= '&qopts.export=true';
+            $params = [];
 
             if ($this->argument('start_date')) {
-                $url .= '&lastupdated.gte=' . $this->argument('start_date');
+                $params['lastupdated.gte'] = $this->argument('start_date');
             } else {
-                $url .= '&lastupdated.gte=' . Price::whereHas(
+                $params['lastupdated.gte'] = Price::whereHas(
                     'security',
                     function(Builder $query) use ($source_table) {
                         $query->where('source_table_id', $source_table->id);
                     }
                 )->max('source_last_updated');
+
             }
             if ($this->argument('end_date')) {
-                $url .= '&lastupdated.lte=' . $this->argument('end_date');
+                $params['lastupdated.lte'] = $this->argument('end_date');
             }
 
-            curl_setopt($curl, CURLOPT_URL, $url);
-            curl_setopt($curl, CURLOPT_RETURNTRANSFER, TRUE);
-            $results = json_decode(curl_exec($curl), TRUE);
-            curl_close($curl);
+            $lines = $this->fetchQuandlCSV($url, $params, $bulk_export = TRUE);
 
-            $bulk_link = $results['datatable_bulk_download']['file']['link'];
-            if (!$bulk_link) {
-                continue;
-            }
-
-            // save bulk download file
-            $curl = curl_init();
-            $zip_filename = tempnam(sys_get_temp_dir(), 'quandl_'.$source_table_name.'_prices_');
-            $zip_file = fopen($zip_filename, 'w');
-            curl_setopt($curl, CURLOPT_URL, $bulk_link);
-            curl_setopt($curl, CURLOPT_FILE, $zip_file);
-            $results = curl_exec($curl);
-            curl_close($curl);
-            fclose($zip_file);
-
-            // read bulk download file
-            $zip = new ZipArchive();
-            $file = $zip->open($zip_filename);
-            $lines = explode(PHP_EOL, $zip->getFromIndex(0));
-            // delete header row
-            array_shift($lines);
-            $zip->close();
             $chunk = [];
             foreach ($lines as $line) {
                 $line = str_getcsv($line);
@@ -338,19 +326,9 @@ class UpdateQuandl extends Command
             'scale_revenue' => 0,
         ]);
 
-        $curl = curl_init();
         $url = 'https://www.quandl.com/api/v3/datasets/FRED/' . $fed_debt_table->name . '.csv';
-        $url .= '?api_key=' . env('QUANDL_KEY');
 
-        curl_setopt($curl, CURLOPT_URL, $url);
-        curl_setopt($curl, CURLOPT_RETURNTRANSFER, TRUE);
-
-        $results = curl_exec($curl);
-        curl_close($curl);
-
-        $lines = explode(PHP_EOL, $results);
-        // delete header row
-        array_shift($lines);
+        $lines = $this->fetchQuandlCSV($url, $params = []);
         $prices = [];
         foreach ($lines as $line) {
             if (!$line) {
