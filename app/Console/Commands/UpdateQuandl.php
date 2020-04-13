@@ -16,7 +16,6 @@ use App\Models\Security;
 use App\Models\Cusip;
 use App\Models\Action;
 use App\Models\Price;
-use Carbon\Carbon;
 use ZipArchive;
 
 class UpdateQuandl extends Command
@@ -63,6 +62,7 @@ class UpdateQuandl extends Command
         $this->updateActions();
         $this->updateSharadarPrices();
         $this->updateFredPrices();
+        $this->updateLbmaPrices();
         if($this->update_momentum) {
             \Artisan::call('momentum:calculate-presets');
         }
@@ -344,5 +344,73 @@ class UpdateQuandl extends Command
         }
         \DB::table('prices')->upsert($prices, ['security_id', 'date']);
         \Log::info('FRED price data successfully updated from Quandl.');
+    }
+
+    private function updateLbmaPrices() {
+        $usd = Currency::firstOrCreate(['code' => 'USD']);
+        foreach([
+            'GOLD' => 'LBMA Gold Prices',
+            'SILVER' => 'LBMA Silver Prices',
+        ] as $source_table_name => $security_name) {
+            $source_table = SourceTable::firstOrCreate(['name' => $source_table_name]);
+            $url = 'https://www.quandl.com/api/v3/datasets/LBMA/' . $source_table_name . '.csv';
+            $params = [];
+
+            if ($this->argument('start_date')) {
+                $params['start_date'] = $this->argument('start_date');
+            } else {
+                $params['start_date'] = Price::whereHas(
+                    'security',
+                    function(Builder $query) use ($source_table) {
+                        $query->where('source_table_id', $source_table->id);
+                    }
+                )->max('source_last_updated');
+
+            }
+            if ($this->argument('end_date')) {
+                $params['end_date'] = $this->argument('end_date');
+            }
+
+            $lines = $this->fetchQuandlCSV($url, $params);
+
+            $chunk = [];
+            foreach ($lines as $line) {
+                $line = str_getcsv($line);
+                if (!$line || count($line) <= 1) {
+                    continue;
+                }
+                $security = Security::firstOrCreate([
+                    'source_table_id' => $source_table->id,
+                    'name' => $security_name,
+                ], [
+                    'is_delisted' => FALSE,
+                    'currency_id' => $usd->id,
+                    'scale_marketcap' => 0,
+                    'scale_revenue' => 0,
+                ]);
+
+                $price = [
+                    'security_id' => $security->id,
+                    'date' => $line[0],
+                ];
+                if ($source_table_name == 'SILVER') {
+                    $price['close'] = $line[1];
+                } else if ($source_table_name == 'GOLD') {
+                    $price['close'] = $line[2];
+                }
+
+                if ($price['close'] == '') {
+                    continue;
+                }
+                $chunk[] = $price;
+
+                if (count($chunk) > 1000) {
+                    \DB::table('prices')->upsert($chunk, ['security_id', 'date']);
+                    $chunk = [];
+                }
+            }
+            \DB::table('prices')->upsert($chunk, ['security_id', 'date']);
+        }
+        \Log::info('LBMA price data successfully updated from Quandl.');
     }
 }
