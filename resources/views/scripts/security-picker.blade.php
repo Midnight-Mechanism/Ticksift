@@ -13,8 +13,6 @@
                 return {"results": data};
             },
         },
-    }).on("select2:unselect", function() {
-        $("body").removeClass("waiting");
     });
 
     $("#create-portfolio-form").submit(function(event) {
