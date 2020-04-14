@@ -94,7 +94,7 @@
             }
         }
 
-        Plotly.newPlot(
+        Plotly.react(
             treemapChart,
             traces = [{
                 type: "treemap",

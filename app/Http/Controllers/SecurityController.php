@@ -270,7 +270,12 @@ class SecurityController extends Controller
             $start_date,
             $end_date,
         ]);
-        $request->session()->put('security_ids', $security_ids);
+
+        if ($request->has('is_ratio')) {
+            $request->session()->put('ratio_security_id', empty($security_ids) ? null : $security_ids[0]);
+        } else {
+            $request->session()->put('security_ids', $security_ids);
+        }
 
         if (empty($security_ids)) {
             return response()->json([], 200, [], JSON_NUMERIC_CHECK);

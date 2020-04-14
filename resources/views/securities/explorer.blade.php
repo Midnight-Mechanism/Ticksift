@@ -7,8 +7,8 @@
 @section('content')
     <div class="container-fluid">
         @include('partials.date-picker')
-        <div class="row pb-3">
-            <div class="col-12 d-flex">
+        <div class="row pb-2">
+            <div class="col-12">
                 <select id="select-portfolios" class="invisible">
                     <option></option>
                     @foreach(
@@ -31,6 +31,7 @@
                         <option value="candlestick">Candlestick</option>
                         <option value="ohlc">OHLC</option>
                         <option value="bubble">Bubble</option>
+                        <option value="ratio">Ratio</option>
                     </select>
                 </div>
                 <div class="col-6 col-lg-3 d-flex">
@@ -38,6 +39,11 @@
                         <option value="linear" selected>Linear Scale</option>
                         <option value="log">Logarithmic Scale</option>
                     </select>
+                </div>
+            </div>
+            <div id="select-ratio-container" class="row pt-2 select-ratio-row d-none">
+                <div class="col-12 col-lg-6">
+                    <select id="select-ratio" class="invisible"></select>
                 </div>
             </div>
             <div class="row">
@@ -62,6 +68,7 @@
 
         var timeLayout = {
             autosize: true,
+            height: 400,
             showlegend: true,
             title: "Prices",
             font: {
@@ -87,6 +94,7 @@
 
         var correlationLayout = {
             autosize: true,
+            height: 400,
             title: "Correlations",
             font: {
                 family: "Hind Madurai",
@@ -118,17 +126,9 @@
         };
 
         var securityPrices = [];
+        var ratioPrices = null;
         var timeChart = document.getElementById('time-chart');
         var correlationChart = document.getElementById('correlation-chart');
-
-        $(window).resize(function() {
-            let orientation = this.innerWidth < 576 ? "h" : "v";
-            if (orientation != timeLayout.legend.orientation) {
-                Plotly.relayout(timeChart, {
-                    "legend.orientation": orientation,
-                });
-            }
-        });
 
         function formatCurrency(number, code) {
             return new Intl.NumberFormat('en-US', {
@@ -237,15 +237,45 @@
                     timeLayout.title = "Closing Prices Weighted by Trading Volume";
                     timeLayout.xaxis.rangeslider = null;
                     break;
+                case "ratio":
+                    if(ratioPrices) {
+                        for (const securityData of Object.values(securityPrices)) {
+                            let overlappingPrices = _.cloneDeep(securityData).prices.map(price => {
+                                ratioPrice = ratioPrices.prices.find(ratioPrice => ratioPrice.date == price.date);
+                                if (ratioPrice) {
+                                    price.ratio_close = ratioPrice.close;
+                                    price.ratio = price.close / price.ratio_close;
+                                    return price;
+                                }
+                            }).filter(price => price != null);
+                            if(overlappingPrices.length > 0) {
+                                traces.push({
+                                    name: securityData.short_name,
+                                    legendgroup: securityData.short_name,
+                                    type: "scattergl",
+                                    x: overlappingPrices.map(a => a.date),
+                                    y: overlappingPrices.map(a => a.ratio),
+                                    customdata: overlappingPrices.map(a => [
+                                            formatCurrency(a.close, securityData.currency_code),
+                                            formatCurrency(a.ratio_close, ratioPrices.currency_code),
+                                    ]),
+                                    hovertemplate: "Close: %{customdata[0]}<br>" + ratioPrices.short_name +" Close: %{customdata[1]}<br>Ratio: %{y}",
+                                });
+                            }
+                        }
+                        timeLayout.title = "Closing Prices to " + ratioPrices.short_name;
+                        timeLayout.xaxis.rangeslider = null;
+                        timeLayout.yaxis.tickprefix = null;
+                    }
+                    break;
             }
 
-            Plotly.newPlot(
+            Plotly.react(
                 timeChart,
                 traces,
                 timeLayout,
                 timeConfig
             );
-
         }
 
         function processChartData() {
@@ -348,7 +378,7 @@
 
             // hide correlations and expand time chart if no correlations
             if (correlationTraces[0].z.length > 0) {
-                Plotly.newPlot(correlationChart, correlationTraces, correlationLayout, correlationConfig);
+                Plotly.react(correlationChart, correlationTraces, correlationLayout, correlationConfig);
             }
             else {
                 Plotly.purge(correlationChart);
@@ -389,6 +419,23 @@
             });
         }
 
+        function getRatioData() {
+            let security_id = $("#select-ratio").val();
+            let dates = $("#input-dates").val();
+
+            $.ajax({
+                url: "{{ route('securities.prices') }}",
+                data: {
+                    security_ids: security_id ? [security_id] : null,
+                    dates: dates,
+                    is_ratio: true,
+                },
+                async: false,
+            }).done(function(prices) {
+                ratioPrices = Object.values(prices)[0];
+            });
+        }
+
         $("#select-securities").on("select2:unselect", function () {
             let vals = $("#select-securities").val();
             if (!vals || !vals.length) {
@@ -411,13 +458,37 @@
             $("#select-portfolios").val(null).trigger('change');
         });
 
+        $("#select-ratio").select2({
+            placeholder: "Price selected securities in terms of another security...",
+            allowClear: true,
+            minimumInputLength: 1,
+            escapeMarkup: function(text) {
+                return text;
+            },
+            ajax: {
+                url: "{{ route('securities.search') }}",
+                delay: 250,
+                processResults: function(data) {
+                    return {"results": data};
+                },
+            },
+        });
+
         $("#input-dates").change(getSecurityData);
         $("#select-securities").change(getSecurityData);
+        $("#input-dates").change(function() {
+            getRatioData();
+            getSecurityData();
+        });
+        $("#select-ratio").change(function() {
+            getRatioData();
+            buildTimeChart();
+        });
 
         function saveChartData() {
             $.post("{{ route('users.store-chart-options') }}", data = {
                 chart_type: $("#select-time-chart-type").val(),
-                chart_scale: $("#select-time-chart-scale").val()
+                chart_scale: $("#select-time-chart-scale").val(),
             });
             buildTimeChart();
         }
@@ -426,12 +497,29 @@
             minimumResultsForSearch: -1,
         });
         $("#select-time-chart-type").change(saveChartData);
+        $("#select-time-chart-type").on("change.select2", function() {
+            if ($("#select-time-chart-type").val() == "ratio") {
+                $("#select-ratio-container").removeClass("d-none");
+            } else {
+                $("#select-ratio-container").addClass("d-none");
+            }
+        });
 
         $("#select-time-chart-scale").select2({
             minimumResultsForSearch: -1,
         });
         $("#select-time-chart-scale").change(saveChartData);
 
+        @if(Session::has('ratio_security_id'))
+            let security = {!! \App\Models\Security::find(Session::get('ratio_security_id'), ['id', 'ticker', 'name']) !!};
+            $("#select-ratio").append(new Option(
+                security.ticker ? security.ticker + " - " + security.name : security.name,
+                security.id,
+                false,
+                true
+            ));
+            $("#select-ratio").trigger("change");
+        @endif
         @if(Session::has('chart_type'))
             $("#select-time-chart-type").val("{{ Session::get('chart_type') }}");
             $("#select-time-chart-type").trigger("change.select2");

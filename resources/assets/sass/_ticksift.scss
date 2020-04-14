@@ -150,3 +150,14 @@ a:not(.btn), .btn-link {
 .table {
     color: white;
 }
+
+// needed for Plotly.react
+.plotly {
+    min-height: 400px;
+    .svg-container {
+        height: 100% !important;
+    }
+}
+#treemap-chart .plotly {
+    min-height: 800px;
+}

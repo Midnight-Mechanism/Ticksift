@@ -1,4 +1,4 @@
-<div class="row mb-3">
+<div class="row pb-3">
     <div class="col-12 col-lg-3">
         <input id="input-dates" type="text" placeholder="Select Date.." data-input>
     </div>
