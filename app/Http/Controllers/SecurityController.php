@@ -120,7 +120,7 @@ class SecurityController extends Controller
             'losers' => $losers->sortByDesc('decrease')->values(),
         ];
 
-        Cache::put($cache_key, $results, now()->addDays(1));
+        Cache::put($cache_key, $results, now()->addWeek());
         return $results;
     }
 
