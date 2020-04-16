@@ -96,7 +96,7 @@
                     security_ids: $("#select-securities").val(),
                 }).done(function(data) {
                     const mergedData = [].concat.apply([], Object.values(_.cloneDeep(data)));
-                    buildTreemap(mergedData, function(security) {
+                    buildTreemap(mergedData, _.kebabCase(portfoliosTable.getSelectedData()[0].name), function(security) {
                         return security.latest_close;
                     });
                     $("body").removeClass("waiting");

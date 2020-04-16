@@ -10,7 +10,7 @@
         }).format(number);
     }
 
-    function buildTreemap(data, calculateSecuritySize) {
+    function buildTreemap(data, fileSlug, calculateSecuritySize) {
 
         data = _(data).map(function (securityData) {
             if (!securityData.sector) {
@@ -136,7 +136,7 @@
                     width: 1920,
                     filename: [
                         "ticksift",
-                        "treemap",
+                        fileSlug,
                         $("#input-dates").val(),
                     ].join("_").split(" ").join("_"),
                 },

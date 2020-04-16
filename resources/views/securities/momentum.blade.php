@@ -10,7 +10,7 @@
         <div id="security-results" style="visibility: hidden">
             <div class="row">
                 <div class="col-12 text-center pb-3">
-                    <h3 class="chart-title">Large Cap</h3>
+                    <h3 class="chart-title">Sectors</h3>
                     <div id="treemap-chart" class="chart"></div>
                 </div>
                 <div class="col-12 col-lg-6 text-center pb-3">
@@ -132,7 +132,7 @@
                 losersTable.setData(data.losers);
 
                 const mergedData = [].concat.apply([], Object.values(_.cloneDeep(data)));
-                buildTreemap(mergedData, function(security) {
+                buildTreemap(mergedData, "sectors", function(security) {
                     return security.latest_close * security.volume;
                 });
 
