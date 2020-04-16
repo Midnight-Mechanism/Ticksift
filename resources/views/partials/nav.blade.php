@@ -11,37 +11,61 @@
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
             {{-- Left Side Of Navbar --}}
             <ul class="navbar-nav mr-auto">
-                @if(Route::currentRouteName() !== 'securities.explorer')
-                    <li>
-                        <a class="nav-link" href="{{ route('securities.explorer') }}">Explorer</a>
-                    </li>
-                @endif
-                @if(Route::currentRouteName() !== 'securities.momentum')
-                    <li>
-                        <a class="nav-link" href="{{ route('securities.momentum') }}">Momentum</a>
-                    </li>
-                @endif
+                <li>
+                    <a
+                        class="nav-link{{ Route::currentRouteName() === 'securities.explorer' ? ' active' : '' }}"
+                        href="{{ route('securities.explorer') }}"
+                        >
+                        Explorer
+                    </a>
+                </li>
+                <li>
+                    <a
+                        class="nav-link{{ Route::currentRouteName() === 'securities.momentum' ? ' active' : '' }}"
+                        href="{{ route('securities.momentum') }}"
+                        >
+                        Momentum
+                    </a>
+                </li>
                 @auth
-                    @if(Route::currentRouteName() !== 'portfolios.index')
-                        <li>
-                            <a class="nav-link" href="{{ route('portfolios.index') }}">Portfolios</a>
-                        </li>
-                    @endif
+                    <li>
+                        <a
+                            class="nav-link{{ Route::currentRouteName() === 'portfolios.index' ? ' active' : '' }}"
+                            href="{{ route('portfolios.index') }}"
+                            >
+                            Portfolios
+                        </a>
+                    </li>
                 @endauth
             </ul>
             {{-- Right Side Of Navbar --}}
             <ul class="navbar-nav ml-auto">
                 @auth
                     <li>
-                        <a class="nav-link" href="{{ url('profile') }}">Profile</a>
+                        <a
+                            class="nav-link{{ Route::currentRouteName() === 'profile' ? ' active' : '' }}"
+                            href="{{ route('profile') }}"
+                            >
+                            Profile
+                        </a>
                     </li>
                 @endauth
                 @guest
                     <li>
-                        <a class="nav-link" href="{{ route('login') }}">Login</a>
+                        <a
+                            class="nav-link{{ Route::currentRouteName() === 'login' ? ' active' : '' }}"
+                            href="{{ route('login') }}"
+                            >
+                            Login
+                        </a>
                     </li>
                     <li>
-                        <a class="nav-link" href="{{ route('register') }}">Register</a>
+                        <a
+                            class="nav-link{{ Route::currentRouteName() === 'register' ? ' active' : '' }}"
+                            href="{{ route('register') }}"
+                            >
+                            Register
+                        </a>
                     </li>
                 @endguest
                 @auth

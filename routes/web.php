@@ -19,7 +19,7 @@ Auth::routes();
 // Public Routes
 Route::group(['middleware' => ['web']], function () {
 
-    Route::redirect('/', 'securities/momentum');
+    Route::redirect('/', 'securities/explorer');
 
     // Activation Routes
     Route::get('activate', 'Auth\ActivateController@initial')->name('activate');
