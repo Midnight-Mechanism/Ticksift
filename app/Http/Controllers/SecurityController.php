@@ -214,6 +214,11 @@ class SecurityController extends Controller
     {
         $query = $request->input('q');
         $source_tables = SourceTable::all();
+        $security_types = [
+            'Misc.',
+            'Equities',
+            'Funds',
+        ];
         $results = Security::where('ticker', 'ILIKE', '%' . $query . '%')
             ->orWhere('name', 'ILIKE', '%' . $query . '%')
             ->select(
@@ -222,24 +227,26 @@ class SecurityController extends Controller
                 DB::raw("CASE WHEN ticker IS NULL THEN name ELSE CONCAT(ticker, ' - ', name) END AS text")
             )
             ->get()
-            ->groupBy(function($security) use ($source_tables) {
+            ->groupBy(function($security) use ($source_tables, $security_types) {
                 $source_table_id = $security->source_table_id;
                 unset($security->source_table_id);
                 $source_table_name = $source_tables->firstWhere('id', $source_table_id)->name;
                 switch($source_table_name) {
                 case 'SEP':
-                    return 'Equities';
+                    return $security_types[1];
                     break;
                 case 'SFP':
-                    return 'Funds';
+                    return $security_types[2];
                     break;
                 default:
-                    return 'Other';
+                    return $security_types[0];
                     break;
                 }
-            })->map(function($securities, $table) {
+            })->sortBy(function($security, $type) use ($security_types) {
+                return array_search($type, $security_types);
+            })->map(function($securities, $type) {
                 return [
-                    'text' => $table,
+                    'text' => $type,
                     'children' => $securities,
                 ];
             })->values();
