@@ -97,7 +97,7 @@
                 }).done(function(data) {
                     const mergedData = [].concat.apply([], Object.values(_.cloneDeep(data)));
                     buildTreemap(mergedData, _.kebabCase(portfoliosTable.getSelectedData()[0].name), function(security) {
-                        return security.latest_close;
+                        return 1;
                     });
                     $("body").removeClass("waiting");
                     $(".chart").removeClass("outdated");
