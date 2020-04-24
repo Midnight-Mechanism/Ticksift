@@ -62,7 +62,7 @@ class UpdateQuandl extends Command
         $this->updateActions();
         $this->updateSharadarPrices();
         $this->updateFredPrices();
-        $this->updateLbmaPrices();
+        $this->updateLondonPrices();
         if($this->update_momentum) {
             \Artisan::call('momentum:calculate-presets');
         }
@@ -346,14 +346,32 @@ class UpdateQuandl extends Command
         \Log::info('FRED price data successfully updated from Quandl.');
     }
 
-    private function updateLbmaPrices() {
+    private function updateLondonPrices() {
         $usd = Currency::firstOrCreate(['code' => 'USD']);
         foreach([
-            'GOLD' => 'LBMA Gold Prices',
-            'SILVER' => 'LBMA Silver Prices',
-        ] as $source_table_name => $security_name) {
+            'GOLD' => [
+                'name' => 'LBMA Gold Prices',
+                'source' => 'LBMA',
+                'close_index' => 2,
+            ],
+            'SILVER' => [
+                'name' => 'LBMA Silver Prices',
+                'source' => 'LBMA',
+                'close_index' => 1,
+            ],
+            'PALL' => [
+                'name' => 'LBMA Palladium Prices',
+                'source' => 'LPPM',
+                'close_index' => 4,
+            ],
+            'PLAT' => [
+                'name' => 'LBMA Platinum Prices',
+                'source' => 'LPPM',
+                'close_index' => 4,
+            ],
+        ] as $source_table_name => $security_data) {
             $source_table = SourceTable::firstOrCreate(['name' => $source_table_name]);
-            $url = 'https://www.quandl.com/api/v3/datasets/LBMA/' . $source_table_name . '.csv';
+            $url = 'https://www.quandl.com/api/v3/datasets/' . $security_data['source'] . '/' . $source_table_name . '.csv';
             $params = [];
 
             if ($this->argument('start_date')) {
@@ -381,7 +399,7 @@ class UpdateQuandl extends Command
                 }
                 $security = Security::firstOrCreate([
                     'source_table_id' => $source_table->id,
-                    'name' => $security_name,
+                    'name' => $security_data['name'],
                 ], [
                     'is_delisted' => FALSE,
                     'currency_id' => $usd->id,
@@ -392,12 +410,8 @@ class UpdateQuandl extends Command
                 $price = [
                     'security_id' => $security->id,
                     'date' => $line[0],
+                    'close' => $line[$security_data['close_index']],
                 ];
-                if ($source_table_name == 'SILVER') {
-                    $price['close'] = $line[1];
-                } else if ($source_table_name == 'GOLD') {
-                    $price['close'] = $line[2];
-                }
 
                 if ($price['close'] == '') {
                     continue;
