@@ -14,18 +14,19 @@ class CreateSecuritySecurityTable extends Migration
     public function up()
     {
         DB::statement("CREATE MATERIALIZED VIEW security_security AS
-            SELECT
-            a.security_id AS security_id,
-            b.security_id AS comp_security_id,
-            corr(a.close, b.close) AS correlation
-            FROM securities s
-            INNER JOIN prices a
-            ON a.security_id = s.id
-            INNER JOIN prices b
-            ON a.security_id = s.id
-            AND a.date = b.date
-            WHERE s.scale_marketcap >= 6
-            GROUP BY a.security_id, b.security_id
+            WITH a AS (
+                SELECT p.security_id AS security_id, p.date AS sec_date, p.close AS closing_cost
+                FROM prices p
+            ), b AS (
+                SELECT p.security_id AS comp_security_id, p.date AS comp_sec_date, p.close AS comp_closing_cost
+                FROM prices p
+            )
+            SELECT a.security_id AS security_id, b.comp_security_id AS comp_security_id, corr(a.closing_cost, b.comp_closing_cost)
+                FROM a JOIN b
+                    ON a.sec_date = b.comp_sec_date
+                    WHERE a.security_id < b.comp_security_id
+                GROUP BY a.security_id, b.comp_security_id
+                ORDER BY a.security_id, b.comp_security_id
             WITH NO DATA");
     }
 
