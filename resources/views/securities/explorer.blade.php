@@ -25,41 +25,39 @@
         @include('partials.security-picker')
         <div id="security-results" class="invisible">
             <div class="row">
-                <div class="col-6 col-lg-3 d-flex">
-                    <select id="select-time-chart-type" class="invisible">
+                <div class="col-12 col-lg-6 d-flex py-1">
+                    <select id="select-explorer-chart-type" class="invisible">
                         <option value="line" selected>Line Chart</option>
                         <option value="candlestick">Candlestick Chart</option>
                         <option value="ohlc">OHLC Chart</option>
                         <option value="bubble">Bubble Chart</option>
                         <option value="ratio">Ratio Chart</option>
                         <option value="histvar">Historical VaR Chart</option>
+                        <option value="correlation">Correlation Chart</option>
                     </select>
                 </div>
-                <div class="col-6 col-lg-3 d-flex">
-                    <select id="select-time-chart-scale" class="invisible">
+                <div class="col-12 col-lg-6 d-flex py-1">
+                    <select id="select-explorer-chart-scale" class="invisible">
                         <option value="linear" selected>Linear Scale</option>
                         <option value="log">Logarithmic Scale</option>
                     </select>
                 </div>
             </div>
             <div id="select-ratio-container" class="row pt-2 d-none">
-                <div class="col-12 col-lg-6">
+                <div class="col-12">
                     <label class="label-centered">Denominator Security:</label>
                     <select id="select-ratio" class="invisible"></select>
                 </div>
             </div>
             <div id="input-threshold-container" class="row pt-2 d-none">
-                <div class="col-12 col-lg-6">
+                <div class="col-12">
                     <label class="label-centered">Highlight Percentile:</label>
-                    <input id="input-threshold" type="number" min="0" max="100" value="5">
+                    <input id="input-threshold" class="text-center" type="number" min="0" max="100" value="5">
                 </div>
             </div>
             <div class="row">
-                <div class="col-12 col-lg-6 my-2">
-                    <div id="time-chart" class="chart"></div>
-                </div>
-                <div class="col-12 col-lg-6 my-2">
-                    <div id="correlation-chart" class="chart"></div>
+                <div class="col-12 pt-2">
+                    <div id="explorer-chart" class="chart"></div>
                 </div>
             </div>
         </div>
@@ -74,10 +72,8 @@
         const chartColor = "#000F0F";
         const gridColor = "#154B4B";
 
-        var timeLayout = {
+        var explorerLayout = {
             autosize: true,
-            height: 400,
-            title: "Prices",
             font: {
                 family: "Hind Madurai",
                 color: "white",
@@ -91,31 +87,7 @@
                 gridcolor: gridColor,
                 automargin: true,
             },
-            legend: {
-                orientation: window.innerWidth < 576 ? "h" : "v",
-            },
-            paper_bgcolor: chartColor,
-            plot_bgcolor: chartColor,
-        };
-
-        var correlationLayout = {
-            autosize: true,
-            height: 400,
-            title: "Correlations",
-            font: {
-                family: "Hind Madurai",
-                color: "white",
-            },
-            dragmode: "zoom",
-            xaxis: {
-                gridcolor: gridColor,
-                automargin: true,
-            },
-            yaxis: {
-                gridcolor: gridColor,
-                automargin: true,
-            },
-            annotations: [],
+            legend: {},
             paper_bgcolor: chartColor,
             plot_bgcolor: chartColor,
         };
@@ -133,8 +105,7 @@
 
         var securityPrices = [];
         var ratioPrices = null;
-        var timeChart = document.getElementById('time-chart');
-        var correlationChart = document.getElementById('correlation-chart');
+        var explorerChart = document.getElementById('explorer-chart');
 
         function formatCurrency(number, code) {
             return new Intl.NumberFormat('en-US', {
@@ -143,15 +114,15 @@
             }).format(number);
         }
 
-        function buildTimeChart() {
-            const chartType = $("#select-time-chart-type").val();
-            const chartScale = $("#select-time-chart-scale").val();
+        function processChartData() {
+            const chartType = $("#select-explorer-chart-type").val();
+            const chartScale = $("#select-explorer-chart-scale").val();
 
             const dates = $("#input-dates").val();
             const short_names = securityPrices.map(a => a.short_name);
 
             let traces = [];
-            let timeConfig = _.cloneDeep(config);
+            let explorerConfig = _.cloneDeep(config);
 
             let filename = [
                 "ticksift",
@@ -162,20 +133,23 @@
             filename = filename.join("_").split(" ").join("_");
 
             if (securityPrices.every(a => a.currency_code === "USD")) {
-                timeLayout.yaxis.tickprefix = "$";
+                explorerLayout.yaxis.tickprefix = "$";
             } else {
-                timeLayout.yaxis.tickprefix = null;
+                explorerLayout.yaxis.tickprefix = null;
             }
 
-            timeLayout.yaxis.type = chartScale;
-            timeLayout.xaxis.type = "date";
-            timeLayout.xaxis.tickformat = "";
-            timeLayout.showlegend = true;
+            explorerLayout.yaxis.type = chartScale;
+            explorerLayout.xaxis.type = "date";
+            explorerLayout.xaxis.tickformat = "";
+            explorerLayout.showlegend = true;
+            explorerLayout.annotations = [];
+            explorerLayout.xaxis.rangeslider = null;
+            explorerLayout.legend.orientation = window.innerWidth < 576 ? "h" : "v",
 
-            timeLayout.xaxis.title = "";
-            timeLayout.yaxis.title = "";
+            explorerLayout.xaxis.title = "";
+            explorerLayout.yaxis.title = "";
 
-            timeConfig.toImageButtonOptions.filename = filename;
+            explorerConfig.toImageButtonOptions.filename = filename;
             switch (chartType) {
                 case "line":
                     for (const securityData of Object.values(securityPrices)) {
@@ -189,8 +163,7 @@
                             hovertemplate: "Close: %{text}",
                         });
                     }
-                    timeLayout.title = "Closing Prices";
-                    timeLayout.xaxis.rangeslider = null;
+                    explorerLayout.title = "Closing Prices";
                     break;
                 case "candlestick":
                 case "ohlc":
@@ -213,8 +186,8 @@
                             hoverinfo: "text",
                         });
                     }
-                    timeLayout.title = "Prices";
-                    timeLayout.xaxis.rangeslider = {};
+                    explorerLayout.title = "Prices";
+                    explorerLayout.xaxis.rangeslider = {};
                     break;
                 case "bubble":
                     // determine max volume across all securities
@@ -246,8 +219,7 @@
                             hovertemplate: "Close: %{text}<br>Volume: %{marker.size:,} shares",
                         });
                     }
-                    timeLayout.title = "Closing Prices Weighted by Trading Volume";
-                    timeLayout.xaxis.rangeslider = null;
+                    explorerLayout.title = "Closing Prices Weighted by Trading Volume";
                     break;
                 case "ratio":
                     if(ratioPrices) {
@@ -275,9 +247,8 @@
                                 });
                             }
                         }
-                        timeLayout.title = "Closing Prices to " + ratioPrices.short_name;
-                        timeLayout.xaxis.rangeslider = null;
-                        timeLayout.yaxis.tickprefix = null;
+                        explorerLayout.title = "Closing Prices to " + ratioPrices.short_name;
+                        explorerLayout.yaxis.tickprefix = null;
                     }
                     break;
                 case "histvar":
@@ -324,133 +295,123 @@
                         }
                     );
 
-                    timeLayout.title = "Historical Value at Risk";
-                    timeLayout.xaxis.title = "Continuously Compounded Daily Return";
-                    timeLayout.yaxis.title = "Frequency";
+                    explorerLayout.title = "Historical Value at Risk";
+                    explorerLayout.xaxis.title = "Continuously Compounded Daily Return";
+                    explorerLayout.yaxis.title = "Frequency";
+                    explorerLayout.legend.orientation = "v",
 
-                    timeLayout.xaxis.rangeslider = null;
-                    timeLayout.yaxis.tickprefix = null;
-                    timeLayout.xaxis.tickformat = "%";
-                    timeLayout.xaxis.type = "linear";
-                    timeLayout.barmode = "stack";
-                    delete timeLayout.showlegend;
+                    explorerLayout.xaxis.rangeslider = null;
+                    explorerLayout.yaxis.tickprefix = null;
+                    explorerLayout.xaxis.tickformat = "%";
+                    explorerLayout.xaxis.type = "linear";
+                    explorerLayout.barmode = "stack";
+                    delete explorerLayout.showlegend;
+                    break;
+                case "correlation":
+                    let trace = {
+                        x: [],
+                        y: [],
+                        z: [],
+                        type: "heatmap",
+                        colorscale: "Electric",
+                        hovertemplate: "%{x} to %{y} correlation: %{z}<extra></extra>",
+                        zmin: -1,
+                        zmax: 1,
+                    };
+
+                    let lastDates = [];
+
+                    const sortedSecurityPrices = _(_.cloneDeep(securityPrices)).sortBy("short_name").value();
+                    for (let securityData of Object.values(sortedSecurityPrices)) {
+                        let dates = securityData.prices.map(a => a.date);
+                        let close = securityData.prices.map(a => a.close);
+
+                        lastDates.push(moment(dates[dates.length - 1]));
+
+                        // calculate correlation data for security
+                        for (let compSecurityData of Object.values(sortedSecurityPrices)) {
+                            let coeff;
+                            let oldCoeff;
+
+                            // check existing points for reverse of security pair
+                            if (securityData.short_name !== compSecurityData.short_name) {
+                                for (const pointIndex in trace.x) {
+                                    if (
+                                        trace.x[pointIndex] === securityData.short_name &&
+                                        trace.y[pointIndex] === compSecurityData.short_name
+                                    ) {
+                                        oldCoeff = trace.z[pointIndex];
+                                    }
+                                }
+                            }
+
+                            // skip expensive computations if comparing security against itself
+                            if (securityData.short_name === compSecurityData.short_name) {
+                                if (dates.length <= 1) {
+                                    continue;
+                                }
+                                coeff = 1;
+                                // use old coefficient if we've computed the correlation already
+                            } else if (oldCoeff != undefined) {
+                                coeff = oldCoeff;
+                            } else {
+
+                                let compDates = compSecurityData.prices.map(a => a.date);
+                                let compClose = compSecurityData.prices.map(a => a.close);
+
+                                let overlappingDates = dates.filter(date => compDates.includes(date));
+                                if (overlappingDates.length <= 1) {
+                                    continue;
+                                }
+
+                                let coeffData = [];
+                                let compCoeffData = [];
+                                overlappingDates.forEach(function(date) {
+                                    let dateIndex = dates.indexOf(date);
+                                    let compDateIndex = compDates.indexOf(date);
+                                    coeffData.push(close[dateIndex]);
+                                    compCoeffData.push(compClose[compDateIndex]);
+                                });
+
+                                coeff = jStat.corrcoeff(coeffData, compCoeffData);
+                                if (coeff) {
+                                    coeff = parseFloat(coeff.toFixed(2));
+                                }
+
+                                // correct values outside of correlation range
+                                coeff = coeff > 1 ? 1 : coeff;
+                                coeff = coeff < -1 ? -1 : coeff;
+                            }
+
+                            trace.x.push(securityData.short_name);
+                            trace.y.push(compSecurityData.short_name);
+                            trace.z.push(coeff);
+                            explorerLayout.annotations.push({
+                                x: securityData.short_name,
+                                y: compSecurityData.short_name,
+                                text: coeff,
+                                font: {
+                                    color: coeff > 0 ? "black" : "white",
+                                },
+                                showarrow: false,
+                            });
+                        }
+                    }
+                    traces.push(trace);
+
+                    explorerLayout.title = "Correlations";
+                    explorerLayout.yaxis.tickprefix = null;
+                    explorerLayout.xaxis.type = "category";
+                    explorerLayout.yaxis.type = "category";
                     break;
             }
 
             Plotly.react(
-                timeChart,
+                explorerChart,
                 traces,
-                timeLayout,
-                timeConfig
+                explorerLayout,
+                explorerConfig
             );
-        }
-
-        function processChartData() {
-            let correlationTraces = [{
-                x: [],
-                y: [],
-                z: [],
-                type: "heatmap",
-                colorscale: "Electric",
-                hovertemplate: "%{x} to %{y} correlation: %{z}<extra></extra>",
-                zmin: -1,
-                zmax: 1,
-            }];
-
-            let lastDates = [];
-            correlationLayout.annotations = [];
-            correlationConfig = _.cloneDeep(config);
-            correlationConfig.toImageButtonOptions.filename = [
-                "ticksift",
-                "correlations",
-                $("#input-dates").val(),
-            ].join("_").split(" ").join("_");
-
-            const sortedSecurityPrices = _(_.cloneDeep(securityPrices)).sortBy("short_name").value();
-            for (let securityData of Object.values(sortedSecurityPrices)) {
-                let dates = securityData.prices.map(a => a.date);
-                let close = securityData.prices.map(a => a.close);
-
-                lastDates.push(moment(dates[dates.length - 1]));
-
-                // calculate correlation data for security
-                for (let compSecurityData of Object.values(sortedSecurityPrices)) {
-                    let coeff;
-                    let oldCoeff;
-
-                    // check existing points for reverse of security pair
-                    if (securityData.short_name !== compSecurityData.short_name) {
-                        for (const pointIndex in correlationTraces[0].x) {
-                            if (
-                                correlationTraces[0].x[pointIndex] === securityData.short_name &&
-                                correlationTraces[0].y[pointIndex] === compSecurityData.short_name
-                            ) {
-                                oldCoeff = correlationTraces[0].z[pointIndex];
-                            }
-                        }
-                    }
-
-                    // skip expensive computations if comparing security against itself
-                    if (securityData.short_name === compSecurityData.short_name) {
-                        if (dates.length <= 1) {
-                            continue;
-                        }
-                        coeff = 1;
-                        // use old coefficient if we've computed the correlation already
-                    } else if (oldCoeff != undefined) {
-                        coeff = oldCoeff;
-                    } else {
-
-                        let compDates = compSecurityData.prices.map(a => a.date);
-                        let compClose = compSecurityData.prices.map(a => a.close);
-
-                        let overlappingDates = dates.filter(date => compDates.includes(date));
-                        if (overlappingDates.length <= 1) {
-                            continue;
-                        }
-
-                        let coeffData = [];
-                        let compCoeffData = [];
-                        overlappingDates.forEach(function(date) {
-                            let dateIndex = dates.indexOf(date);
-                            let compDateIndex = compDates.indexOf(date);
-                            coeffData.push(close[dateIndex]);
-                            compCoeffData.push(compClose[compDateIndex]);
-                        });
-
-                        coeff = jStat.corrcoeff(coeffData, compCoeffData);
-                        if (coeff) {
-                            coeff = parseFloat(coeff.toFixed(2));
-                        }
-
-                        // correct values outside of correlation range
-                        coeff = coeff > 1 ? 1 : coeff;
-                        coeff = coeff < -1 ? -1 : coeff;
-                    }
-
-                    correlationTraces[0].x.push(securityData.short_name);
-                    correlationTraces[0].y.push(compSecurityData.short_name);
-                    correlationTraces[0].z.push(coeff);
-                    correlationLayout.annotations.push({
-                        x: securityData.short_name,
-                        y: compSecurityData.short_name,
-                        text: coeff,
-                        font: {
-                            color: coeff > 0 ? "black" : "white",
-                        },
-                        showarrow: false,
-                    });
-                }
-            }
-
-            // hide correlations and expand time chart if no correlations
-            if (correlationTraces[0].z.length > 0) {
-                Plotly.react(correlationChart, correlationTraces, correlationLayout, correlationConfig);
-            }
-            else {
-                Plotly.purge(correlationChart);
-            }
-            buildTimeChart();
         }
 
         function getPortfolioData() {
@@ -549,26 +510,27 @@
         });
         $("#select-ratio").change(function() {
             getRatioData();
-            buildTimeChart();
+            processChartData();
         });
         $("#input-threshold").change(function() {
-            buildTimeChart();
+            processChartData();
         });
 
         function saveChartData() {
             $.post("{{ route('users.store-chart-options') }}", data = {
-                chart_type: $("#select-time-chart-type").val(),
-                chart_scale: $("#select-time-chart-scale").val(),
+                chart_type: $("#select-explorer-chart-type").val(),
+                chart_scale: $("#select-explorer-chart-scale").val(),
             });
-            buildTimeChart();
+            processChartData();
         }
 
-        $("#select-time-chart-type").select2({
+        $("#select-explorer-chart-type").select2({
             minimumResultsForSearch: -1,
         });
-        $("#select-time-chart-type").change(saveChartData);
-        $("#select-time-chart-type").on("change.select2", function() {
-            let chartType = $("#select-time-chart-type").val();
+        $("#select-explorer-chart-type").change(saveChartData);
+        $("#select-explorer-chart-type").on("change.select2", function() {
+            let chartType = $("#select-explorer-chart-type").val();
+
             if (chartType == "ratio") {
                 $("#select-ratio-container").removeClass("d-none");
             } else {
@@ -580,12 +542,19 @@
             } else {
                 $("#input-threshold-container").addClass("d-none");
             }
+
+            if (chartType == "correlation") {
+                $("#select-explorer-chart-scale").next(".select2-container").hide();
+            } else {
+                $("#select-explorer-chart-scale").next(".select2-container").show();
+            }
+
         });
 
-        $("#select-time-chart-scale").select2({
+        $("#select-explorer-chart-scale").select2({
             minimumResultsForSearch: -1,
         });
-        $("#select-time-chart-scale").change(saveChartData);
+        $("#select-explorer-chart-scale").change(saveChartData);
 
         @if(Session::has('ratio_security_id'))
             let security = {!! \App\Models\Security::find(Session::get('ratio_security_id'), ['id', 'ticker', 'name']) !!};
@@ -598,12 +567,12 @@
             $("#select-ratio").trigger("change");
         @endif
         @if(Session::has('chart_type'))
-            $("#select-time-chart-type").val("{{ Session::get('chart_type') }}");
-            $("#select-time-chart-type").trigger("change.select2");
+            $("#select-explorer-chart-type").val("{{ Session::get('chart_type') }}");
+            $("#select-explorer-chart-type").trigger("change.select2");
         @endif
         @if(Session::has('chart_scale'))
-            $("#select-time-chart-scale").val("{{ Session::get('chart_scale') }}");
-            $("#select-time-chart-scale").trigger("change.select2");
+            $("#select-explorer-chart-scale").val("{{ Session::get('chart_scale') }}");
+            $("#select-explorer-chart-scale").trigger("change.select2");
         @endif
 
         @if($securities = \App\Models\Security::findMany(Session::get('security_ids'), ['id', 'ticker', 'name']))
