@@ -333,6 +333,7 @@
                     timeLayout.xaxis.tickformat = "%";
                     timeLayout.xaxis.type = "linear";
                     timeLayout.barmode = "stack";
+                    delete timeLayout.showlegend;
                     break;
             }
 
