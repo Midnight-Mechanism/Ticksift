@@ -27,11 +27,12 @@
             <div class="row">
                 <div class="col-6 col-lg-3 d-flex">
                     <select id="select-time-chart-type" class="invisible">
-                        <option value="line" selected>Line</option>
-                        <option value="candlestick">Candlestick</option>
-                        <option value="ohlc">OHLC</option>
-                        <option value="bubble">Bubble</option>
-                        <option value="ratio">Ratio</option>
+                        <option value="line" selected>Line Chart</option>
+                        <option value="candlestick">Candlestick Chart</option>
+                        <option value="ohlc">OHLC Chart</option>
+                        <option value="bubble">Bubble Chart</option>
+                        <option value="ratio">Ratio Chart</option>
+                        <option value="histvar">Historical VaR Chart</option>
                     </select>
                 </div>
                 <div class="col-6 col-lg-3 d-flex">
@@ -41,9 +42,16 @@
                     </select>
                 </div>
             </div>
-            <div id="select-ratio-container" class="row pt-2 select-ratio-row d-none">
+            <div id="select-ratio-container" class="row pt-2 d-none">
                 <div class="col-12 col-lg-6">
+                    <label class="label-centered">Denominator Security:</label>
                     <select id="select-ratio" class="invisible"></select>
+                </div>
+            </div>
+            <div id="input-threshold-container" class="row pt-2 d-none">
+                <div class="col-12 col-lg-6">
+                    <label class="label-centered">Highlight Percentile:</label>
+                    <input id="input-threshold" type="number" min="0" max="100" value="5">
                 </div>
             </div>
             <div class="row">
@@ -69,7 +77,6 @@
         var timeLayout = {
             autosize: true,
             height: 400,
-            showlegend: true,
             title: "Prices",
             font: {
                 family: "Hind Madurai",
@@ -78,7 +85,6 @@
             dragmode: "zoom",
             xaxis: {
                 gridcolor: gridColor,
-                autorange: true,
                 automargin: true,
             },
             yaxis: {
@@ -162,6 +168,12 @@
             }
 
             timeLayout.yaxis.type = chartScale;
+            timeLayout.xaxis.type = "date";
+            timeLayout.xaxis.tickformat = "";
+            timeLayout.showlegend = true;
+
+            timeLayout.xaxis.title = "";
+            timeLayout.yaxis.title = "";
 
             timeConfig.toImageButtonOptions.filename = filename;
             switch (chartType) {
@@ -267,6 +279,60 @@
                         timeLayout.xaxis.rangeslider = null;
                         timeLayout.yaxis.tickprefix = null;
                     }
+                    break;
+                case "histvar":
+                    let returns = [];
+                    for (const securityData of Object.values(securityPrices)) {
+                        let previousPrice;
+
+                        securityData.prices.map(price => {
+                            if (previousPrice) {
+                                returns.push(Math.log(price.close / previousPrice.close));
+                            }
+                            previousPrice = price;
+                        });
+                    }
+                    returns.sort((a, b) => a - b);
+
+                    let threshold = $("#input-threshold").val() / 100;
+
+                    traces.push(
+                        {
+                            name: "Below " + moment.localeData().ordinal(Number($("#input-threshold").val())) + " Percentile",
+                            type: "histogram",
+                            x: returns.slice(0, threshold * returns.length),
+                            marker: {
+                                color: "#E18D96",
+                                line: {
+                                    color: "red",
+                                    width: 1,
+                                },
+                            },
+                        },
+                        {
+                            name: "Above " + moment.localeData().ordinal(Number($("#input-threshold").val())) + " Percentile",
+                            type: "histogram",
+                            x: returns,
+                            x: returns.slice(threshold * returns.length),
+                            marker: {
+                                color: "dodgerblue",
+                                line: {
+                                    color: "blue",
+                                    width: 1,
+                                },
+                            },
+                        }
+                    );
+
+                    timeLayout.title = "Historical Value at Risk";
+                    timeLayout.xaxis.title = "Continuously Compounded Daily Return";
+                    timeLayout.yaxis.title = "Frequency";
+
+                    timeLayout.xaxis.rangeslider = null;
+                    timeLayout.yaxis.tickprefix = null;
+                    timeLayout.xaxis.tickformat = "%";
+                    timeLayout.xaxis.type = "linear";
+                    timeLayout.barmode = "stack";
                     break;
             }
 
@@ -484,6 +550,9 @@
             getRatioData();
             buildTimeChart();
         });
+        $("#input-threshold").change(function() {
+            buildTimeChart();
+        });
 
         function saveChartData() {
             $.post("{{ route('users.store-chart-options') }}", data = {
@@ -498,10 +567,17 @@
         });
         $("#select-time-chart-type").change(saveChartData);
         $("#select-time-chart-type").on("change.select2", function() {
-            if ($("#select-time-chart-type").val() == "ratio") {
+            let chartType = $("#select-time-chart-type").val();
+            if (chartType == "ratio") {
                 $("#select-ratio-container").removeClass("d-none");
             } else {
                 $("#select-ratio-container").addClass("d-none");
+            }
+
+            if (chartType == "histvar") {
+                $("#input-threshold-container").removeClass("d-none");
+            } else {
+                $("#input-threshold-container").addClass("d-none");
             }
         });
 
