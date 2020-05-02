@@ -272,6 +272,9 @@
                             name: "Below " + moment.localeData().ordinal(Number($("#input-threshold").val())) + " Percentile",
                             type: "histogram",
                             x: returns.slice(0, threshold * returns.length),
+                            xbins: {
+                                size: 0.01,
+                            },
                             marker: {
                                 color: "#E18D96",
                                 line: {
@@ -283,8 +286,10 @@
                         {
                             name: "Above " + moment.localeData().ordinal(Number($("#input-threshold").val())) + " Percentile",
                             type: "histogram",
-                            x: returns,
                             x: returns.slice(threshold * returns.length),
+                            xbins: {
+                                size: 0.01,
+                            },
                             marker: {
                                 color: "dodgerblue",
                                 line: {
