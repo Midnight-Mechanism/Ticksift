@@ -165,5 +165,6 @@ a:not(.btn), .btn-link {
 
 #explorer-chart {
     padding-bottom: 20%;
-    max-height: 70vh;
+    min-height: 400px;
+    height: 70vmin;
 }
