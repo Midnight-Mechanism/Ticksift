@@ -7,21 +7,23 @@
 @section('content')
     <div class="container-fluid">
         @include('partials.date-picker')
-        <div class="row pb-2">
-            <div class="col-12">
-                <select id="select-portfolios" class="invisible">
-                    <option></option>
-                    @foreach(
-                        \Auth::check() ?
-                        \Auth::user()->portfolios :
-                        \App\Models\Portfolio::doesntHave('users')->get()
-                        as $portfolio
-                        )
-                        <option value="{{ $portfolio->id }}">{{$portfolio->name}}</option>
-                    @endforeach
-                </select>
+        @auth
+            <div class="row pb-2">
+                <div class="col-12">
+                    <select id="select-portfolios" class="invisible">
+                        <option></option>
+                        @foreach(
+                            \Auth::check() ?
+                            \Auth::user()->portfolios :
+                            \App\Models\Portfolio::doesntHave('users')->get()
+                            as $portfolio
+                            )
+                            <option value="{{ $portfolio->id }}">{{$portfolio->name}}</option>
+                        @endforeach
+                    </select>
+                </div>
             </div>
-        </div>
+        @endauth
         @include('partials.security-picker')
         <div id="security-results" class="invisible">
             <div class="row">
@@ -105,11 +107,11 @@
 
         var securityPrices = [];
         var ratioPrices = null;
-        var explorerChart = document.getElementById('explorer-chart');
+        var explorerChart = document.getElementById("explorer-chart");
 
         function formatCurrency(number, code) {
-            return new Intl.NumberFormat('en-US', {
-                style: 'currency',
+            return new Intl.NumberFormat("en-US", {
+                style: "currency",
                 currency: code,
             }).format(number);
         }
@@ -477,18 +479,13 @@
         });
 
         $("#select-portfolios").select2(({
-            @auth
-                placeholder: "Add any of your portfolios...",
-            @endauth
-            @guest
-                placeholder: "Add entire portfolios (e.g. FAANG)...",
-            @endguest
+            placeholder: "Add any of your portfolios...",
             escapeMarkup: function (text) {
                 return text;
             },
         })).on("select2:select", function() {
             getPortfolioData();
-            $("#select-portfolios").val(null).trigger('change');
+            $("#select-portfolios").val(null).trigger("change");
         });
 
         $("#select-ratio").select2({

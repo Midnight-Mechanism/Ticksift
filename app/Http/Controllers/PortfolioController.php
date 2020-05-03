@@ -108,10 +108,7 @@ class PortfolioController extends Controller
         $securities = [];
         foreach($portfolio_ids as $portfolio_id) {
             $portfolio = Portfolio::find($portfolio_id);
-            if (
-                (!isset($user) && $portfolio->users->isEmpty()) ||
-                (isset($user) && $user->can('view', $portfolio))
-            ) {
+            if ($user->can('view', $portfolio)) {
                 $securities = array_merge($securities, $portfolio
                     ->securities()
                     ->select(

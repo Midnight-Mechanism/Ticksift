@@ -15,7 +15,6 @@ class Kernel extends ConsoleKernel
     protected $commands = [
         Commands\UpdateQuandl::class,
         Commands\CalculateMomentumPresets::class,
-        Commands\GenerateSystemPortfolios::class,
     ];
 
     /**
