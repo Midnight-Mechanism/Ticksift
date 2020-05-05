@@ -75,16 +75,26 @@
                     let colorChange = Math.min(absChange * 15, 8.5);
                     let percent = absChange * 100;
 
-                    text += "<b><span style='font-size: 150%;";
+                    text += "<br><br><b><span style='font-size: 150%;";
                     if (securityData.change < 0) {
-                        text += "color: #FFE6E6'><br><br>-";
+                        text += "color: #FFE6E6'>-";
                         colors.push(Color("#1A0000").lighten(colorChange).hex());
                     } else {
-                        text += "color: #E6FFEA'><br><br>+";
+                        text += "color: #E6FFEA'>+";
                         colors.push(Color("#001A04").lighten(colorChange).hex());
                     }
                     text += percent.toFixed(2) + "%</span></b>";
-                    text += "<br>" + formatCurrency(securityData.latest_close, securityData.currency_code);
+
+                    text += "<br>" + formatCurrency(securityData.latest_close, securityData.currency_code) + " (";
+                    if (securityData.change < 0) {
+                        text += "➘"
+                    } else {
+                        text += "➚"
+                    }
+                    text += formatCurrency(
+                        Math.abs(securityData.latest_close - securityData.earliest_close),
+                        securityData.currency_code
+                    ) + ")";
 
                     labels.push(label);
                     texts.push(text);
