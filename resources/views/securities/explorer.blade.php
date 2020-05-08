@@ -179,13 +179,6 @@
                             high: securityData.prices.map(a => a.high),
                             low: securityData.prices.map(a => a.low),
                             close: securityData.prices.map(a => a.close),
-                            text: securityData.prices.map(a => {
-                                return "Open: " + formatCurrency(a.open, securityData.currency_code) + "<br>" +
-                                    "High: " + formatCurrency(a.high, securityData.currency_code) + "<br>" +
-                                    "Low: " + formatCurrency(a.low, securityData.currency_code) + "<br>" +
-                                    "Close: " + formatCurrency(a.close, securityData.currency_code);
-                            }),
-                            hoverinfo: "text",
                         });
                     }
                     explorerLayout.title = "Prices";
