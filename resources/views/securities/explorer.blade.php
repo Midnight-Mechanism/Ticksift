@@ -296,18 +296,20 @@
             processChartData();
         });
 
-        function saveChartData() {
+        function storeChartOptions() {
             $.post("{{ route('users.store-chart-options') }}", data = {
                 chart_type: $("#select-explorer-chart-type").val(),
                 chart_scale: $("#select-explorer-chart-scale").val(),
             });
-            processChartData();
         }
 
         $("#select-explorer-chart-type").select2({
             minimumResultsForSearch: -1,
         });
-        $("#select-explorer-chart-type").change(saveChartData);
+        $("#select-explorer-chart-type").change(function() {
+            storeChartOptions();
+            processChartData();
+        });
         $("#select-explorer-chart-type").on("change.select2", function() {
             let chartType = $("#select-explorer-chart-type").val();
 
@@ -334,7 +336,12 @@
         $("#select-explorer-chart-scale").select2({
             minimumResultsForSearch: -1,
         });
-        $("#select-explorer-chart-scale").change(saveChartData);
+        $("#select-explorer-chart-scale").change(function() {
+            storeChartOptions();
+            Plotly.relayout(explorerChart, {
+                "yaxis.type": $(this).val(),
+            })
+        });
 
         @if(Session::has('ratio_security_id'))
             let security = {!! \App\Models\Security::find(Session::get('ratio_security_id'), ['id', 'ticker', 'name']) !!};
