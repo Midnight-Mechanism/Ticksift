@@ -42,7 +42,7 @@ build_prod:
 deploy_review:
   stage: deploy
   before_script:
-    - echo "$STAGING_ENV" > .env
+    - echo "$STAGING_ENV" | sed -E "s~^APP_URL=(.*)~APP_URL=$CI_ENVIRONMENT_URL/#/~g" > .env
     - mkdir -p ~/.ssh
     - chmod 700 ~/.ssh
     - echo "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts

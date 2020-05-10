@@ -152,6 +152,45 @@ a:not(.btn), .btn-link {
     color: white;
 }
 
+.loader {
+    position: absolute;
+    z-index: 10000;
+    left: 50%;
+    top: 30%;
+    border: 16px solid #001f1f;
+    border-top: 16px solid #21C4C4;
+    border-radius: 50%;
+    width: 120px;
+    height: 120px;
+    animation: spin 2s linear infinite;
+    margin-left: -60px;
+}
+
+.loader-spacer {
+    top: 78px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.loading {
+    -webkit-filter: blur(1px) grayscale(90%);
+    -moz-filter: blur(1px) grayscale(90%);
+    -o-filter: blur(1px) grayscale(90%);
+    -ms-filter: blur(1px) grayscale(90%);
+    filter: blur(1px) grayscale(90%);
+}
+
+.loading-spacer {
+    background-color: #000F0F;
+    margin-top: 10px;
+    padding-bottom: 135px;
+    border: 1px solid #333;
+    border-radius: 0.25rem;
+}
+
 // needed for Plotly.react
 .plotly {
     min-height: 400px;
