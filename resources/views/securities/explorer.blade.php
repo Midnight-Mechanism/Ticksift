@@ -126,7 +126,6 @@
             explorerLoader.classList.add("loader");
 
             const chartType = $("#select-explorer-chart-type").val();
-            const chartScale = $("#select-explorer-chart-scale").val();
             const dates = $("#input-dates").val();
             const short_names = securityPrices.map(a => a.short_name);
 
@@ -147,7 +146,6 @@
                 explorerLayout.yaxis.tickprefix = null;
             }
 
-            explorerLayout.yaxis.type = chartScale;
             explorerLayout.xaxis.type = "date";
             explorerLayout.xaxis.tickformat = "";
             explorerLayout.showlegend = true;
@@ -164,6 +162,7 @@
             explorerWorker.onmessage = function(e) {
                 traces = e.data.traces;
                 explorerLayout = e.data.layout;
+                explorerLayout.yaxis.type = $("#select-explorer-chart-scale").val();
 
                 // Show chart
                 Plotly.react(
