@@ -15,6 +15,7 @@
         </div>
         @include('partials.security-picker')
         <div class="col-12 text-center pb-3">
+            <div id="treemap-loader"></div>
             <div id="treemap-chart" class="chart"></div>
         </div>
     </div>
@@ -87,7 +88,7 @@
         });
         portfoliosTable.setData(portfolios);
 
-        function updateMomentum() {
+        function updateTreemap() {
             if ($("#select-securities").val().length) {
                 $("body").addClass("waiting");
                 $(".chart").addClass("outdated");
@@ -116,8 +117,8 @@
             }
         }
 
-        $("#input-dates").change(updateMomentum);
-        $("#select-securities").change(updateMomentum);
+        $("#input-dates").change(updateTreemap);
+        $("#select-securities").change(updateTreemap);
 
         updateMomentum();
     </script>

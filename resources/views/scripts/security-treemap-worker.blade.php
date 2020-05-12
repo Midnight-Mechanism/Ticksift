@@ -12,6 +12,7 @@
         // Parse message data
         var data = e.data.data;
         var fileSlug = e.data.fileSlug;
+        eval("var calculateSecuritySize = " + JSON.parse(e.data.calculateSecuritySize));
 
         // Prepare momentum graph data objects
         let labels = [];
@@ -68,7 +69,7 @@
 
                     labels.push(label);
                     texts.push(text);
-                    values.push(securityData.latest_close * securityData.volume);
+                    values.push(calculateSecuritySize(securityData));
                     lineColors.push(null);
                 }
             }
