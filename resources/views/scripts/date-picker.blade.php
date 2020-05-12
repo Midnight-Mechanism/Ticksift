@@ -49,9 +49,9 @@
             maxDate,
         ], true);
     });
-    $("#button-5yr").click(function() {
+    $("#button-all").click(function() {
         calendar.setDate([
-            moment(maxDate).subtract(5, "year").format("YYYY-MM-DD"),
+            minDate,
             maxDate,
         ], true);
     });

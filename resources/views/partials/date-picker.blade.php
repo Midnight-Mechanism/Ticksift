@@ -20,7 +20,7 @@
                 <button id="button-1yr" class="btn btn-primary">1 Year</button>
             </div>
             <div class="col-4 col-md-2 mt-3 mt-lg-0">
-                <button id="button-5yr" class="btn btn-primary">5 Years</button>
+                <button id="button-all" class="btn btn-primary">All</button>
             </div>
         </div>
     </div>
