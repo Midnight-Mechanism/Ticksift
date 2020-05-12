@@ -252,9 +252,9 @@
             }).done(function(prices) {
                 securityPrices = Object.values(prices);
                 if (security_ids.length > 0) {
-                    processChartData();
-                    $("#create-portfolio-button").removeClass("d-none");
                     $("#security-results").removeClass("invisible");
+                    $("#create-portfolio-button").removeClass("d-none");
+                    processChartData();
                 } else {
                     $("#create-portfolio-button").addClass("d-none");
                     explorerChart.classList.remove("loading");
