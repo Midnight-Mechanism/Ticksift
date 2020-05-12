@@ -40,6 +40,8 @@ Route::group(['middleware' => ['web']], function () {
 
     Route::post('users/store-chart-options', 'UserController@storeChartOptions')->name('users.store-chart-options');
 
+    Route::get('indicators/recessions', 'IndicatorController@recessions')->name('indicators.recessions');
+
 });
 
 // Registered User Routes

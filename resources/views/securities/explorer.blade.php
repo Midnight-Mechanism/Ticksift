@@ -27,7 +27,7 @@
         @include('partials.security-picker')
         <div id="security-results" class="invisible">
             <div class="row">
-                <div class="col-12 col-lg-6 d-flex py-1">
+                <div class="col-12 col-lg-4 d-flex py-1">
                     <select id="select-explorer-chart-type" class="invisible">
                         <option value="line" selected>Line Chart</option>
                         <option value="candlestick">Candlestick Chart</option>
@@ -38,10 +38,16 @@
                         <option value="correlation">Correlation Chart</option>
                     </select>
                 </div>
-                <div class="col-12 col-lg-6 d-flex py-1">
+                <div class="col-12 col-lg-4 d-flex py-1">
                     <select id="select-explorer-chart-scale" class="invisible">
                         <option value="linear" selected>Linear Scale</option>
                         <option value="log">Logarithmic Scale</option>
+                    </select>
+                </div>
+                <div class="col-12 col-lg-4 d-flex py-1">
+                    <select id="select-explorer-chart-indicator" class="invisible">
+                        <option></option>
+                        <option value="recessions">Recessionary Indicators</option>
                     </select>
                 </div>
             </div>
@@ -95,6 +101,7 @@
             legend: {},
             paper_bgcolor: chartColor,
             plot_bgcolor: chartColor,
+            shapes: [],
         };
 
         var config = {
@@ -110,6 +117,7 @@
 
         var securityPrices = [];
         var ratioPrices = null;
+        var indicatorData = null;
         var explorerChart = document.getElementById("explorer-chart");
         var explorerLoader = document.getElementById("explorer-loader");
         // Start explorer worker
@@ -126,7 +134,6 @@
             explorerLoader.classList.add("loader");
 
             const chartType = $("#select-explorer-chart-type").val();
-            const dates = $("#input-dates").val();
             const short_names = securityPrices.map(a => a.short_name);
 
             let traces = [];
@@ -147,6 +154,9 @@
             }
 
             explorerLayout.xaxis.type = "date";
+            explorerLayout.yaxis.type = $("#select-explorer-chart-scale").val();
+            explorerLayout.xaxis.range = null;
+            explorerLayout.xaxis.autorange = true;
             explorerLayout.xaxis.tickformat = "";
             explorerLayout.showlegend = true;
             explorerLayout.annotations = [];
@@ -158,11 +168,38 @@
 
             explorerConfig.toImageButtonOptions.filename = filename;
 
+            explorerLayout.shapes = [];
+
             // Handle worker's return message
             explorerWorker.onmessage = function(e) {
                 traces = e.data.traces;
                 explorerLayout = e.data.layout;
-                explorerLayout.yaxis.type = $("#select-explorer-chart-scale").val();
+
+                if (explorerLayout.xaxis.type == "date") {
+                    dates = $("#input-dates").val().split(" to ");
+                    explorerLayout.xaxis.range = dates;
+                    explorerLayout.xaxis.autorange = false;
+                    if(
+                        indicatorData &&
+                        $("#select-explorer-chart-indicator").val() == "recessions"
+                    ) {
+                        indicatorData.forEach(indicator => {
+                            explorerLayout.shapes.push({
+                                type: "rect",
+                                xref: "x",
+                                yref: "paper",
+                                x0: indicator.start_date,
+                                x1: indicator.end_date || moment().format("YYYY-MM-DD"),
+                                y0: 0,
+                                y1: 1,
+                                fillcolor: "rgba(211, 211, 211, 0.2)",
+                                line: {
+                                    width: 0,
+                                }
+                            });
+                        });
+                    }
+                }
 
                 // Show chart
                 Plotly.react(
@@ -206,13 +243,12 @@
 
         function getSecurityData() {
             let security_ids = $("#select-securities").val();
-            let dates = $("#input-dates").val();
 
             $("body").addClass("waiting");
             $(".chart").addClass("outdated");
             $.get("{{ route('securities.prices') }}", data = {
                 security_ids: security_ids,
-                dates: dates,
+                dates: $("#input-dates").val(),
             }).done(function(prices) {
                 securityPrices = Object.values(prices);
                 if (security_ids.length > 0) {
@@ -231,13 +267,12 @@
 
         function getRatioData() {
             let security_id = $("#select-ratio").val();
-            let dates = $("#input-dates").val();
 
             $.ajax({
                 url: "{{ route('securities.prices') }}",
                 data: {
                     security_ids: security_id ? [security_id] : null,
-                    dates: dates,
+                    dates: $("#input-dates").val(),
                     is_ratio: true,
                 },
                 async: false,
@@ -245,6 +280,16 @@
                 ratioPrices = Object.values(prices)[0];
             });
         }
+
+        function getRecessionData() {
+            $.ajax({
+                url: "{{ route('indicators.recessions') }}",
+                async: false,
+            }).done(function(recessions) {
+                indicatorData = recessions;
+            });
+        }
+        getRecessionData();
 
         $("#select-securities").on("select2:unselect", function () {
             let vals = $("#select-securities").val();
@@ -279,11 +324,11 @@
             },
         });
 
-        $("#input-dates").change(getSecurityData);
         $("#select-securities").change(getSecurityData);
         $("#input-dates").change(function() {
             explorerChart.classList.add("loading");
             explorerLoader.classList.add("loader");
+            getRecessionData();
             getRatioData();
             getSecurityData();
         });
@@ -299,6 +344,7 @@
             $.post("{{ route('users.store-chart-options') }}", data = {
                 chart_type: $("#select-explorer-chart-type").val(),
                 chart_scale: $("#select-explorer-chart-scale").val(),
+                chart_indicator: $("#select-explorer-chart-indicator").val(),
             });
         }
 
@@ -342,6 +388,16 @@
             })
         });
 
+        $("#select-explorer-chart-indicator").select2({
+            minimumResultsForSearch: -1,
+            placeholder: "Add an indicator...",
+            allowClear: true,
+        });
+        $("#select-explorer-chart-indicator").change(function() {
+            storeChartOptions();
+            processChartData();
+        });
+
         @if(Session::has('ratio_security_id'))
             let security = {!! \App\Models\Security::find(Session::get('ratio_security_id'), ['id', 'ticker', 'name']) !!};
             $("#select-ratio").append(new Option(
@@ -359,6 +415,10 @@
         @if(Session::has('chart_scale'))
             $("#select-explorer-chart-scale").val("{{ Session::get('chart_scale') }}");
             $("#select-explorer-chart-scale").trigger("change.select2");
+        @endif
+        @if(Session::has('chart_indicator'))
+            $("#select-explorer-chart-indicator").val("{{ Session::get('chart_indicator') }}");
+            $("#select-explorer-chart-indicator").trigger("change.select2");
         @endif
 
         @if($securities = \App\Models\Security::findMany(Session::get('security_ids'), ['id', 'ticker', 'name']))

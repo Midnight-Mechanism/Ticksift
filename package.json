@@ -15,7 +15,7 @@
     "axios": "^0.19",
     "bootstrap": "^4.4.1",
     "cross-env": "^7.0",
-    "jquery": "~3.4.1",
+    "jquery": "~3.5.1",
     "laravel-mix": "^5.0",
     "lodash": "^4.17.15",
     "popper.js": "^1.16",
@@ -29,9 +29,9 @@
     "dropzone": "^5.7.0",
     "flatpickr": "^4.6.3",
     "jstat": "^1.9.3",
-    "moment": "^2.24.0",
-    "plotly.js-dist": "^1.54.0",
+    "moment": "^2.25.3",
+    "plotly.js-dist": "^1.54.1",
     "select2": "^4.0.13",
-    "tabulator-tables": "^4.6.2"
+    "tabulator-tables": "^4.6.3"
   }
 }

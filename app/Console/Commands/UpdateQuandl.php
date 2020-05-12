@@ -63,6 +63,7 @@ class UpdateQuandl extends Command
         $this->updateSharadarPrices();
         $this->updateFredPrices();
         $this->updateLondonPrices();
+        $this->updateRecessions();
         if($this->update_momentum) {
             \Artisan::call('momentum:calculate-presets');
         }
@@ -426,5 +427,24 @@ class UpdateQuandl extends Command
             \DB::table('prices')->upsert($chunk, ['security_id', 'date']);
         }
         \Log::info('LBMA price data successfully updated from Quandl.');
+    }
+
+    private function updateRecessions() {
+        $url = 'https://www.quandl.com/api/v3/datasets/FRED/USREC.csv';
+
+        $lines = $this->fetchQuandlCSV($url, $params = []);
+        $recessions = [];
+        foreach ($lines as $line) {
+            if (!$line) {
+                continue;
+            }
+            $line = str_getcsv($line);
+            $recessions[] = [
+                'date' => $line[0],
+                'is_recession' => boolval(floatval($line[1])),
+            ];
+        }
+        \DB::table('recessions')->upsert($recessions, ['date']);
+        \Log::info('FRED recession data successfully updated from Quandl.');
     }
 }

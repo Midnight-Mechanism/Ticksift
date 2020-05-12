@@ -319,5 +319,4 @@ class SecurityController extends Controller
 
         return response()->json($security_prices->values(), 200, [], JSON_NUMERIC_CHECK);
     }
-
 }
