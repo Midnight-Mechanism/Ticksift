@@ -227,7 +227,7 @@
                 "explorerLayout": explorerLayout,
                 "chartType": chartType,
                 "ratioPrices": ratioPrices,
-                "inputThreshold": $("#input-threshold").val() / 100,
+                "inputThreshold": $("#input-threshold").val(),
             });
         }
 
