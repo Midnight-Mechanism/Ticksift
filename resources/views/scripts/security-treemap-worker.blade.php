@@ -56,15 +56,17 @@
                     let colorChange = Math.min(absChange * 15, 8.5);
                     let percent = absChange * 100;
 
-                    text += "<b><span style='font-size: 150%;";
+                    text += "<br><br><b><span style='font-size: 150%'>";
                     if (securityData.change < 0) {
-                        text += "color: #FFE6E6'><br><br>-";
+                        text += "-";
                         colors.push(Color("#1A0000").lighten(colorChange).hex());
                     } else {
-                        text += "color: #E6FFEA'><br><br>+";
+                        text += "+";
                         colors.push(Color("#001A04").lighten(colorChange).hex());
                     }
-                    text += percent.toFixed(2) + "%</span></b>";
+                    text += percent.toLocaleString(undefined, {
+                        maximumFractionDigits: 2,
+                    }) + "%</span></b>";
                     text += "<br>" + formatCurrency(securityData.latest_close, securityData.currency_code);
 
                     labels.push(label);
