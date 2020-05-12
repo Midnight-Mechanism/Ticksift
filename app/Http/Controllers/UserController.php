@@ -89,7 +89,7 @@ class UserController extends Controller
         $request->session()->put([
             'chart_type' => $request->input('chart_type'),
             'chart_scale' => $request->input('chart_scale'),
-            'chart_indicators' => $request->input('chart_indicators'),
+            'chart_indicator' => $request->input('chart_indicator'),
         ]);
     }
 }
