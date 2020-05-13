@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Cache;
 use App\Http\Controllers\SecurityController;
 use Carbon\Carbon;
 
@@ -40,12 +41,14 @@ class CalculateMomentumPresets extends Command
     public function handle()
     {
         $max_date = \App\Models\Price::max('date');
+        $min_date = \App\Models\Price::sourceTableFilter('SEP')->min('date');
+        Cache::put('min-sep-date', $min_date);
         $date_ranges = [
             [Carbon::parse($max_date)->subWeeks(1)->toDateString(), $max_date],
             [Carbon::parse($max_date)->subMonths(1)->toDateString(), $max_date],
             [Carbon::parse($max_date)->firstOfYear()->toDateString(), $max_date],
             [Carbon::parse($max_date)->subYears(1)->toDateString(), $max_date],
-            [\App\Models\Price::sourceTableFilter('SEP')->min('date'), $max_date],
+            [$min_date, $max_date],
         ];
 
         foreach ($date_ranges as [$start_date, $end_date]) {
