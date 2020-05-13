@@ -256,19 +256,13 @@ class UpdateQuandl extends Command
         $newest_price_updated = Price::max('source_last_updated');
         foreach(['SEP', 'SFP'] as $source_table_name) {
             $source_table = SourceTable::where('name', $source_table_name)->first();
-            $url = 'https://www.quandl.com/api/v3/datatables/SHARADAR/' . $source_table_name;
+            $url = 'https://www.quandl.com/api/v3/datatables/SHARADAR/' . $source_table->name;
             $params = [];
 
             if ($this->argument('start_date')) {
                 $params['lastupdated.gte'] = $this->argument('start_date');
             } else {
-                $params['lastupdated.gte'] = Price::whereHas(
-                    'security',
-                    function(Builder $query) use ($source_table) {
-                        $query->where('source_table_id', $source_table->id);
-                    }
-                )->max('source_last_updated');
-
+                $params['lastupdated.gte'] = Price::sourceTableFilter($source_table->name)->max('source_last_updated');
             }
             if ($this->argument('end_date')) {
                 $params['lastupdated.lte'] = $this->argument('end_date');
@@ -378,13 +372,7 @@ class UpdateQuandl extends Command
             if ($this->argument('start_date')) {
                 $params['start_date'] = $this->argument('start_date');
             } else {
-                $params['start_date'] = Price::whereHas(
-                    'security',
-                    function(Builder $query) use ($source_table) {
-                        $query->where('source_table_id', $source_table->id);
-                    }
-                )->max('source_last_updated');
-
+                $params['start_date'] = Price::sourceTableFilter($source_table->name)->max('source_last_updated');
             }
             if ($this->argument('end_date')) {
                 $params['end_date'] = $this->argument('end_date');

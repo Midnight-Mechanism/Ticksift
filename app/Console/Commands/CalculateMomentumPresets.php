@@ -45,7 +45,7 @@ class CalculateMomentumPresets extends Command
             [Carbon::parse($max_date)->subMonths(1)->toDateString(), $max_date],
             [Carbon::parse($max_date)->firstOfYear()->toDateString(), $max_date],
             [Carbon::parse($max_date)->subYears(1)->toDateString(), $max_date],
-            [\App\Models\Price::min('date'), $max_date],
+            [\App\Models\Price::sourceTableFilter('SEP')->min('date'), $max_date],
         ];
 
         foreach ($date_ranges as [$start_date, $end_date]) {

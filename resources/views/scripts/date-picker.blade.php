@@ -1,6 +1,6 @@
 <script>
 
-    minDate = "{{ \App\Models\Price::min('date') }}";
+    minDate = "{{ \App\Models\Price::sourceTableFilter('SEP')->min('date') }}";
     maxDate = "{{ \App\Models\Price::max('date') }}";
 
     var calendar = $("#input-dates").flatpickr({
