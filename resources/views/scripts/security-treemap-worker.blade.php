@@ -67,7 +67,7 @@
                     text += percent.toLocaleString(undefined, {
                         maximumFractionDigits: 2,
                     }) + "%</span></b>";
-                    text += "<br>" + formatCurrency(securityData.latest_close, securityData.currency_code) + "(";
+                    text += "<br>" + formatCurrency(securityData.latest_close, securityData.currency_code) + " (";
 
                     if (securityData.change < 0) {
                         text += "➘"
