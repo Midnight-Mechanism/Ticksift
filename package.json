@@ -32,6 +32,7 @@
     "moment": "^2.25.3",
     "plotly.js-dist": "^1.54.1",
     "select2": "^4.0.13",
-    "tabulator-tables": "^4.6.3"
+    "tabulator-tables": "^4.6.3",
+    "technicalindicators": "^3.1.0"
   }
 }

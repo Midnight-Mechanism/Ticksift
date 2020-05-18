@@ -27,7 +27,7 @@
         @include('partials.security-picker')
         <div id="security-results" class="invisible">
             <div class="row">
-                <div class="col-12 col-lg-4 d-flex py-1">
+                <div class="col-12 col-lg-6 d-flex py-1">
                     <select id="select-explorer-chart-type" class="invisible">
                         <option value="line" selected>Line Chart</option>
                         <option value="candlestick">Candlestick Chart</option>
@@ -38,16 +38,22 @@
                         <option value="correlation">Correlation Chart</option>
                     </select>
                 </div>
-                <div class="col-12 col-lg-4 d-flex py-1">
+                <div class="col-12 col-lg-6 d-flex py-1">
                     <select id="select-explorer-chart-scale" class="invisible">
                         <option value="linear" selected>Linear Scale</option>
                         <option value="log">Logarithmic Scale</option>
                     </select>
                 </div>
-                <div class="col-12 col-lg-4 d-flex py-1">
-                    <select id="select-explorer-chart-indicator" class="invisible">
-                        <option></option>
-                        <option value="recessions">Recessionary Indicators</option>
+            </div>
+            <div class="row">
+                <div class="col-12 d-flex py-1">
+                    <select id="select-explorer-chart-indicators" class="invisible" multiple="multiple">
+                        <option value="simple-moving-average">Simple Moving Average (SMA)</option>
+                        <option value="exponential-moving-average">Exponential Moving Average (EMA)</option>
+                        <option value="bollinger-bands">Bollinger Bands</option>
+                        <option value="rsi">Relative Strength Index (RSI)</option>
+                        <option value="trix">Triple Exponential Average (TRIX)</option>
+                        <option value="recessions">Recessions</option>
                     </select>
                 </div>
             </div>
@@ -98,6 +104,11 @@
                 gridcolor: gridColor,
                 automargin: true,
             },
+            yaxis2: {
+                domain: [0, 0.2],
+                gridcolor: gridColor,
+                automargin: true,
+            },
             legend: {},
             paper_bgcolor: chartColor,
             plot_bgcolor: chartColor,
@@ -117,7 +128,7 @@
 
         var securityPrices = [];
         var ratioPrices = null;
-        var indicatorData = null;
+        var indicatorData = {};
         var explorerChart = document.getElementById("explorer-chart");
         var explorerLoader = document.getElementById("explorer-loader");
         // Start explorer worker
@@ -149,8 +160,10 @@
 
             if (securityPrices.every(a => a.currency_code === "USD")) {
                 explorerLayout.yaxis.tickprefix = "$";
+                indicatorHoverTemplate = "%{y:$,.2f}";
             } else {
                 explorerLayout.yaxis.tickprefix = null;
+                indicatorHoverTemplate = "%{y:,.2f}";
             }
 
             explorerLayout.xaxis.type = "date";
@@ -170,49 +183,237 @@
 
             explorerLayout.shapes = [];
 
+            explorerLayout.grid = {};
+            delete explorerLayout.yaxis.domain;
+
             // Handle worker's return message
             explorerWorker.onmessage = function(e) {
                 traces = e.data.traces;
                 explorerLayout = e.data.layout;
 
-                if (explorerLayout.xaxis.type == "date") {
+                if (explorerLayout.xaxis.type == "date" && traces.length) {
                     dates = $("#input-dates").val().split(" to ");
                     explorerLayout.xaxis.range = dates;
                     explorerLayout.xaxis.autorange = false;
-                    if(
-                        indicatorData &&
-                        $("#select-explorer-chart-indicator").val() == "recessions"
-                    ) {
-                        indicatorData.forEach(indicator => {
-                            explorerLayout.shapes.push({
-                                type: "rect",
-                                xref: "x",
-                                yref: "paper",
-                                x0: indicator.start_date,
-                                x1: indicator.end_date || moment().format("YYYY-MM-DD"),
-                                y0: 0,
-                                y1: 1,
-                                fillcolor: "rgba(211, 211, 211, 0.2)",
-                                line: {
-                                    width: 0,
+                    let indicators = $("#select-explorer-chart-indicators").val();
+
+                    // add indicators
+                    if (indicators.length) {
+                        // calculate date values across all securities
+                        let dateValues = _.reduce(traces, (results, trace) => {
+                            keyed = _.zipObject(trace.x, trace.y || trace.close);
+                            return _.mergeWith(results, keyed, function(obj, src) {
+                                if (_.isArray(obj)) {
+                                    return obj.concat(src);
+                                } else {
+                                    return [src];
                                 }
                             });
-                        });
+                        }, _.zipObject(traces[0].x, traces[0].y || traces[0].close));
+
+                        // get mean for each date
+                        let dateMeans = _.map(dateValues, (values, key) => {
+                            return {
+                                date: key,
+                                mean: _.mean(values),
+                            };
+                        }).sort((a, b) => a.date > b.date ? 1 : -1);
+
+                        startDate = moment(dateMeans[0]["date"]);
+                        let endDate = moment(dateMeans[dateMeans.length - 1]["date"]);
+                        let dayRange = endDate.diff(startDate, "days");
+                        let indicatorPeriod = parseInt(dayRange / 10);
+
+                        // add recessions
+                        if(indicators.includes("recessions")) {
+                            indicatorData['recessions'].forEach(indicator => {
+                                explorerLayout.shapes.push({
+                                    type: "rect",
+                                    xref: "x",
+                                    yref: "paper",
+                                    x0: indicator.start_date,
+                                    x1: indicator.end_date || moment().format("YYYY-MM-DD"),
+                                    y0: 0,
+                                    y1: 1,
+                                    fillcolor: "rgba(211, 211, 211, 0.15)",
+                                    line: {
+                                        width: 0,
+                                    }
+                                });
+                            });
+                        }
+
+                        // add simple moving average
+                        if(indicators.includes("simple-moving-average")) {
+                            let smaValues = TechnicalIndicators.SMA.calculate({
+                                period: indicatorPeriod,
+                                values: dateMeans.map(a => a.mean),
+                            });
+
+                            traces.push({
+                                name: "Simple Moving Average",
+                                x: dateMeans.map(a => a.date).slice(indicatorPeriod - 1),
+                                y: smaValues,
+                                hovertemplate: indicatorHoverTemplate,
+                                mode: "lines",
+                                line: {
+                                    color: "lavender",
+                                    dash: "dashdot",
+                                    shape: "spline",
+                                    width: 4,
+                                },
+                            });
+                        }
+
+                        // add exponential moving average
+                        if(indicators.includes("exponential-moving-average")) {
+                            let emaValues = TechnicalIndicators.EMA.calculate({
+                                period: indicatorPeriod,
+                                values: dateMeans.map(a => a.mean),
+                            });
+
+                            traces.push({
+                                name: "Exponential Moving Average",
+                                x: dateMeans.map(a => a.date).slice(indicatorPeriod - 1),
+                                y: emaValues,
+                                hovertemplate: indicatorHoverTemplate,
+                                mode: "lines",
+                                line: {
+                                    color: "orchid",
+                                    dash: "dashdot",
+                                    shape: "spline",
+                                    width: 4,
+                                },
+                            });
+                        }
+
+                        // add Bollinger Bands
+                        if(indicators.includes("bollinger-bands")) {
+                            let bollingerValues = TechnicalIndicators.BollingerBands.calculate({
+                                period: indicatorPeriod,
+                                values: dateMeans.map(a => a.mean),
+                                stdDev: 2,
+                            });
+
+                            traces.push({
+                                name: "Bollinger Bands",
+                                mode: "lines",
+                                x: dateMeans.map(a => a.date).slice(indicatorPeriod - 1),
+                                y: bollingerValues.map(a => a.middle),
+                                hovertemplate: indicatorHoverTemplate,
+                                legendgroup: "Bollinger Bands",
+                                line: {
+                                    color: "fuchsia",
+                                    dash: "dashdot",
+                                    shape: "spline",
+                                    width: 4,
+                                },
+                            });
+                            traces.push({
+                                name: "Upper BB",
+                                mode: "lines",
+                                x: dateMeans.map(a => a.date).slice(indicatorPeriod - 1),
+                                y: bollingerValues.map(a => a.upper),
+                                hovertemplate: indicatorHoverTemplate,
+                                legendgroup: "Bollinger Bands",
+                                showlegend: false,
+                                line: {
+                                    color: "gray",
+                                    shape: "spline",
+                                    width: 1,
+                                },
+                            });
+                            traces.push({
+                                name: "Lower BB",
+                                mode: "lines",
+                                fill: "tonexty",
+                                x: dateMeans.map(a => a.date).slice(indicatorPeriod - 1),
+                                y: bollingerValues.map(a => a.lower),
+                                hovertemplate: indicatorHoverTemplate,
+                                legendgroup: "Bollinger Bands",
+                                showlegend: false,
+                                line: {
+                                    color: "gray",
+                                    shape: "spline",
+                                    width: 1,
+                                },
+                            });
+                        }
+
+                        if(
+                            indicators.includes("rsi") ||
+                            indicators.includes("trix")
+                        ) {
+
+                            explorerLayout.grid = {
+                                rows: 2,
+                                columns: 1,
+                            };
+                            explorerLayout.yaxis.domain = [0.25, 1];
+
+                            // add RSI
+                            if(indicators.includes("rsi")) {
+                                let rsiValues = TechnicalIndicators.RSI.calculate({
+                                    period: indicatorPeriod,
+                                    values: dateMeans.map(a => a.mean),
+                                });
+
+                                traces.push({
+                                    name: "Relative Strength Index",
+                                    mode: "lines",
+                                    x: dateMeans.map(a => a.date).slice(indicatorPeriod - 1),
+                                    y: rsiValues,
+                                    yaxis: "y2",
+                                    line: {
+                                        color: "crimson",
+                                        shape: "spline",
+                                    },
+                                });
+                            }
+
+                            // add TRIX
+                            if(indicators.includes("trix")) {
+                                let trixValues = TechnicalIndicators.TRIX.calculate({
+                                    period: indicatorPeriod / 3,
+                                    values: dateMeans.map(a => a.mean),
+                                });
+
+                                traces.push({
+                                    name: "Triple Exponential Average",
+                                    mode: "lines",
+                                    x: dateMeans.map(a => a.date).slice(indicatorPeriod - 1),
+                                    y: trixValues,
+                                    yaxis: "y2",
+                                    line: {
+                                        color: "indianred",
+                                        shape: "spline",
+                                    },
+                                });
+                            }
+                        }
                     }
+
+                    $("#select-explorer-chart-indicators").next(".select2-container").show();
+                } else {
+                    $("#select-explorer-chart-indicators").next(".select2-container").hide();
                 }
 
-                // Show chart
-                Plotly.react(
-                    explorerChart,
-                    traces,
-                    explorerLayout,
-                    explorerConfig
-                );
+                // show chart
+                if (traces.length) {
+                    Plotly.react(
+                        explorerChart,
+                        traces,
+                        explorerLayout,
+                        explorerConfig
+                    );
+                } else {
+                    Plotly.purge(explorerChart);
+                }
                 explorerChart.classList.remove("loading");
                 explorerLoader.classList.remove("loader");
             }
 
-            // Handle worker errors
+            // handle worker errors
             explorerWorker.addEventListener("error", function(e) {
                 console.log("Error returned from explorer worker...");
                 console.log(e);
@@ -281,15 +482,12 @@
             });
         }
 
-        function getRecessionData() {
-            $.ajax({
-                url: "{{ route('indicators.recessions') }}",
-                async: false,
-            }).done(function(recessions) {
-                indicatorData = recessions;
-            });
-        }
-        getRecessionData();
+        $.ajax({
+            url: "{{ route('indicators.recessions') }}",
+            async: false,
+        }).done(function(recessions) {
+            indicatorData['recessions'] = recessions;
+        });
 
         $("#select-securities").on("select2:unselect", function () {
             let vals = $("#select-securities").val();
@@ -328,7 +526,6 @@
         $("#input-dates").change(function() {
             explorerChart.classList.add("loading");
             explorerLoader.classList.add("loader");
-            getRecessionData();
             getRatioData();
             getSecurityData();
         });
@@ -344,7 +541,7 @@
             $.post("{{ route('users.store-chart-options') }}", data = {
                 chart_type: $("#select-explorer-chart-type").val(),
                 chart_scale: $("#select-explorer-chart-scale").val(),
-                chart_indicator: $("#select-explorer-chart-indicator").val(),
+                chart_indicators: $("#select-explorer-chart-indicators").val(),
             });
         }
 
@@ -388,12 +585,12 @@
             })
         });
 
-        $("#select-explorer-chart-indicator").select2({
+        $("#select-explorer-chart-indicators").select2({
             minimumResultsForSearch: -1,
-            placeholder: "Add an indicator...",
+            placeholder: "Add indicators...",
             allowClear: true,
         });
-        $("#select-explorer-chart-indicator").change(function() {
+        $("#select-explorer-chart-indicators").change(function() {
             storeChartOptions();
             processChartData();
         });
@@ -416,9 +613,9 @@
             $("#select-explorer-chart-scale").val("{{ Session::get('chart_scale') }}");
             $("#select-explorer-chart-scale").trigger("change.select2");
         @endif
-        @if(Session::has('chart_indicator'))
-            $("#select-explorer-chart-indicator").val("{{ Session::get('chart_indicator') }}");
-            $("#select-explorer-chart-indicator").trigger("change.select2");
+        @if(Session::has('chart_indicators'))
+            $("#select-explorer-chart-indicators").val("{{ implode(',', Session::get('chart_indicators')) }}".split(","));
+            $("#select-explorer-chart-indicators").trigger("change.select2");
         @endif
 
         @if($securities = \App\Models\Security::findMany(Session::get('security_ids'), ['id', 'ticker', 'name']))
