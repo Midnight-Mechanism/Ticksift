@@ -29,3 +29,4 @@ window.flatpickr = require('flatpickr');
 window.Tabulator = require('tabulator-tables');
 window._ = require('lodash');
 window.Color = require('color');
+window.TechnicalIndicators = require('technicalindicators');
