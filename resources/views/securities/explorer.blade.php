@@ -289,11 +289,15 @@
 
                         // add Bollinger Bands
                         if(indicators.includes("bollinger-bands")) {
-                            let bollingerValues = TechnicalIndicators.BollingerBands.calculate({
-                                period: indicatorPeriod,
-                                values: dateMeans.map(a => a.mean),
-                                stdDev: 2,
-                            });
+
+                            let bollingerValues = [];
+                            if (indicatorPeriod) {
+                                bollingerValues = TechnicalIndicators.BollingerBands.calculate({
+                                    period: indicatorPeriod,
+                                    values: dateMeans.map(a => a.mean),
+                                    stdDev: 2,
+                                });
+                            }
 
                             traces.push({
                                 name: "Bollinger Bands",
