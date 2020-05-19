@@ -193,6 +193,10 @@
 
                 if (explorerLayout.xaxis.type == "date" && traces.length) {
                     dates = $("#input-dates").val().split(" to ");
+                    if (dates.length < 2) {
+                        dates[1] = dates[0];
+                    }
+
                     explorerLayout.xaxis.range = dates;
                     explorerLayout.xaxis.autorange = false;
                     let indicators = $("#select-explorer-chart-indicators").val();
