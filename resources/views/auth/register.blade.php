@@ -27,6 +27,7 @@
                             </div>
                         </div>
 
+                        <br>
 
                         <div class="form-group row">
                             <label for="email" class="col-sm-4 col-form-label text-md-right">{{ __('Email Address') }}:</label>
@@ -41,6 +42,8 @@
                                 @endif
                             </div>
                         </div>
+
+                        <br>
 
                         <div class="form-group row">
                             <label for="password" class="col-md-4 col-form-label text-md-right">{{ __('Password') }}:</label>

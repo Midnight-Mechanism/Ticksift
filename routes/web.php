@@ -13,13 +13,12 @@
 |
 */
 
-// Authentication Routes
 Auth::routes();
 
-// Public Routes
+// public
 Route::group(['middleware' => ['web']], function () {
 
-    Route::redirect('/', 'securities/explorer');
+    Route::view('/', 'landing')->name('landing');
 
     // Activation Routes
     Route::get('activate', 'Auth\ActivateController@initial')->name('activate');
@@ -44,14 +43,20 @@ Route::group(['middleware' => ['web']], function () {
 
 });
 
-// Registered User Routes
+// registered users
 Route::group(['middleware' => ['auth']], function () {
 
-    //  Homepage Route - Redirect based on user role is in controller.
     Route::get('home', 'UserController@index')->name('public.home');
+
     Route::get('/activation-required', ['uses' => 'Auth\ActivateController@activationRequired'])->name('activation-required');
     Route::get('/activation-required', 'Auth\ActivateController@activationRequired')->name('activation-required');
+
     Route::get('logout', 'Auth\LoginController@logout')->name('logout');
+
+});
+
+// activated users
+Route::group(['middleware' => ['auth', 'activated']], function () {
 
     Route::get('profile', 'UserController@profile')->name('profile');
     Route::post('update-password', 'UserController@updatePassword')->name('update-password');
@@ -65,8 +70,4 @@ Route::group(['middleware' => ['auth']], function () {
         ],
     ]);
 
-});
-
-// Registered and is admin routes.
-Route::group(['middleware' => ['auth', 'activated', 'activity', 'role:admin']], function () {
 });

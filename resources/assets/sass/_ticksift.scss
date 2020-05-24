@@ -15,7 +15,6 @@ h1, h2, h3, h4, h5 {
     text-transform: uppercase;
     font-family: $font-family-sans-serif-bold;
     font-weight: bold;
-    font-size: 200%;
 }
 
 .outdated {
@@ -72,6 +71,7 @@ a:not(.btn), .btn-link {
     background-color: $brand-primary;
     color: white;
     form {
+        width: 100%;
         margin: 0;
     }
     .btn-link {
@@ -80,18 +80,22 @@ a:not(.btn), .btn-link {
     }
 }
 
-.card-content {
+.landing-card .card-body {
     display: flex;
+    align-items: center;
+    justify-content: space-around;
     flex-direction: column;
-    height: 200px;
-    p {
-        align-self: flex-start;
-    }
     img {
-        align-self: center;
-        margin:auto;
-        max-height: 80%;
-        max-width: 80%;
+        max-height: unset;
+    }
+}
+
+@include media-breakpoint-up(lg) {
+    .landing-card .card-body {
+        flex-direction: row;
+        img {
+            max-height: 50vmin;
+        }
     }
 }
 
