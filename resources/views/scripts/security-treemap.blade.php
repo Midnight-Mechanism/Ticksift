@@ -128,7 +128,6 @@
                 "industries": _.groupBy(securities, "industry"),
             };
         }).value();
-        console.log(calculateSecuritySize);
         treemapWorker.postMessage({
             data: mergedData,
             fileSlug: fileSlug,

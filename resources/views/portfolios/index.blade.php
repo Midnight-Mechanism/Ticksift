@@ -81,8 +81,7 @@
                 if(data.length > 0) {
                     fetchPortfolioData([data[0].id]);
                 } else {
-                    $("#create-portfolio-button").removeClass("d-none");
-                    $("#update-portfolio-button").addClass("d-none");
+                    updateTreemap();
                 }
             },
         });
@@ -96,19 +95,26 @@
                     dates: $("#input-dates").val(),
                     security_ids: $("#select-securities").val(),
                 }).done(function(data) {
-                    const mergedData = [].concat.apply([], Object.values(_.cloneDeep(data)));
-                    buildTreemap(mergedData, _.kebabCase(portfoliosTable.getSelectedData()[0].name), function(security) {
-                        return 1;
-                    });
-                    $("body").removeClass("waiting");
-                    $(".chart").removeClass("outdated");
+                    let exportFilename = "treemap";
                     if (portfoliosTable.getSelectedData().length > 0) {
+                        exportFilename = _.kebabCase(portfoliosTable.getSelectedData()[0].name);
                         $("#create-portfolio-button").addClass("d-none");
                         $("#update-portfolio-button").removeClass("d-none");
                     } else {
                         $("#create-portfolio-button").removeClass("d-none");
                         $("#update-portfolio-button").addClass("d-none");
                     }
+                    const mergedData = [].concat.apply([], Object.values(_.cloneDeep(data)));
+                    buildTreemap(
+                        mergedData,
+                        exportFilename,
+                        function(security) {
+                            return 1;
+                        }
+                    );
+                    $("body").removeClass("waiting");
+                    $(".chart").removeClass("outdated");
+
                 });
             } else {
                 $("#update-portfolio-button").addClass("d-none");
@@ -120,6 +126,6 @@
         $("#input-dates").change(updateTreemap);
         $("#select-securities").change(updateTreemap);
 
-        updateMomentum();
+        updateTreemap();
     </script>
 @endsection
