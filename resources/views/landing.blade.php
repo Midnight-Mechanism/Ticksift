@@ -45,7 +45,7 @@
         <div class="landing-card">
             <a class="text-reset text-decoration-none" href="{{ route('portfolios.index') }}">
                 <div class="card-header">
-                    <h3>Observe Portfolios</h3>
+                    <h3>Establish Portfolios</h3>
                 </div>
                 <div class="card-body mb-5">
                     <div class="lead">
