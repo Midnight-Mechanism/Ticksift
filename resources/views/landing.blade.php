@@ -5,7 +5,7 @@
         <div class="row py-5">
             <div class="col-12 text-center">
                 <h1>Welcome to Ticksift</h1>
-                <p class="lead">Ticksift is a tool for diving into the historical performance of more than 20,000 financial securities.</p>
+                <p class="lead">Ticksift is a tool for diving into the historical performance of more than 25,000 financial securities.</p>
             </div>
         </div>
         <div class="landing-card">
