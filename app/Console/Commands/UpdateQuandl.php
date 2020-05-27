@@ -492,7 +492,7 @@ class UpdateQuandl extends Command
                 }
 
                 // avoid fetching data if there's no data in the desired range
-                if ($params['start_date'] >= $table[5]) {
+                if ($params['start_date'] > $table[5]) {
                     continue;
                 }
 
@@ -503,12 +503,20 @@ class UpdateQuandl extends Command
                     $line = array_combine($header, str_getcsv($line));
                     $price = [
                         'security_id' => $security->id,
-                        'date' => $line['Date'],
                         'volume' => (
                             array_key_exists('Volume', $line) &&
                             !empty($line['Volume'])
                         ) ? $line['Volume'] : null,
                     ];
+
+                    if (
+                        array_key_exists('Trade Date', $line) &&
+                        !empty($line['Trade Date'])
+                    ) {
+                        $price['date'] = $line['Trade Date'];
+                    } else {
+                        $price['date'] = $line['Date'];
+                    }
 
                     if (
                         array_key_exists('Previous Settlement', $line) &&
