@@ -85,7 +85,7 @@ class SecurityController extends Controller
             ->join('securities', 'prices.security_id', 'securities.id')
             ->leftJoin('industries', 'securities.industry_id', 'industries.id')
             ->leftJoin('sectors', 'industries.sector_id', 'sectors.id')
-            ->join('currencies', 'securities.currency_id', 'currencies.id');
+            ->leftJoin('currencies', 'securities.currency_id', 'currencies.id');
 
         if ($security_ids) {
             $query->whereIn('security_id', $security_ids);
