@@ -5,13 +5,6 @@
     var treemapLoader = document.getElementById("treemap-loader");
     var selectedTreemapLevel = null;
 
-    function formatCurrency(number, code) {
-        return new Intl.NumberFormat('en-US', {
-            style: 'currency',
-            currency: code,
-        }).format(number);
-    }
-
     function buildTreemap(data, fileSlug, calculateSecuritySize) {
 
         let treemapLoader = document.getElementById("treemap-loader");
@@ -33,7 +26,6 @@
 
             var treemapChart = document.getElementById("treemap-chart");
             const chartColor = "#000F0F";
-            var selectedTreemapLevel = null;
             Plotly.react(
                 treemapChart,
                 traces = [{

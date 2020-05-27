@@ -214,11 +214,6 @@ class SecurityController extends Controller
     {
         $query = $request->input('q');
         $source_tables = SourceTable::all();
-        $security_types = [
-            'Misc.',
-            'Equities',
-            'Funds',
-        ];
         $results = Security::where('ticker', 'ILIKE', '%' . $query . '%')
             ->orWhere('name', 'ILIKE', '%' . $query . '%')
             ->select(
@@ -227,23 +222,19 @@ class SecurityController extends Controller
                 DB::raw("CASE WHEN ticker IS NULL THEN name ELSE CONCAT(ticker, ' - ', name) END AS text")
             )
             ->get()
-            ->groupBy(function($security) use ($source_tables, $security_types) {
+            ->groupBy(function($security) use ($source_tables) {
                 $source_table_id = $security->source_table_id;
                 unset($security->source_table_id);
-                $source_table_name = $source_tables->firstWhere('id', $source_table_id)->name;
-                switch($source_table_name) {
-                case 'SEP':
-                    return $security_types[1];
-                    break;
-                case 'SFP':
-                    return $security_types[2];
-                    break;
+                return $source_tables->firstWhere('id', $source_table_id)->group ?? 'Misc.';
+            })->sortBy(function($security, $type) {
+                switch($type) {
+                case 'Securities':
+                    return 1;
+                case 'Misc.':
+                    return 0;
                 default:
-                    return $security_types[0];
-                    break;
+                    return 2;
                 }
-            })->sortBy(function($security, $type) use ($security_types) {
-                return array_search($type, $security_types);
             })->map(function($securities, $type) {
                 return [
                     'text' => $type,
@@ -294,7 +285,7 @@ class SecurityController extends Controller
             $security = Security::findOrFail($security_id);
             $security_prices->push([
                 'short_name' => $security->ticker ?? $security->name,
-                'currency_code' => $security->currency->code,
+                'currency_code' => $security->currency ? $security->currency->code : null,
                 'prices' => $security
                     ->prices()
                     ->whereBetween('date', [$start_date, $end_date,])

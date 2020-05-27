@@ -31,6 +31,16 @@
     @include('scripts/date-picker')
     @include('scripts/security-treemap')
     <script>
+        function formatCurrency(number, code) {
+            if (!code) {
+                return number;
+            }
+            return new Intl.NumberFormat("en-US", {
+                style: "currency",
+                currency: code,
+            }).format(number);
+        }
+
         var baseColumns = [
             {
                 title: "Ticker",

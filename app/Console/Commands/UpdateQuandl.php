@@ -37,9 +37,16 @@ class UpdateQuandl extends Command
     /**
      * Whether to update momentum on completion
      *
-     * var boolean
+     * @var boolean
      */
     private $update_momentum = FALSE;
+
+    /**
+     * The Quandl API key
+     *
+     * @var string
+     */
+    private $quandl_key;
 
     /**
      * Create a new command instance.
@@ -58,19 +65,22 @@ class UpdateQuandl extends Command
      */
     public function handle()
     {
+        $this->quandl_key = env('QUANDL_KEY');
+
         $this->updateSharadarSecurities();
         $this->updateActions();
         $this->updateSharadarPrices();
         $this->updateFredPrices();
         $this->updateLondonPrices();
         $this->updateRecessions();
+        $this->updateFutures();
         if($this->update_momentum) {
             \Artisan::call('momentum:calculate-presets');
         }
     }
 
     private function fetchQuandlCSV($url, $params = [], $bulk_export = FALSE) {
-        $params['api_key'] = env('QUANDL_KEY');
+        $params['api_key'] = $this->quandl_key;
         if ($bulk_export) {
             $params['qopts.export'] = TRUE;
         }
@@ -96,7 +106,7 @@ class UpdateQuandl extends Command
             $zip_file = fopen($zip_filename, 'w');
             curl_setopt($curl, CURLOPT_URL, $bulk_link);
             curl_setopt($curl, CURLOPT_FILE, $zip_file);
-            $results = curl_exec($curl);
+            curl_exec($curl);
             curl_close($curl);
             fclose($zip_file);
 
@@ -107,6 +117,28 @@ class UpdateQuandl extends Command
             $zip->close();
         }
 
+        $lines = array_filter(explode(PHP_EOL, $results));
+
+        return($lines);
+    }
+
+    private function fetchQuandlDBMetadata($group) {
+        $zip_filename = tempnam(sys_get_temp_dir(), 'quandl_meta_');
+        $zip_file = fopen($zip_filename, 'w');
+
+        $curl = curl_init();
+        curl_setopt($curl, CURLOPT_URL, 'https://www.quandl.com/api/v3/databases/' . $group . '/metadata?api_key=' . $this->quandl_key);
+        curl_setopt($curl, CURLOPT_FILE, $zip_file);
+        curl_setopt($curl, CURLOPT_FOLLOWLOCATION, true);
+        curl_exec($curl);
+        curl_close($curl);
+
+        fclose($zip_file);
+
+        $zip = new ZipArchive();
+        $zip->open($zip_filename);
+        $results = $zip->getFromIndex(0);
+        $zip->close();
         $lines = explode(PHP_EOL, $results);
         // delete header row
         array_shift($lines);
@@ -128,62 +160,60 @@ class UpdateQuandl extends Command
         }
 
         $lines = $this->fetchQuandlCSV($url, $params, $bulk_export = TRUE);
+        $header = str_getcsv(array_shift($lines));
 
         foreach ($lines as $line) {
-            if (!$line) {
+            $line = array_combine($header, str_getcsv($line));
+            if (!SourceTable::where('name', $line['table'])->exists()) {
                 continue;
             }
-            $line = str_getcsv($line);
-            if (!SourceTable::where('name', $line[0])->exists()) {
-                continue;
-            }
-            $source_table_id = SourceTable::where('name', $line[0])->first()->id;
-            $exchange_id = Exchange::firstOrCreate(['name' => $line[4]])->id;
-            $category_id = Category::firstOrCreate(['name' => $line[6]])->id;
-            $cusips = explode(' ', $line[7]);
-            if($line[8]) {
+            $source_table_id = SourceTable::where('name', $line['table'])->first()->id;
+            $exchange_id = Exchange::firstOrCreate(['name' => $line['exchange']])->id;
+            $category_id = Category::firstOrCreate(['name' => $line['category']])->id;
+            $cusips = explode(' ', $line['cusips']);
+            if($line['siccode']) {
                 $sic_sector_id = SicSector::firstOrCreate(
-                    ['code' => $line[8]],
-                    ['name' => $line[9]]
+                    ['code' => $line['siccode']],
+                    ['name' => $line['sicsector']]
                 )->id;
                 $sic_industry_id = SicIndustry::firstOrCreate(
                     [
-                        'name' => $line[10],
+                        'name' => $line['sicindustry'],
                         'sic_sector_id' => $sic_sector_id,
                     ]
                 )->id;
             }
-            $sector_id = Sector::firstOrCreate(['name' => $line[13]])->id;
+            $sector_id = Sector::firstOrCreate(['name' => $line['sector']])->id;
             $industry_id = Industry::firstOrCreate([
                 'sector_id' => $sector_id,
-                'name' => $line[14],
+                'name' => $line['industry'],
             ])->id;
-            $related_tickers = explode(' ', $line[17]);
-            $currency_id = Currency::firstOrCreate(['code' => $line[18]])->id;
+            $related_tickers = explode(' ', $line['relatedtickers']);
+            $currency_id = Currency::firstOrCreate(['code' => $line['currency']])->id;
 
             $security = Security::updateOrCreate(
                 [
                     'source_table_id' => $source_table_id,
-                    'source_id' => $line[1],
+                    'source_id' => $line['permaticker'],
                 ],
                 [
-                    'ticker' => $line[2],
-                    'name' => $line[3],
+                    'ticker' => $line['ticker'],
+                    'name' => $line['name'],
                     'exchange_id' => $exchange_id,
-                    'is_delisted' => $line[5],
+                    'is_delisted' => $line['isdelisted'],
                     'category_id' => $category_id,
                     'sic_industry_id' => isset($sic_industry_id) ? $sic_industry_id : null,
                     'industry_id' => $industry_id,
-                    'scale_marketcap' => intval($line[15]),
-                    'scale_revenue' => intval($line[16]),
+                    'scale_marketcap' => intval($line['scalemarketcap']),
+                    'scale_revenue' => intval($line['scalerevenue']),
                     'currency_id' => $currency_id,
-                    'location' => $line[19] ?: null,
-                    'source_last_updated' => $line[20],
-                    'source_first_added' => $line[21],
-                    'first_quarter' => $line[24] ?: null,
-                    'last_quarter' => $line[25] ?: null,
-                    'sec_filing_url' => $line[26] ?: null,
-                    'company_url' => $line[27] ?: null,
+                    'location' => $line['location'] ?: null,
+                    'source_last_updated' => $line['lastupdated'],
+                    'source_first_added' => $line['firstadded'],
+                    'first_quarter' => $line['firstquarter'] ?: null,
+                    'last_quarter' => $line['lastquarter'] ?: null,
+                    'sec_filing_url' => $line['secfilings'] ?: null,
+                    'company_url' => $line['companysite'] ?: null,
                 ]
             );
 
@@ -214,22 +244,20 @@ class UpdateQuandl extends Command
         }
 
         $lines = $this->fetchQuandlCSV($url, $params, $bulk_export = TRUE);
+        $header = str_getcsv(array_shift($lines));
 
         $chunk = [];
         foreach ($lines as $line) {
-            if (!$line) {
-                continue;
-            }
-            $line = str_getcsv($line);
-            $action = Action::firstOrCreate(['name' => $line[1]]);
-            $security = Security::where('ticker', $line[2])->first();
+            $line = array_combine($header, str_getcsv($line));
+            $action = Action::firstOrCreate(['name' => $line['action']]);
+            $security = Security::where('ticker', $line['ticker'])->first();
             if ($security) {
                 $chunk[] = [
-                    'date' => $line[0],
+                    'date' => $line['date'],
                     'action_id' => $action->id,
                     'security_id' => $security->id,
-                    'value' => $line[4] ?: null,
-                    'contraticker' => $line[5] ?: null,
+                    'value' => $line['value'] ?: null,
+                    'contraticker' => $line['contraticker'] ?: null,
                 ];
             }
             if (count($chunk) > 1000) {
@@ -269,31 +297,29 @@ class UpdateQuandl extends Command
             }
 
             $lines = $this->fetchQuandlCSV($url, $params, $bulk_export = TRUE);
+            $header = str_getcsv(array_shift($lines));
 
             $chunk = [];
             foreach ($lines as $line) {
-                $line = str_getcsv($line);
-                if (!$line) {
-                    continue;
-                }
+                $line = array_combine($header, str_getcsv($line));
                 $security = Security::where('source_table_id', $source_table->id)
-                    ->where('ticker', $line[0])
+                    ->where('ticker', $line['ticker'])
                     ->first();
                 if ($security) {
                     $chunk[] = [
                         'security_id' => $security->id,
-                        'date' => $line[1],
-                        'open' => $line[2],
-                        'high' => $line[3],
-                        'low' => $line[4],
-                        'close' => $line[5],
-                        'volume' => $line[6] ?: null,
-                        'dividends' => $line[7],
-                        'close_unadj' => $line[8],
-                        'source_last_updated' => $line[9],
+                        'date' => $line['date'],
+                        'open' => $line['open'],
+                        'high' => $line['high'],
+                        'low' => $line['low'],
+                        'close' => $line['close'],
+                        'volume' => $line['volume'] ?: null,
+                        'dividends' => $line['dividends'],
+                        'close_unadj' => $line['closeunadj'],
+                        'source_last_updated' => $line['lastupdated'],
                     ];
                 } else {
-                    \Log::info('Security ' . $line[0] . ' on table ' . $source_table->name . ' not found');
+                    \Log::info('Security ' . $line['ticker'] . ' on table ' . $source_table->name . ' not found');
                 }
                 if (count($chunk) > 1000) {
                     \DB::table('prices')->upsert($chunk, ['security_id', 'date']);
@@ -324,17 +350,15 @@ class UpdateQuandl extends Command
         $url = 'https://www.quandl.com/api/v3/datasets/FRED/' . $fed_debt_table->name . '.csv';
 
         $lines = $this->fetchQuandlCSV($url, $params = []);
+        $header = str_getcsv(array_shift($lines));
         $prices = [];
         foreach ($lines as $line) {
-            if (!$line) {
-                continue;
-            }
-            $line = str_getcsv($line);
+            $line = array_combine($header, str_getcsv($line));
             $prices[] = [
                 'security_id' => $fed_debt_security->id,
-                'date' => $line[0],
-                'close' => $line[1] * 1000000,
-                'close_unadj' => $line[1] * 1000000,
+                'date' => $line['Date'],
+                'close' => $line['Value'] * 1000000,
+                'close_unadj' => $line['Value'] * 1000000,
             ];
         }
         \DB::table('prices')->upsert($prices, ['security_id', 'date']);
@@ -347,22 +371,22 @@ class UpdateQuandl extends Command
             'GOLD' => [
                 'name' => 'LBMA Gold Prices',
                 'source' => 'LBMA',
-                'close_index' => 2,
+                'close_column' => 'USD (PM)',
             ],
             'SILVER' => [
                 'name' => 'LBMA Silver Prices',
                 'source' => 'LBMA',
-                'close_index' => 1,
+                'close_column' => 'USD',
             ],
             'PALL' => [
                 'name' => 'LBMA Palladium Prices',
                 'source' => 'LPPM',
-                'close_index' => 4,
+                'close_column' => 'USD PM',
             ],
             'PLAT' => [
                 'name' => 'LBMA Platinum Prices',
                 'source' => 'LPPM',
-                'close_index' => 4,
+                'close_column' => 'USD PM',
             ],
         ] as $source_table_name => $security_data) {
             $source_table = SourceTable::firstOrCreate(['name' => $source_table_name]);
@@ -379,13 +403,11 @@ class UpdateQuandl extends Command
             }
 
             $lines = $this->fetchQuandlCSV($url, $params);
+            $header = str_getcsv(array_shift($lines));
 
             $chunk = [];
             foreach ($lines as $line) {
-                $line = str_getcsv($line);
-                if (!$line || count($line) <= 1) {
-                    continue;
-                }
+                $line = array_combine($header, str_getcsv($line));
                 $security = Security::firstOrCreate([
                     'source_table_id' => $source_table->id,
                     'name' => $security_data['name'],
@@ -398,8 +420,8 @@ class UpdateQuandl extends Command
 
                 $price = [
                     'security_id' => $security->id,
-                    'date' => $line[0],
-                    'close' => $line[$security_data['close_index']],
+                    'date' => $line['Date'],
+                    'close' => $line[$security_data['close_column']],
                 ];
 
                 if ($price['close'] == '') {
@@ -421,18 +443,103 @@ class UpdateQuandl extends Command
         $url = 'https://www.quandl.com/api/v3/datasets/FRED/USREC.csv';
 
         $lines = $this->fetchQuandlCSV($url, $params = []);
+        $header = str_getcsv(array_shift($lines));
         $recessions = [];
         foreach ($lines as $line) {
-            if (!$line) {
-                continue;
-            }
-            $line = str_getcsv($line);
+            $line = array_combine($header, str_getcsv($line));
             $recessions[] = [
-                'date' => $line[0],
-                'is_recession' => boolval(floatval($line[1])),
+                'date' => $line['Date'],
+                'is_recession' => boolval(floatval($line['Value'])),
             ];
         }
         \DB::table('recessions')->upsert($recessions, ['date']);
         \Log::info('FRED recession data successfully updated from Quandl.');
     }
+
+    private function updateFutures() {
+        foreach(['CHRIS'] as $source_table_name) {
+            $source_table = SourceTable::firstOrCreate([
+                'name' => $source_table_name,
+            ], [
+                'group' => 'Futures',
+            ]);
+
+            $tables = $this->fetchQuandlDBMetadata($source_table->name);
+            foreach ($tables as $table) {
+                if (!$table) {
+                    continue;
+                }
+                $table = str_getcsv($table);
+                $security = Security::firstOrCreate([
+                    'source_table_id' => $source_table->id,
+                    'name' => $table[1],
+                ], [
+                    'is_delisted' => FALSE,
+                    'scale_marketcap' => 0,
+                    'scale_revenue' => 0,
+                ]);
+
+                $url = 'https://www.quandl.com/api/v3/datasets/' . $source_table->name . '/' . $table[0] . '.csv';
+                $params = [];
+
+                if ($this->argument('start_date')) {
+                    $params['start_date'] = $this->argument('start_date');
+                } else {
+                    $params['start_date'] = Price::where('security_id', $security->id)->max('date');
+                }
+                if ($this->argument('end_date')) {
+                    $params['end_date'] = $this->argument('end_date');
+                }
+
+                // avoid fetching data if there's no data in the desired range
+                if ($params['start_date'] >= $table[5]) {
+                    continue;
+                }
+
+                $lines = $this->fetchQuandlCSV($url, $params);
+                $header = str_getcsv(array_shift($lines));
+                $chunk = [];
+                foreach ($lines as $line) {
+                    $line = array_combine($header, str_getcsv($line));
+                    $price = [
+                        'security_id' => $security->id,
+                        'date' => $line['Date'],
+                        'volume' => (
+                            array_key_exists('Volume', $line) &&
+                            !empty($line['Volume'])
+                        ) ? $line['Volume'] : null,
+                    ];
+
+                    if (
+                        array_key_exists('Previous Settlement', $line) &&
+                        !empty($line['Previous Settlement'])
+                    ) {
+                        $price['close'] = $line['Previous Settlement'];
+                    } else if (
+                        array_key_exists('Settle', $line) &&
+                        !empty($line['Settle'])
+                    ) {
+                        $price['close'] = $line['Settle'];
+                    } else if (
+                        array_key_exists('Last', $line) &&
+                        !empty($line['Last'])
+                    ) {
+                        $price['close'] = $line['Last'];
+                    } else {
+                        continue;
+                    }
+
+                    $chunk[] = $price;
+
+                    if (count($chunk) > 1000) {
+                        \DB::table('prices')->upsert($chunk, ['security_id', 'date']);
+                        $chunk = [];
+                    }
+                }
+                \DB::table('prices')->upsert($chunk, ['security_id', 'date']);
+            }
+        }
+        \Log::info('Futures data successfully updated from Quandl.');
+    }
+
 }

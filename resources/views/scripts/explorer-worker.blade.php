@@ -2,6 +2,9 @@
     importScripts("{{ env('APP_URL') }}/js/worker-deps.js");
 
     function formatCurrency(number, code) {
+        if (!code) {
+            return number;
+        }
         return new Intl.NumberFormat("en-US", {
             style: "currency",
             currency: code,

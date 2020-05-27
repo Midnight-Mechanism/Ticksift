@@ -22,5 +22,6 @@ class SourceTable extends Model
      */
     protected $fillable = [
         'name',
+        'group',
     ];
 }
