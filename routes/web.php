@@ -36,6 +36,7 @@ Route::group(['middleware' => ['web']], function () {
     Route::get('portfolios/securities', 'PortfolioController@securities')->name('portfolios.securities');
     Route::get('securities/prices', 'SecurityController@prices')->name('securities.prices');
     Route::get('securities/get-momentum', 'SecurityController@getMomentum')->name('securities.get-momentum');
+    Route::get('portfolios/security-weights', 'PortfolioController@getSecurityWeights')->name('portfolios.security-weights');
 
     Route::post('users/store-chart-options', 'UserController@storeChartOptions')->name('users.store-chart-options');
 
