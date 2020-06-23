@@ -237,7 +237,7 @@
                         mergedData,
                         exportFilename,
                         function(security) {
-                            return security.latest_close * security.volume * security.weight;
+                            return security.latest_close * security.weight;
                         }
                     );
                     $("body").removeClass("waiting");
