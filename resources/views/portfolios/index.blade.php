@@ -20,11 +20,14 @@
             </div>
         </div>
         <div class="row pb-3">
-            <div class="col-12 d-flex flex-column flex-md-row">
-                <select id="select-securities" multiple="multiple" class="invisible"></select>
+            <div class="col-12 d-flex flex-column flex-sm-row">
+                <div style="min-width: 70%; flex-grow: 1;">
+                    <select id="select-securities" multiple="multiple" class="invisible"></select>
+                </div>
                 @auth
                     <button
                         id="create-portfolio-button"
+                        style="min-width: 172px;"
                         class="btn btn-primary d-none"
                         data-toggle="modal"
                         data-target="#create-portfolio">
@@ -115,6 +118,9 @@
 
         // Initialize Securities Table
         var securitiesTable = new Tabulator("#table-portfolio-securities", {
+            cellEdited:function(cell){
+                updateTreemap();
+            },
             columns: [
                 {
                     title: "Name",
@@ -221,11 +227,17 @@
                         $("#update-portfolio-button").addClass("d-none");
                     }
                     const mergedData = [].concat.apply([], Object.values(_.cloneDeep(data)));
+                    // Add security weights for block size calculation
+                    securities = securitiesTable.getData();
+                    for (let s in mergedData) {
+                        let security = securities.find(sec => sec.ticker === mergedData[s].ticker);
+                        mergedData[s].weight = security ? security.weight : 1;
+                    }
                     buildTreemap(
                         mergedData,
                         exportFilename,
                         function(security) {
-                            return 1;
+                            return security.latest_close * security.volume * security.weight;
                         }
                     );
                     $("body").removeClass("waiting");
