@@ -69,10 +69,10 @@ class Handler extends ExceptionHandler
             return redirect()->route('login');
         }
 
-        $userLevelCheck = $exception instanceof \jeremykenedy\LaravelRoles\Exceptions\RoleDeniedException ||
-            $exception instanceof \jeremykenedy\LaravelRoles\Exceptions\RoleDeniedException ||
-            $exception instanceof \jeremykenedy\LaravelRoles\Exceptions\PermissionDeniedException ||
-            $exception instanceof \jeremykenedy\LaravelRoles\Exceptions\LevelDeniedException;
+        $userLevelCheck = $exception instanceof \jeremykenedy\LaravelRoles\App\Exceptions\RoleDeniedException ||
+            $exception instanceof \jeremykenedy\LaravelRoles\App\Exceptions\RoleDeniedException ||
+            $exception instanceof \jeremykenedy\LaravelRoles\App\Exceptions\PermissionDeniedException ||
+            $exception instanceof \jeremykenedy\LaravelRoles\App\Exceptions\LevelDeniedException;
 
         if ($userLevelCheck) {
             if ($request->expectsJson()) {
