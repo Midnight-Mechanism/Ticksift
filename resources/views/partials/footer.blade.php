@@ -8,7 +8,7 @@
             </ul>
             <ul class="navbar-nav ml-auto">
                 <li>
-                    <span>&copy; Midnight Mechanism, LLC {{ date("Y") }}</span>
+                    <span>&copy; Midnight Mechanism, LLC 2019-{{ date("Y") }}</span>
                 </li>
             </ul>
         </div>
