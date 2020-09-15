@@ -23,7 +23,7 @@ window.axios = require('axios');
 window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 
 window.Plotly = require('plotly.js-dist');
-window.moment = require('moment');
+window.dayjs = require('dayjs');
 window.jStat = require('jstat');
 window.flatpickr = require('flatpickr');
 window.Tabulator = require('tabulator-tables');

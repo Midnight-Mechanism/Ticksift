@@ -13,7 +13,7 @@
                 "{{ Session::get('security_dates')[0] }}",
                 "{{ Session::get('security_dates')[1] }}",
             @else
-                moment(maxDate).subtract(1, "month").format("YYYY-MM-DD"),
+                dayjs(maxDate).subtract(1, "month").format("YYYY-MM-DD"),
                 maxDate,
             @endif
         ],
@@ -27,25 +27,25 @@
     });
     $("#button-week").click(function() {
         calendar.setDate([
-            moment(maxDate).subtract(1, "week").format("YYYY-MM-DD"),
+            dayjs(maxDate).subtract(1, "week").format("YYYY-MM-DD"),
             maxDate,
         ], true);
     });
     $("#button-month").click(function() {
         calendar.setDate([
-            moment(maxDate).subtract(1, "month").format("YYYY-MM-DD"),
+            dayjs(maxDate).subtract(1, "month").format("YYYY-MM-DD"),
             maxDate,
         ], true);
     });
     $("#button-ytd").click(function() {
         calendar.setDate([
-            moment(maxDate).startOf("year").format("YYYY-MM-DD"),
+            dayjs(maxDate).startOf("year").format("YYYY-MM-DD"),
             maxDate,
         ], true);
     });
     $("#button-1yr").click(function() {
         calendar.setDate([
-            moment(maxDate).subtract(1, "year").format("YYYY-MM-DD"),
+            dayjs(maxDate).subtract(1, "year").format("YYYY-MM-DD"),
             maxDate,
         ], true);
     });

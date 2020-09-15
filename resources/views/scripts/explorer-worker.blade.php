@@ -14,6 +14,12 @@
         }).format(number);
     }
 
+    function getNumberWithOrdinal(n) {
+        var s = ["th", "st", "nd", "rd"],
+            v = n % 100;
+        return n + (s[(v - 20) % 10] || s[v] || s[0]);
+    }
+
     onmessage = function(e) {
         // Parse data from message
         securityPrices = e.data.securityPrices;
@@ -137,7 +143,7 @@
 
                 traces.push(
                     {
-                        name: "Below " + moment.localeData().ordinal(Number(inputThreshold)) + " Percentile",
+                        name: "Below " + getNumberWithOrdinal(Number(inputThreshold)) + " Percentile",
                         type: "histogram",
                         x: returns.slice(0, threshold * returns.length),
                         xbins: {
@@ -152,7 +158,7 @@
                         },
                     },
                     {
-                        name: "Above " + moment.localeData().ordinal(Number(inputThreshold)) + " Percentile",
+                        name: "Above " + getNumberWithOrdinal(Number(inputThreshold)) + " Percentile",
                         type: "histogram",
                         x: returns.slice(threshold * returns.length),
                         xbins: {
@@ -198,7 +204,7 @@
                     let dates = securityData.prices.map(a => a.date);
                     let close = securityData.prices.map(a => a.close);
 
-                    lastDates.push(moment(dates[dates.length - 1]));
+                    lastDates.push(dayjs(dates[dates.length - 1]));
 
                     // calculate correlation data for security
                     for (let compSecurityData of Object.values(sortedSecurityPrices)) {

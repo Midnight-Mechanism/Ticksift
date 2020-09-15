@@ -223,8 +223,8 @@
                             };
                         }).sort((a, b) => a.date > b.date ? 1 : -1);
 
-                        startDate = moment(dateMeans[0]["date"]);
-                        let endDate = moment(dateMeans[dateMeans.length - 1]["date"]);
+                        startDate = dayjs(dateMeans[0]["date"]);
+                        let endDate = dayjs(dateMeans[dateMeans.length - 1]["date"]);
                         let dayRange = endDate.diff(startDate, "days");
                         let indicatorPeriod = parseInt(dayRange / 10);
 
@@ -236,7 +236,7 @@
                                     xref: "x",
                                     yref: "paper",
                                     x0: indicator.start_date,
-                                    x1: indicator.end_date || moment().format("YYYY-MM-DD"),
+                                    x1: indicator.end_date || dayjs().format("YYYY-MM-DD"),
                                     y0: 0,
                                     y1: 1,
                                     fillcolor: "rgba(211, 211, 211, 0.15)",
