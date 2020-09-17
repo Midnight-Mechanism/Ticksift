@@ -55,16 +55,6 @@
                     headerSort: false,
                 },
                 {
-                    title: "Last Updated",
-                    field: "updated_at",
-                    formatter: "datetimediff",
-                    formatterParams: {
-                        inputFormat: "YYYY-MM-DDTHH:mm:ssZ",
-                        humanize: true,
-                        suffix: true,
-                    },
-                },
-                {
                     formatter: "buttonCross",
                     width: 10,
                     align: "center",
