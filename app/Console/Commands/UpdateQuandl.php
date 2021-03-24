@@ -95,7 +95,7 @@ class UpdateQuandl extends Command
 
         if ($bulk_export) {
             $results = json_decode($results, TRUE);
-            $bulk_link = $results['datatable_bulk_download']['file']['link'];
+            $bulk_link = ($results && array_key_exists('datatable_bulk_download', $results)) ? $results['datatable_bulk_download']['file']['link'] : null;
             if (!$bulk_link) {
                 return;
             }
@@ -160,7 +160,7 @@ class UpdateQuandl extends Command
         }
 
         $lines = $this->fetchQuandlCSV($url, $params, $bulk_export = TRUE);
-        $header = str_getcsv(array_shift($lines));
+        $header = $lines ? str_getcsv(array_shift($lines)) : null;
 
         foreach ($lines as $line) {
             $line = array_combine($header, str_getcsv($line));
@@ -244,7 +244,7 @@ class UpdateQuandl extends Command
         }
 
         $lines = $this->fetchQuandlCSV($url, $params, $bulk_export = TRUE);
-        $header = str_getcsv(array_shift($lines));
+        $header = $lines ? str_getcsv(array_shift($lines)) : null;
 
         $chunk = [];
         foreach ($lines as $line) {
@@ -285,7 +285,7 @@ class UpdateQuandl extends Command
         foreach(['SEP', 'SFP'] as $source_table_name) {
             $source_table = SourceTable::where('name', $source_table_name)->first();
             $url = 'https://www.quandl.com/api/v3/datatables/SHARADAR/' . $source_table->name;
-            $params = [];
+            $params = ['qopts.data_version' => 2];
 
             if ($this->argument('start_date')) {
                 $params['lastupdated.gte'] = $this->argument('start_date');
@@ -297,7 +297,7 @@ class UpdateQuandl extends Command
             }
 
             $lines = $this->fetchQuandlCSV($url, $params, $bulk_export = TRUE);
-            $header = str_getcsv(array_shift($lines));
+            $header = $lines ? str_getcsv(array_shift($lines)) : null;
 
             $chunk = [];
             foreach ($lines as $line) {
@@ -314,7 +314,7 @@ class UpdateQuandl extends Command
                         'low' => $line['low'],
                         'close' => $line['close'],
                         'volume' => $line['volume'] ?: null,
-                        'dividends' => $line['dividends'],
+                        'close_adj' => $line['closeadj'] ?: null,
                         'close_unadj' => $line['closeunadj'],
                         'source_last_updated' => $line['lastupdated'],
                     ];
@@ -350,7 +350,7 @@ class UpdateQuandl extends Command
         $url = 'https://www.quandl.com/api/v3/datasets/FRED/' . $fed_debt_table->name . '.csv';
 
         $lines = $this->fetchQuandlCSV($url, $params = []);
-        $header = str_getcsv(array_shift($lines));
+        $header = $lines ? str_getcsv(array_shift($lines)) : null;
         $prices = [];
         foreach ($lines as $line) {
             $line = array_combine($header, str_getcsv($line));
@@ -403,7 +403,7 @@ class UpdateQuandl extends Command
             }
 
             $lines = $this->fetchQuandlCSV($url, $params);
-            $header = str_getcsv(array_shift($lines));
+            $header = $lines ? str_getcsv(array_shift($lines)) : null;
 
             $chunk = [];
             foreach ($lines as $line) {
@@ -497,7 +497,7 @@ class UpdateQuandl extends Command
                 }
 
                 $lines = $this->fetchQuandlCSV($url, $params);
-                $header = str_getcsv(array_shift($lines));
+                $header = $lines ? str_getcsv(array_shift($lines)) : null;
                 $chunk = [];
                 foreach ($lines as $line) {
                     $line = array_combine($header, str_getcsv($line));
