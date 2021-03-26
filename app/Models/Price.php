@@ -30,7 +30,7 @@ class Price extends Model
         'low',
         'close',
         'volume',
-        'dividends',
+        'close_adj',
         'close_unadj',
         'source_last_updated',
     ];

@@ -3,7 +3,7 @@ variables:
   REVIEW_DOMAIN: "review.midnightmechanism.com"
 
 image:
-  name: lorisleiva/laravel-docker
+  name: lorisleiva/laravel-docker:7.4
 
 cache:
   key: ${CI_COMMIT_REF_SLUG}
