@@ -95,9 +95,11 @@ class UpdateQuandl extends Command
 
         if ($bulk_export) {
             $results = json_decode($results, TRUE);
-            $bulk_link = ($results && array_key_exists('datatable_bulk_download', $results)) ? $results['datatable_bulk_download']['file']['link'] : null;
-            if (!$bulk_link) {
-                return;
+            if ($results && array_key_exists('datatable_bulk_download', $results)) {
+                $bulk_link = $results['datatable_bulk_download']['file']['link'];
+            } else {
+                \Log::error('Could not get data at URL ' . $url);
+                return [];
             }
 
             // save bulk download file
@@ -160,7 +162,7 @@ class UpdateQuandl extends Command
         }
 
         $lines = $this->fetchQuandlCSV($url, $params, $bulk_export = TRUE);
-        $header = $lines ? str_getcsv(array_shift($lines)) : null;
+        $header = str_getcsv(array_shift($lines));
 
         foreach ($lines as $line) {
             $line = array_combine($header, str_getcsv($line));
@@ -244,7 +246,7 @@ class UpdateQuandl extends Command
         }
 
         $lines = $this->fetchQuandlCSV($url, $params, $bulk_export = TRUE);
-        $header = $lines ? str_getcsv(array_shift($lines)) : null;
+        $header = str_getcsv(array_shift($lines));
 
         $chunk = [];
         foreach ($lines as $line) {
@@ -281,9 +283,9 @@ class UpdateQuandl extends Command
 
     private function updateSharadarPrices() {
         // get link to bulk download file
-        $newest_price_updated = Price::max('source_last_updated');
         foreach(['SEP', 'SFP'] as $source_table_name) {
             $source_table = SourceTable::where('name', $source_table_name)->first();
+            $newest_price_updated = Price::sourceTableFilter($source_table->name)->max('source_last_updated');
             $url = 'https://www.quandl.com/api/v3/datatables/SHARADAR/' . $source_table->name;
             $params = ['qopts.data_version' => 2];
 
@@ -297,7 +299,7 @@ class UpdateQuandl extends Command
             }
 
             $lines = $this->fetchQuandlCSV($url, $params, $bulk_export = TRUE);
-            $header = $lines ? str_getcsv(array_shift($lines)) : null;
+            $header = str_getcsv(array_shift($lines));
 
             $chunk = [];
             foreach ($lines as $line) {
@@ -322,15 +324,16 @@ class UpdateQuandl extends Command
                     \Log::info('Security ' . $line['ticker'] . ' on table ' . $source_table->name . ' not found');
                 }
                 if (count($chunk) > 1000) {
-                    \DB::table('prices')->upsert($chunk, ['security_id', 'date']);
+                    Price::upsert($chunk, ['security_id', 'date']);
                     $chunk = [];
                 }
             }
-            \DB::table('prices')->upsert($chunk, ['security_id', 'date']);
+            Price::upsert($chunk, ['security_id', 'date']);
+            if (Price::sourceTableFilter($source_table->name)->max('source_last_updated') > $newest_price_updated) {
+                $this->update_momentum = TRUE;
+            }
         }
-        if (Price::max('source_last_updated') > $newest_price_updated) {
-            $this->update_momentum = TRUE;
-        }
+
         \Log::info('SHARADAR price data successfully updated from Quandl.');
     }
 
@@ -350,7 +353,7 @@ class UpdateQuandl extends Command
         $url = 'https://www.quandl.com/api/v3/datasets/FRED/' . $fed_debt_table->name . '.csv';
 
         $lines = $this->fetchQuandlCSV($url, $params = []);
-        $header = $lines ? str_getcsv(array_shift($lines)) : null;
+        $header = str_getcsv(array_shift($lines));
         $prices = [];
         foreach ($lines as $line) {
             $line = array_combine($header, str_getcsv($line));
@@ -361,7 +364,7 @@ class UpdateQuandl extends Command
                 'close_unadj' => $line['Value'] * 1000000,
             ];
         }
-        \DB::table('prices')->upsert($prices, ['security_id', 'date']);
+        Price::upsert($prices, ['security_id', 'date']);
         \Log::info('FRED price data successfully updated from Quandl.');
     }
 
@@ -403,7 +406,7 @@ class UpdateQuandl extends Command
             }
 
             $lines = $this->fetchQuandlCSV($url, $params);
-            $header = $lines ? str_getcsv(array_shift($lines)) : null;
+            $header = str_getcsv(array_shift($lines));
 
             $chunk = [];
             foreach ($lines as $line) {
@@ -430,11 +433,11 @@ class UpdateQuandl extends Command
                 $chunk[] = $price;
 
                 if (count($chunk) > 1000) {
-                    \DB::table('prices')->upsert($chunk, ['security_id', 'date']);
+                    Price::upsert($chunk, ['security_id', 'date']);
                     $chunk = [];
                 }
             }
-            \DB::table('prices')->upsert($chunk, ['security_id', 'date']);
+            Price::upsert($chunk, ['security_id', 'date']);
         }
         \Log::info('LBMA price data successfully updated from Quandl.');
     }
@@ -497,7 +500,7 @@ class UpdateQuandl extends Command
                 }
 
                 $lines = $this->fetchQuandlCSV($url, $params);
-                $header = $lines ? str_getcsv(array_shift($lines)) : null;
+                $header = str_getcsv(array_shift($lines));
                 $chunk = [];
                 foreach ($lines as $line) {
                     $line = array_combine($header, str_getcsv($line));
@@ -540,11 +543,11 @@ class UpdateQuandl extends Command
                     $chunk[] = $price;
 
                     if (count($chunk) > 1000) {
-                        \DB::table('prices')->upsert($chunk, ['security_id', 'date']);
+                        Price::upsert($chunk, ['security_id', 'date']);
                         $chunk = [];
                     }
                 }
-                \DB::table('prices')->upsert($chunk, ['security_id', 'date']);
+                Price::upsert($chunk, ['security_id', 'date']);
             }
         }
         \Log::info('Futures data successfully updated from Quandl.');
