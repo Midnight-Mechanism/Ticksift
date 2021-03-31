@@ -287,7 +287,7 @@ class UpdateQuandl extends Command
             $source_table = SourceTable::where('name', $source_table_name)->first();
             $newest_price_updated = Price::sourceTableFilter($source_table->name)->max('source_last_updated');
             $url = 'https://www.quandl.com/api/v3/datatables/SHARADAR/' . $source_table->name;
-            $params = ['qopts.data_version' => 2];
+            $params = [];
 
             if ($this->argument('start_date')) {
                 $params['lastupdated.gte'] = $this->argument('start_date');
