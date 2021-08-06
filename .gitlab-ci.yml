@@ -37,7 +37,7 @@ build_prod:
     paths:
       - "public/"
   rules:
-    - if: '$CI_COMMIT_BRANCH == "master"'
+    - if: '$CI_COMMIT_BRANCH == "main"'
 
 deploy_review:
   stage: deploy
@@ -123,4 +123,4 @@ deploy_prod:
     - ssh $SSH_SERVER "php /web/ticksift/prod/artisan view:clear"
     - ssh $SSH_SERVER "php /web/ticksift/prod/artisan migrate --force"
   rules:
-    - if: '$CI_COMMIT_BRANCH == "master"'
+    - if: '$CI_COMMIT_BRANCH == "main"'
