@@ -40,45 +40,6 @@
             </ul>
             {{-- Right Side Of Navbar --}}
             <ul class="navbar-nav ml-auto">
-                @auth
-                    <li>
-                        <a
-                            class="nav-link{{ Route::currentRouteName() === 'profile' ? ' active' : '' }}"
-                            href="{{ route('profile') }}"
-                            >
-                            Profile
-                        </a>
-                    </li>
-                @endauth
-                @guest
-                    <li>
-                        <a
-                            class="nav-link{{ Route::currentRouteName() === 'login' ? ' active' : '' }}"
-                            href="{{ route('login') }}"
-                            >
-                            Login
-                        </a>
-                    </li>
-                    <li>
-                        <a
-                            class="nav-link{{ Route::currentRouteName() === 'register' ? ' active' : '' }}"
-                            href="{{ route('register') }}"
-                            >
-                            Register
-                        </a>
-                    </li>
-                @endguest
-                @auth
-                    <li>
-                        <a class="nav-link" href="{{ route('logout') }}"
-                                            onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
-                            {{ __('Logout') }}
-                        </a>
-                        <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
-                            @csrf
-                        </form>
-                    </li>
-                @endauth
             </ul>
         </div>
     </div>
