@@ -42,21 +42,23 @@
                 </div>
             </a>
         </div>
-        <div class="landing-card">
-            <a class="text-reset text-decoration-none" href="{{ route('portfolios.index') }}">
-                <div class="card-header">
-                    <h3>Establish Portfolios</h3>
-                </div>
-                <div class="card-body mb-5">
-                    <div class="lead">
-                        Create portfolios of securities to watch group performance.
-                        <ul>
-                        </ul>
+        @if(!Auth::guest())
+            <div class="landing-card">
+                <a class="text-reset text-decoration-none" href="{{ route('portfolios.index') }}">
+                    <div class="card-header">
+                        <h3>Establish Portfolios</h3>
                     </div>
-                    <img class="img-fluid rounded" src="/images/landing/portfolios.png">
-                </div>
-            </a>
-        </div>
+                    <div class="card-body mb-5">
+                        <div class="lead">
+                            Create portfolios of securities to watch group performance.
+                            <ul>
+                            </ul>
+                        </div>
+                        <img class="img-fluid rounded" src="/images/landing/portfolios.png">
+                    </div>
+                </a>
+            </div>
+        @endif
     </div>
 @endsection
 
