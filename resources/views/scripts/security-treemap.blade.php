@@ -8,7 +8,10 @@
     function buildTreemap(data, fileSlug, calculateSecuritySize) {
 
         let treemapLoader = document.getElementById("treemap-loader");
-        treemapLoader.classList.add("loader");
+        // Only add loader after initial load
+        if (treemapChart.firstChild) {
+            treemapLoader.classList.add("loader");
+        }
 
         // Create treemap treemap worker
         var blob = new Blob([document.querySelector("#security-treemap-worker").textContent])
@@ -86,9 +89,7 @@
                 selectedTreemapLevel = data.nextLevel;
             });
             treemapLoader.classList.remove("loader");
-            treemapLoader.classList.remove("loader-spacer");
             treemapChart.classList.remove("loading");
-            treemapChart.classList.remove("loading-spacer");
         }
 
         // Handle worker errors

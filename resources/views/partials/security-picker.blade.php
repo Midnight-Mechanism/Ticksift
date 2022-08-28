@@ -5,8 +5,8 @@
             <button
                 id="create-portfolio-button"
                 class="btn btn-primary d-none"
-                data-toggle="modal"
-                data-target="#create-portfolio">
+                data-bs-toggle="modal"
+                data-bs-target="#create-portfolio">
                 Create Portfolio
             </button>
             @include('modals.create-portfolio')

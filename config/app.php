@@ -162,7 +162,6 @@ return [
         App\Providers\MacroServiceProvider::class,
         jeremykenedy\LaravelRoles\RolesServiceProvider::class,
         App\Providers\ComposerServiceProvider::class,
-        jeremykenedy\laravelexceptionnotifier\LaravelExceptionNotifier::class,
     ],
 
     /*

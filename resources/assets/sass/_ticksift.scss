@@ -160,7 +160,7 @@ a:not(.btn), .btn-link {
     position: absolute;
     z-index: 10000;
     left: 50%;
-    top: 30%;
+    top: 50%;
     border: 16px solid #001f1f;
     border-top: 16px solid #21C4C4;
     border-radius: 50%;
@@ -168,10 +168,6 @@ a:not(.btn), .btn-link {
     height: 120px;
     animation: spin 2s linear infinite;
     margin-left: -60px;
-}
-
-.loader-spacer {
-    top: 78px;
 }
 
 @keyframes spin {
@@ -185,14 +181,6 @@ a:not(.btn), .btn-link {
     -o-filter: blur(1px) grayscale(90%);
     -ms-filter: blur(1px) grayscale(90%);
     filter: blur(1px) grayscale(90%);
-}
-
-.loading-spacer {
-    background-color: #000F0F;
-    margin-top: 10px;
-    padding-bottom: 135px;
-    border: 1px solid #333;
-    border-radius: 0.25rem;
 }
 
 // needed for Plotly.react

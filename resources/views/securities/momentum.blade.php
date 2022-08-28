@@ -9,10 +9,10 @@
         @include('partials/date-picker')
         <div id="security-results" style="visibility: hidden">
             <div class="row">
-                <div class="col-12 text-center pb-3">
+                <div class="col-12 position-relative text-center pb-3">
                     <h3 class="chart-title">Sectors</h3>
-                    <div id="treemap-loader" class="loader loader-spacer"></div>
-                    <div id="treemap-chart" class="chart loading-spacer"></div>
+                    <div id="treemap-loader"></div>
+                    <div id="treemap-chart" class="chart"></div>
                 </div>
                 <div class="col-12 col-lg-6 text-center pb-3">
                     <h3 class="chart-title">Winners</h3>

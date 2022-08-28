@@ -26,7 +26,7 @@ window.Plotly = require('plotly.js-dist');
 window.dayjs = require('dayjs');
 window.jStat = require('jstat');
 window.flatpickr = require('flatpickr');
-import Tabulator from 'tabulator-tables';
+import {TabulatorFull as Tabulator} from 'tabulator-tables';
 window.Tabulator = Tabulator;
 window._ = require('lodash');
 window.Color = require('color');

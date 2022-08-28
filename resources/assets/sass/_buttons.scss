@@ -10,7 +10,7 @@
 // 	@include btn-social(#6441A4);
 // }
 
-[data-toggle="buttons"] >div .btn input[type="radio"] {
+[data-bs-toggle="buttons"] >div .btn input[type="radio"] {
     position: absolute;
     clip: rect(0, 0, 0, 0);
     pointer-events: none;
