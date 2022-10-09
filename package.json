@@ -11,18 +11,16 @@
     "start": "php artisan serve --port=8008 & npm run watch"
   },
   "devDependencies": {
-    "@fortawesome/fontawesome-free": "^6.1.2",
-    "axios": "^0.27",
-    "bootstrap": "^5.2.0",
+    "@fortawesome/fontawesome-free": "^6.2.0",
+    "bootstrap": "^5.2.2",
     "cross-env": "^7.0",
     "jquery": "~3.6.1",
     "laravel-mix": "^6.0",
     "lodash": "^4.17.21",
     "popper.js": "^1.16",
     "resolve-url-loader": "^5.0.0",
-    "sass": "^1.54.5",
-    "sass-loader": "^13.0.2",
-    "vue-template-compiler": "^2.7.10"
+    "sass": "^1.55.0",
+    "sass-loader": "^13.1.0"
   },
   "dependencies": {
     "color": "^4.2.3",
@@ -30,9 +28,9 @@
     "dropzone": "^5.9.3",
     "flatpickr": "^4.6.13",
     "jstat": "^1.9.5",
-    "plotly.js-dist": "^2.14.0",
+    "plotly.js-dist": "^2.15.0",
     "select2": "^4.0.13",
-    "tabulator-tables": "5.3.2",
+    "tabulator-tables": "5.4.0",
     "technicalindicators": "^3.1.0"
   }
 }
