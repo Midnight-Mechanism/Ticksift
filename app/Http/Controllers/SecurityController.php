@@ -221,6 +221,7 @@ class SecurityController extends Controller
                 'source_table_id',
                 DB::raw("CASE WHEN ticker IS NULL THEN name ELSE CONCAT(ticker, ' - ', name) END AS text")
             )
+            ->orderBy('ticker')->orderBy('name')
             ->get()
             ->groupBy(function($security) use ($source_tables) {
                 $source_table_id = $security->source_table_id;
