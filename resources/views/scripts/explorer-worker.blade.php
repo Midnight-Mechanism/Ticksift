@@ -185,7 +185,7 @@
 
                 explorerLayout.xaxis.rangeslider = null;
                 explorerLayout.yaxis.tickprefix = null;
-                explorerLayout.xaxis.tickformat = "%";
+                explorerLayout.xaxis.tickformat = ".0%";
                 explorerLayout.xaxis.type = "linear";
                 explorerLayout.barmode = "stack";
                 explorerLayout.hovermode = "x unified";
