@@ -45,6 +45,7 @@
                     });
                 }
                 explorerLayout.title = "Closing Prices";
+                explorerLayout.hovermode = "x unified";
                 break;
             case "candlestick":
             case "ohlc":
@@ -62,6 +63,7 @@
                 }
                 explorerLayout.title = "Prices";
                 explorerLayout.xaxis.rangeslider = {};
+                explorerLayout.hovermode = "x unified";
                 break;
             case "bubble":
                 // determine max volume across all securities
@@ -94,6 +96,7 @@
                     });
                 }
                 explorerLayout.title = "Closing Prices Weighted by Trading Volume";
+                explorerLayout.hovermode = "x unified";
                 break;
             case "ratio":
                 if(ratioPrices) {
@@ -123,6 +126,7 @@
                     }
                     explorerLayout.title = "Closing Prices to " + ratioPrices.short_name;
                     explorerLayout.yaxis.tickprefix = null;
+                    explorerLayout.hovermode = "x unified";
                 }
                 break;
             case "histvar":
@@ -184,6 +188,7 @@
                 explorerLayout.xaxis.tickformat = "%";
                 explorerLayout.xaxis.type = "linear";
                 explorerLayout.barmode = "stack";
+                explorerLayout.hovermode = "x unified";
                 delete explorerLayout.showlegend;
                 break;
             case "correlation":
@@ -281,6 +286,7 @@
                 explorerLayout.yaxis.tickprefix = null;
                 explorerLayout.xaxis.type = "category";
                 explorerLayout.yaxis.type = "category";
+                explorerLayout.hovermode = "closest";
                 break;
         }
 
