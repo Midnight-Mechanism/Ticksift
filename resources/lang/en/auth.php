@@ -73,8 +73,6 @@ return [
     'passwordRequired' => 'Password is required',
     'PasswordMin'      => 'Password needs to have at least 6 characters',
     'PasswordMax'      => 'Password maximum length is 20 characters',
-    'captchaRequire'   => 'Captcha is required',
-    'CaptchaWrong'     => 'Wrong captcha, please try again.',
     'roleRequired'     => 'User role is required.',
 
 ];

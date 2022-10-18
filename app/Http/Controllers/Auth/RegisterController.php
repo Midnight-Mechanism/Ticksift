@@ -61,6 +61,7 @@ class RegisterController extends Controller
                 'last_name'             => 'required',
                 'email'                 => 'required|email|max:255|unique:users',
                 'password'              => 'required|min:6|max:30|confirmed',
+                recaptchaFieldName()    => recaptchaRuleName(),
             ]
         );
     }

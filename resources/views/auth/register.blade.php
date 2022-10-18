@@ -67,6 +67,12 @@
                             </div>
                         </div>
 
+                        <div class="form-group row">
+                            <div class="col-md-12 d-flex justify-content-end">
+                                {!! htmlFormSnippet() !!}
+                            </div>
+                        </div>
+
                         <div class="row">
                             <div class="col-md-12 d-flex justify-content-end align-items-baseline">
                                 <button type="submit" class="btn btn-success">Register</button>
@@ -78,4 +84,10 @@
             </div>
         </div>
     </div>
+@endsection
+
+
+@section('footer_scripts')
+    {!! htmlScriptTagJsApi() !!}
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 @endsection
