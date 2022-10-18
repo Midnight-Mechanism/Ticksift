@@ -12,10 +12,10 @@
                         @csrf
                         <input type="hidden" name="remember" value=true>
 
-                        <div class="form-group row">
+                        <div class="row">
                             <label for="email" class="col-sm-3 col-form-label text-md-end">{{ __('Email Address') }}:</label>
 
-                            <div class="col-md-9">
+                            <div class="col-md-9 mb-3">
                                 <input id="email" type="email" class="form-control{{ $errors->has('email') ? ' is-invalid' : '' }}" name="email" value="{{ old('email') }}" required autofocus>
 
                                 @if ($errors->has('email'))
@@ -26,10 +26,10 @@
                             </div>
                         </div>
 
-                        <div class="form-group row">
+                        <div class="row">
                             <label for="password" class="col-md-3 col-form-label text-md-end">{{ __('Password') }}:</label>
 
-                            <div class="col-md-9">
+                            <div class="col-md-9 mb-3">
                                 <input id="password" type="password" class="form-control{{ $errors->has('password') ? ' is-invalid' : '' }}" name="password" required>
 
                                 @if ($errors->has('password'))
@@ -41,7 +41,7 @@
                         </div>
 
                         <div class="row">
-                            <div class="col-md-12 d-flex justify-content-between align-items-baseline">
+                            <div class="col-md-12 mt-3 d-flex justify-content-between align-items-baseline">
                                 <a class="btn btn-link" href="{{ route('password.request') }}">
                                     {{ __('Reset Password') }}
                                 </a>

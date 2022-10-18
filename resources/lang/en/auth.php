@@ -31,8 +31,7 @@ return [
     'alreadyActivated' => 'Already activated. ',
 
     // Labels
-    'whoops'          => 'Whoops! ',
-    'someProblems'    => 'There were some problems with your input.',
+    'someProblems'    => 'Please correct the problems below.',
     'email'           => 'Email Address',
     'password'        => 'Password',
     'rememberMe'      => ' Remember Me',

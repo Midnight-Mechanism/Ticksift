@@ -24,7 +24,7 @@
   <div class="alert alert-danger alert-dismissable fade show" role="alert">
     <h4 class="alert-heading">
       <i class="icon fa fa-warning fa-fw" aria-hidden="true"></i>
-      <strong>{{ Lang::get('auth.whoops') }}</strong> {{ Lang::get('auth.someProblems') }}
+      {{ Lang::get('auth.someProblems') }}
     </h4>
     <ul>
       @foreach ($errors->all() as $error)
