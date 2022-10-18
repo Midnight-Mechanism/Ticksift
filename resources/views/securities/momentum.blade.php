@@ -158,6 +158,8 @@
 
         $("#input-dates").change(updateMomentum);
 
-        updateMomentum();
+        losersTable.on("tableBuilt", function() {
+            updateMomentum();
+        });
     </script>
 @endsection
