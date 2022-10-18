@@ -3,7 +3,7 @@
 @section('content')
     <div class="container">
         <div class="row justify-content-center">
-            <div class="login-box card">
+            <div class="card">
                 <div class="card-header">
                     <h3>Register</h3>
                 </div>
@@ -12,7 +12,7 @@
                         @csrf
 
                         <div class="form-group row">
-                            <label for="first_name" class="col-sm-4 col-form-label text-md-right">First Name:</label>
+                            <label for="first_name" class="col-sm-4 col-form-label text-md-end">First Name:</label>
 
                             <div class="col-md-8">
                                 <input id="first_name" class="form-control" name="first_name" value="{{ old('first_name') }}" required autofocus>
@@ -20,7 +20,7 @@
                         </div>
 
                         <div class="form-group row">
-                            <label for="last_name" class="col-sm-4 col-form-label text-md-right">Last Name:</label>
+                            <label for="last_name" class="col-sm-4 col-form-label text-md-end">Last Name:</label>
 
                             <div class="col-md-8">
                                 <input id="last_name" class="form-control" name="last_name" value="{{ old('last_name') }}" required autofocus>
@@ -30,7 +30,7 @@
                         <br>
 
                         <div class="form-group row">
-                            <label for="email" class="col-sm-4 col-form-label text-md-right">{{ __('Email Address') }}:</label>
+                            <label for="email" class="col-sm-4 col-form-label text-md-end">{{ __('Email Address') }}:</label>
 
                             <div class="col-md-8">
                                 <input id="email" type="email" class="form-control{{ $errors->has('email') ? ' is-invalid' : '' }}" name="email" value="{{ old('email') }}" required autofocus>
@@ -46,7 +46,7 @@
                         <br>
 
                         <div class="form-group row">
-                            <label for="password" class="col-md-4 col-form-label text-md-right">{{ __('Password') }}:</label>
+                            <label for="password" class="col-md-4 col-form-label text-md-end">{{ __('Password') }}:</label>
 
                             <div class="col-md-8">
                                 <input id="password" type="password" class="form-control{{ $errors->has('password') ? ' is-invalid' : '' }}" name="password" required>
@@ -60,7 +60,7 @@
                         </div>
 
                         <div class="form-group row">
-                            <label for="password-confirm" class="col-md-4 col-form-label text-md-right">{{ __('Confirm Password') }}:</label>
+                            <label for="password-confirm" class="col-md-4 col-form-label text-md-end">{{ __('Confirm Password') }}:</label>
 
                             <div class="col-md-8">
                                 <input id="password-confirm" type="password" class="form-control" name="password_confirmation" required>

@@ -42,6 +42,7 @@
 
         let portfolios = {!! $portfolios !!};
         var portfoliosTable = new Tabulator("#table-portfolios", {
+            data: portfolios,
             selectable: 1,
             columns: [
                 {
@@ -67,15 +68,14 @@
             ],
             layout: "fitColumns",
             placeholder: "Try saving a portfolio below!",
-            rowSelectionChanged: function(data, rows) {
-                if(data.length > 0) {
-                    fetchPortfolioData([data[0].id]);
-                } else {
-                    updateTreemap();
-                }
-            },
         });
-        portfoliosTable.setData(portfolios);
+        portfoliosTable.on("rowSelectionChanged", function(data, rows) {
+            if (data.length > 0) {
+                fetchPortfolioData([data[0].id]);
+            } else {
+                updateTreemap();
+            }
+        });
 
         function updateTreemap() {
             if ($("#select-securities").val().length) {

@@ -25,7 +25,7 @@
                 </div>
             </a>
         </div>
-        <div class="card landing-card">
+        <div class="card landing-card mb-5">
             <a class="text-reset text-decoration-none" href="{{ route('securities.momentum') }}">
                 <div class="card-header">
                     <h3>Examine Momentum</h3>
@@ -42,7 +42,7 @@
                 </div>
             </a>
         </div>
-        @if(!Auth::guest())
+        @if(Route::has('login'))
             <div class="card landing-card mb-5">
                 <a class="text-reset text-decoration-none" href="{{ route('portfolios.index') }}">
                     <div class="card-header">

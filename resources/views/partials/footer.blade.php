@@ -4,9 +4,9 @@
             <img style="width: 30px" src="https://midnightmechanism.com/static/circle_logo.png">
         </a>
         <div id="navbarSupportedContent">
-            <ul class="navbar-nav mr-auto">
+            <ul class="navbar-nav me-auto">
             </ul>
-            <ul class="navbar-nav ml-auto">
+            <ul class="navbar-nav ms-auto">
                 <li>
                     <span>&copy; Midnight Mechanism, LLC 2019-{{ date("Y") }}</span>
                 </li>

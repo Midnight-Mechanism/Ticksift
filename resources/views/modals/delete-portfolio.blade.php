@@ -3,10 +3,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title">Delete Portfolio</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                    <span class="sr-only">close</span>
-                </button>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             {!! Form::open([
                 'route' => [
@@ -27,8 +24,8 @@
             <div class="modal-footer">
                 <div class="d-flex justify-content-around">
                     <span class="float-right mb-1">
-                        {!! Form::button('Save', [
-                            'class' => 'btn btn-success mx-2',
+                        {!! Form::button('Delete', [
+                            'class' => 'btn btn-danger mx-2',
                             'type' => 'submit',
                         ]) !!}
                     </span>

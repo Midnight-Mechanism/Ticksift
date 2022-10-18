@@ -31,9 +31,7 @@ Route::group(['middleware' => ['web']], function () {
 
     Route::get('securities/find', 'SecurityController@find')->name('securities.find');
     Route::get('securities/search', 'SecurityController@search')->name('securities.search');
-    Route::get('portfolios/search', 'PortfolioController@search')->name('portfolios.search');
 
-    Route::get('portfolios/securities', 'PortfolioController@securities')->name('portfolios.securities');
     Route::get('securities/prices', 'SecurityController@prices')->name('securities.prices');
     Route::get('securities/get-momentum', 'SecurityController@getMomentum')->name('securities.get-momentum');
 
@@ -62,6 +60,8 @@ Route::group(['middleware' => ['auth', 'activated']], function () {
     Route::post('update-password', 'UserController@updatePassword')->name('update-password');
     Route::post('update-profile', 'UserController@updateProfile')->name('update-profile');
 
+    Route::get('portfolios/search', 'PortfolioController@search')->name('portfolios.search');
+    Route::get('portfolios/securities', 'PortfolioController@securities')->name('portfolios.securities');
     Route::resource('portfolios', 'PortfolioController', [
         'except' => [
             'create',

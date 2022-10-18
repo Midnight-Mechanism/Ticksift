@@ -63,7 +63,7 @@ a:not(.btn), .btn-link {
 
 .card {
     overflow: hidden;
-    border-color: $dark-gray;
+    border: none;
     background-color: transparent;
 }
 
@@ -118,10 +118,6 @@ a:not(.btn), .btn-link {
         text-decoration: none;
         font-family: $font-family-sans-serif-bold;
     }
-}
-
-.login-box {
-    min-width: 80%;
 }
 
 .date-buttons {
