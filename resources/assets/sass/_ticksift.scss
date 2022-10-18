@@ -80,22 +80,13 @@ a:not(.btn), .btn-link {
     }
 }
 
-.landing-card .card-body {
-    display: flex;
-    align-items: center;
-    justify-content: space-around;
-    flex-direction: column;
-    img {
-        max-height: unset;
-    }
-}
-
-@include media-breakpoint-up(lg) {
-    .landing-card .card-body {
-        flex-direction: row;
-        img {
-            max-height: 50vmin;
-        }
+.landing-card {
+    height: 100%;
+    .card-body {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: space-around;
     }
 }
 
