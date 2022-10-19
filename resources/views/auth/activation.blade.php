@@ -12,9 +12,12 @@
                     <div class="card-header"><h3>Activation Required</h3></div>
 					<div class="card-body">
                         <p>Thank you for registering!</p>
-                        <p>An email has been sent to <b>{{ $email }}</b>.</p>
+                        <p>An email has been sent to <b>{{ Auth::user()->email }}</b>.</p>
                         <p>Please click the link in the email to activate your account.</p>
-						<p><a href='/activation' class="btn btn-success float-end">Resend Email</a></p>
+                        <form method="POST" action="{{ route('verification.send') }}">
+                            @csrf
+                            <button type="submit" class="btn btn-success float-end">Resend Email</button>
+                        </form>
 					</div>
 				</div>
 			</div>

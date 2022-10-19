@@ -159,9 +159,6 @@ return [
         App\Providers\RouteServiceProvider::class,
         Collective\Html\HtmlServiceProvider::class,
         Illuminate\Notifications\NotificationServiceProvider::class,
-        App\Providers\MacroServiceProvider::class,
-        jeremykenedy\LaravelRoles\RolesServiceProvider::class,
-        App\Providers\ComposerServiceProvider::class,
     ],
 
     /*

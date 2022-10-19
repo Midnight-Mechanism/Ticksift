@@ -52,7 +52,9 @@ class PortfolioController extends Controller
         $portfolio->users()->attach($user->id);
         $portfolio->securities()->attach($security_ids);
 
-        return back()->with('success', 'Your portfolio has been saved.');
+        return back()
+            ->with('status', 'success')
+            ->with('message', __('portfolios.saved'));
     }
 
     /**
@@ -70,9 +72,13 @@ class PortfolioController extends Controller
 
         if ($user->can('update', $portfolio)) {
             $portfolio->securities()->sync($security_ids);
-            return back()->with('success', 'Your portfolio has been updated.');
+            return back()
+                ->with('status', 'success')
+                ->with('message', __('portfolios.updated'));
         }
-        return back()->with('error', 'You do not have permission to update this portfolio.');
+        return back()
+            ->with('status', 'danger')
+            ->with('message', __('portfolios.no_permission'));
     }
 
     /**
@@ -89,10 +95,13 @@ class PortfolioController extends Controller
 
         if ($user->can('delete', $portfolio)) {
             $portfolio->delete();
-            return back()->with('success', 'The portfolio was deleted.');
+            return back()
+                ->with('status', 'success')
+                ->with('message', __('portfolios.deleted'));
         }
-
-        return back()->with('error', 'You do not have permission to delete this portfolio.');
+        return back()
+            ->with('status', 'danger')
+            ->with('message', __('portfolios.no_permission'));
     }
 
     /**

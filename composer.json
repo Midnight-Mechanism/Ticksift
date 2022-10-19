@@ -12,8 +12,6 @@
         "biscolab/laravel-recaptcha": "^5.4",
         "doctrine/dbal": "^3.0",
         "fideloper/proxy": "^4.0",
-        "jeremykenedy/laravel-https": "^1.5",
-        "jeremykenedy/laravel-roles": "^8.1",
         "laravel/framework": "^9.0",
         "laravel/tinker": "^2.0",
         "laravel/ui": "^4.0",

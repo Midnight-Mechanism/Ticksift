@@ -64,27 +64,6 @@ class Handler extends ExceptionHandler
      */
     public function render($request, Throwable $exception)
     {
-		// redirect to home if client is not set
-        if ($exception instanceof NotFoundHttpException || $exception instanceof ModelNotFoundException) {
-            return redirect()->route('login');
-        }
-
-        $userLevelCheck = $exception instanceof \jeremykenedy\LaravelRoles\App\Exceptions\RoleDeniedException ||
-            $exception instanceof \jeremykenedy\LaravelRoles\App\Exceptions\RoleDeniedException ||
-            $exception instanceof \jeremykenedy\LaravelRoles\App\Exceptions\PermissionDeniedException ||
-            $exception instanceof \jeremykenedy\LaravelRoles\App\Exceptions\LevelDeniedException;
-
-        if ($userLevelCheck) {
-            if ($request->expectsJson()) {
-                return Response::json([
-                    'error'   => 403,
-                    'message' => 'Unauthorized.',
-                ], 403);
-            }
-
-            abort(403);
-        }
-
         return parent::render($request, $exception);
     }
 

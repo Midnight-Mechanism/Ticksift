@@ -42,7 +42,9 @@ class UserController extends Controller
 
         $user->save();
 
-        return back()->with('success', 'Your information was successfully updated.');
+        return back()
+            ->with('status', 'success')
+            ->with('message', __('auth.updated'));
     }
 
 
@@ -68,7 +70,9 @@ class UserController extends Controller
 
         $user->save();
 
-        return back()->with('success', 'Your password was successfully changed.');
+        return back()
+            ->with('status', 'success')
+            ->with('message', __('passwords.changed'));
     }
 
     /**

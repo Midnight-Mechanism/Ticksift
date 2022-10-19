@@ -24,7 +24,7 @@
                         </div>
 
                         <div class="row">
-                            <label for="email" class="col-md-4 col-form-label text-md-end">{{ __('Email Address') }}:</label>
+                            <label for="email" class="col-md-4 col-form-label text-md-end">{{ __('forms.email') }}:</label>
                             <div class="col-md-8 mb-3">
                                 <input id="email" type="email" class="form-control{{ $errors->has('email') ? ' is-invalid' : '' }}" name="email" value="{{ old('email') }}" required autofocus>
 
@@ -37,7 +37,7 @@
                         </div>
 
                         <div class="row">
-                            <label for="password" class="col-md-4 col-form-label text-md-end">{{ __('Password') }}:</label>
+                            <label for="password" class="col-md-4 col-form-label text-md-end">{{ __('forms.password') }}:</label>
                             <div class="col-md-8 mb-3">
                                 <input id="password" type="password" class="form-control{{ $errors->has('password') ? ' is-invalid' : '' }}" name="password" required>
 
@@ -48,7 +48,7 @@
                                 @endif
                             </div>
 
-                            <label for="password-confirm" class="col-md-4 col-form-label text-md-end">{{ __('Confirm Password') }}:</label>
+                            <label for="password-confirm" class="col-md-4 col-form-label text-md-end">{{ __('forms.confirm_password') }}:</label>
                             <div class="col-md-8 mb-3">
                                 <input id="password-confirm" type="password" class="form-control" name="password_confirmation" required>
                             </div>
@@ -62,7 +62,7 @@
 
                         <div class="row">
                             <div class="col-md-12 d-flex justify-content-end align-items-baseline">
-                                <button type="submit" class="btn btn-success">Register</button>
+                                <button type="submit" class="btn btn-success">{{ __('forms.register') }}</button>
                             </div>
                         </div>
 

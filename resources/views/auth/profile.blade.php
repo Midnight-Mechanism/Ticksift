@@ -35,7 +35,7 @@
 
                             <div class="row">
                                 <div class="col-12">
-                                    <button type="submit" class="btn btn-success float-end">Update</button>
+                                    <button type="submit" class="btn btn-success float-end">{{ __('forms.update') }}</button>
                                 </div>
                             </div>
                         </form>
@@ -71,7 +71,7 @@
 
                             <div class="row">
                                 <div class="col-12">
-                                    <button type="submit" class="btn btn-success float-end">Change</button>
+                                    <button type="submit" class="btn btn-success float-end">{{ __('forms.update') }}</button>
                                 </div>
                             </div>
                         </form>

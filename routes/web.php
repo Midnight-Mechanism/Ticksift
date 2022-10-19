@@ -1,5 +1,11 @@
 <?php
 
+use App\Http\Controllers\IndicatorController;
+use App\Http\Controllers\PortfolioController;
+use App\Http\Controllers\SecurityController;
+use App\Http\Controllers\UserController;
+use Illuminate\Foundation\Auth\EmailVerificationRequest;
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -13,61 +19,39 @@
 |
 */
 
-Auth::routes();
-
 // public
-Route::group(['middleware' => ['web']], function () {
-
+Route::middleware(['web'])->group(function () {
     Route::view('/', 'landing')->name('landing');
 
-    // Activation Routes
-    Route::get('activate', 'Auth\ActivateController@initial')->name('activate');
-    Route::get('activate/{token}', 'Auth\ActivateController@activate')->name('authenticated.activate');
-    Route::get('activation', 'Auth\ActivateController@resend')->name('authenticated.activation-resend');
-    Route::get('exceeded', 'Auth\ActivateController@exceeded')->name('exceeded');
+    Route::get('securities/explorer', [SecurityController::class, 'explorer'])->name('securities.explorer');
+    Route::get('securities/momentum', [SecurityController::class, 'momentum'])->name('securities.momentum');
 
-    Route::get('securities/explorer', 'SecurityController@explorer')->name('securities.explorer');
-    Route::get('securities/momentum', 'SecurityController@momentum')->name('securities.momentum');
+    Route::get('securities/find', [SecurityController::class, 'find'])->name('securities.find');
+    Route::get('securities/search', [SecurityController::class, 'search'])->name('securities.search');
 
-    Route::get('securities/find', 'SecurityController@find')->name('securities.find');
-    Route::get('securities/search', 'SecurityController@search')->name('securities.search');
+    Route::get('securities/prices', [SecurityController::class, 'prices'])->name('securities.prices');
+    Route::get('securities/get-momentum', [SecurityController::class, 'getMomentum'])->name('securities.get-momentum');
 
-    Route::get('securities/prices', 'SecurityController@prices')->name('securities.prices');
-    Route::get('securities/get-momentum', 'SecurityController@getMomentum')->name('securities.get-momentum');
+    Route::post('users/store-chart-options', [UserController::class, 'storeChartOptions'])->name('users.store-chart-options');
 
-    Route::post('users/store-chart-options', 'UserController@storeChartOptions')->name('users.store-chart-options');
-
-    Route::get('indicators/recessions', 'IndicatorController@recessions')->name('indicators.recessions');
-
-});
-
-// registered users
-Route::group(['middleware' => ['auth']], function () {
-
-    Route::get('home', 'UserController@index')->name('public.home');
-
-    Route::get('/activation-required', ['uses' => 'Auth\ActivateController@activationRequired'])->name('activation-required');
-    Route::get('/activation-required', 'Auth\ActivateController@activationRequired')->name('activation-required');
-
-    Route::get('logout', 'Auth\LoginController@logout')->name('logout');
-
+    Route::get('indicators/recessions', [IndicatorController::class, 'recessions'])->name('indicators.recessions');
 });
 
 // activated users
-Route::group(['middleware' => ['auth', 'activated']], function () {
+Route::middleware(['auth', 'verified'])->group(function () {
+    Route::get('profile', [UserController::class, 'profile'])->name('profile');
+    Route::post('update-password', [UserController::class, 'updatePassword'])->name('update-password');
+    Route::post('update-profile', [UserController::class, 'updateProfile'])->name('update-profile');
 
-    Route::get('profile', 'UserController@profile')->name('profile');
-    Route::post('update-password', 'UserController@updatePassword')->name('update-password');
-    Route::post('update-profile', 'UserController@updateProfile')->name('update-profile');
-
-    Route::get('portfolios/search', 'PortfolioController@search')->name('portfolios.search');
-    Route::get('portfolios/securities', 'PortfolioController@securities')->name('portfolios.securities');
-    Route::resource('portfolios', 'PortfolioController', [
+    Route::get('portfolios/search', [PortfolioController::class, 'search'])->name('portfolios.search');
+    Route::get('portfolios/securities', [PortfolioController::class, 'securities'])->name('portfolios.securities');
+    Route::resource('portfolios', PortfolioController::class, [
         'except' => [
             'create',
             'show',
             'edit',
         ],
     ]);
-
 });
+
+require __DIR__.'/auth.php';
