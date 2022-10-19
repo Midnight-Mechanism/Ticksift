@@ -443,9 +443,11 @@
         }
 
         $(window).resize(function() {
-            Plotly.relayout(explorerChart, {
-                "legend.orientation": window.innerWidth < smallBreakpoint ? "h" : "v",
-            });
+            if(explorerChart.hasOwnProperty("layout")) {
+                Plotly.relayout(explorerChart, {
+                    "legend.orientation": window.innerWidth < smallBreakpoint ? "h" : "v",
+                });
+            }
         });
 
         function getPortfolioData() {
