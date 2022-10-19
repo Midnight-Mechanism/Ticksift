@@ -10,18 +10,18 @@
     {{ $slot }}
 
     {{-- Subcopy --}}
-    @if (isset($subcopy))
+    @isset($subcopy)
         @slot('subcopy')
             @component('mail::subcopy')
                 {{ $subcopy }}
             @endcomponent
         @endslot
-    @endif
+    @endisset
 
     {{-- Footer --}}
     @slot('footer')
         @component('mail::footer')
-            © {{ date('Y') }} Midnight Mechanism, LLC. All rights reserved.
+            © {{ date('Y') }} Midnight Mechanism, LLC. @lang('All rights reserved.')
         @endcomponent
     @endslot
 @endcomponent

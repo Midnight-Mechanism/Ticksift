@@ -45,7 +45,7 @@
 @if (! empty($salutation))
 {{ $salutation }}
 @else
-Thanks,<br>Ticksift
+Thanks,<br>Midnight Mechanism
 @endif
 
 <!-- Subcopy -->
