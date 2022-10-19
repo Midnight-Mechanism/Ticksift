@@ -10,7 +10,7 @@
         @auth
             <div class="row pb-2">
                 <div class="col-12">
-                    <select id="select-portfolios" class="invisible">
+                    <select id="select-portfolios" class="d-none">
                         <option></option>
                         @foreach(
                             \Auth::check() ?
@@ -25,10 +25,10 @@
             </div>
         @endauth
         @include('partials.security-picker')
-        <div id="security-results" class="invisible">
+        <div id="security-results" class="d-none">
             <div class="row">
                 <div class="col-12 col-lg-6 d-flex py-1">
-                    <select id="select-explorer-chart-type" class="invisible">
+                    <select id="select-explorer-chart-type" class="d-none">
                         <option value="line" selected>Line Chart</option>
                         <option value="candlestick">Candlestick Chart</option>
                         <option value="ohlc">OHLC Chart</option>
@@ -39,7 +39,7 @@
                     </select>
                 </div>
                 <div class="col-12 col-lg-6 d-flex py-1">
-                    <select id="select-explorer-chart-scale" class="invisible">
+                    <select id="select-explorer-chart-scale" class="d-none">
                         <option value="linear" selected>Linear Scale</option>
                         <option value="log">Logarithmic Scale</option>
                     </select>
@@ -47,7 +47,7 @@
             </div>
             <div class="row">
                 <div class="col-12 d-flex py-1">
-                    <select id="select-explorer-chart-indicators" class="invisible" multiple="multiple">
+                    <select id="select-explorer-chart-indicators" class="d-none" multiple="multiple">
                         <option value="simple-moving-average">Simple Moving Average (SMA)</option>
                         <option value="exponential-moving-average">Exponential Moving Average (EMA)</option>
                         <option value="bollinger-bands">Bollinger Bands</option>
@@ -60,7 +60,7 @@
             <div id="select-ratio-container" class="row pt-2 d-none">
                 <div class="col-12">
                     <label class="label-centered">Denominator Security:</label>
-                    <select id="select-ratio" class="invisible"></select>
+                    <select id="select-ratio" class="d-none"></select>
                 </div>
             </div>
             <div id="input-threshold-container" class="row pt-2 d-none">
@@ -134,6 +134,7 @@
         // Start explorer worker
         var blob = new Blob([document.querySelector("#explorer-worker").textContent]);
         var explorerWorker = new Worker(window.URL.createObjectURL(blob));
+        let smallBreakpoint = 576;
 
         function processChartData() {
             // Terminate old explorer worker in case one still running
@@ -149,6 +150,7 @@
 
             let traces = [];
             let explorerConfig = _.cloneDeep(config);
+            let smallScreen = window.innerWidth < smallBreakpoint;
 
             let filename = [
                 "ticksift",
@@ -174,8 +176,7 @@
             explorerLayout.showlegend = true;
             explorerLayout.annotations = [];
             explorerLayout.xaxis.rangeslider = null;
-            explorerLayout.legend.orientation = window.innerWidth < 576 ? "h" : "v",
-
+            explorerLayout.legend.orientation = smallScreen ? "h" : "v";
             explorerLayout.xaxis.title = "";
             explorerLayout.yaxis.title = "";
 
@@ -437,8 +438,15 @@
                 "chartType": chartType,
                 "ratioPrices": ratioPrices,
                 "inputThreshold": $("#input-threshold").val(),
+                "smallScreen": smallScreen,
             });
         }
+
+        $(window).resize(function() {
+            Plotly.relayout(explorerChart, {
+                "legend.orientation": window.innerWidth < smallBreakpoint ? "h" : "v",
+            });
+        });
 
         function getPortfolioData() {
             let id = $("#select-portfolios").val();
@@ -461,7 +469,7 @@
             }).done(function(prices) {
                 securityPrices = Object.values(prices);
                 if (security_ids.length > 0) {
-                    $("#security-results").removeClass("invisible");
+                    $("#security-results").removeClass("d-none");
                     $("#create-portfolio-button").removeClass("d-none");
                     processChartData();
                 } else {
@@ -500,7 +508,7 @@
         $("#select-securities").on("select2:unselect", function () {
             let vals = $("#select-securities").val();
             if (!vals || !vals.length) {
-                $("#security-results").addClass("invisible");
+                $("#security-results").addClass("d-none");
             }
         });
 

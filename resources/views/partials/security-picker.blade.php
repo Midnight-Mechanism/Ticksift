@@ -1,6 +1,6 @@
 <div class="row pb-3">
     <div class="col-12 d-flex flex-column flex-sm-row">
-        <select id="select-securities" multiple="multiple" class="invisible"></select>
+        <select id="select-securities" multiple="multiple" class="d-none"></select>
         @auth
             <button
                 id="create-portfolio-button"

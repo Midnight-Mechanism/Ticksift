@@ -29,6 +29,7 @@
         chartType = e.data.chartType;
         ratioPrices = e.data.ratioPrices;
         inputThreshold = e.data.inputThreshold;
+        smallScreen = e.data.smallScreen;
 
         // Update traces based on chart type
         switch (chartType) {
@@ -181,7 +182,6 @@
                 explorerLayout.title = "Historical Value at Risk";
                 explorerLayout.xaxis.title = "Continuously Compounded Daily Return";
                 explorerLayout.yaxis.title = "Frequency";
-                explorerLayout.legend.orientation = "v",
 
                 explorerLayout.xaxis.rangeslider = null;
                 explorerLayout.yaxis.tickprefix = null;
@@ -198,6 +198,9 @@
                     z: [],
                     type: "heatmap",
                     colorscale: "Electric",
+                    colorbar: {
+                        orientation: smallScreen ? "h" : "v",
+                    },
                     hovertemplate: "%{x} to %{y} correlation: %{z}<extra></extra>",
                     zmin: -1,
                     zmax: 1,
