@@ -8,10 +8,7 @@
     function buildTreemap(data, fileSlug, calculateSecuritySize) {
 
         let treemapLoader = document.getElementById("treemap-loader");
-        // Only add loader after initial load
-        if (treemapChart.firstChild) {
-            treemapLoader.classList.add("loader");
-        }
+        treemapLoader.classList.add("loader");
 
         // Create treemap treemap worker
         var blob = new Blob([document.querySelector("#security-treemap-worker").textContent])
