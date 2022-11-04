@@ -73,7 +73,6 @@ class UpdateQuandl extends Command
         $this->updateFredPrices();
         $this->updateLondonPrices();
         $this->updateRecessions();
-        $this->updateFutures();
         if($this->update_momentum) {
             \Artisan::call('momentum:calculate-presets');
         }
@@ -457,100 +456,6 @@ class UpdateQuandl extends Command
         }
         \DB::table('recessions')->upsert($recessions, ['date']);
         \Log::info('FRED recession data successfully updated from Quandl.');
-    }
-
-    private function updateFutures() {
-        foreach(['CHRIS'] as $source_table_name) {
-            $source_table = SourceTable::firstOrCreate([
-                'name' => $source_table_name,
-            ], [
-                'group' => 'Futures',
-            ]);
-
-            $tables = $this->fetchQuandlDBMetadata($source_table->name);
-            foreach ($tables as $table) {
-                if (!$table) {
-                    continue;
-                }
-                $table = str_getcsv($table);
-                $security = Security::firstOrCreate([
-                    'source_table_id' => $source_table->id,
-                    'name' => $table[1],
-                ], [
-                    'is_delisted' => FALSE,
-                    'scale_marketcap' => 0,
-                    'scale_revenue' => 0,
-                ]);
-
-                $url = 'https://www.quandl.com/api/v3/datasets/' . $source_table->name . '/' . $table[0] . '.csv';
-                $params = [];
-
-                if ($this->argument('start_date')) {
-                    $params['start_date'] = $this->argument('start_date');
-                } else {
-                    $params['start_date'] = Price::where('security_id', $security->id)->max('date');
-                }
-                if ($this->argument('end_date')) {
-                    $params['end_date'] = $this->argument('end_date');
-                }
-
-                // avoid fetching data if there's no data in the desired range
-                if ($params['start_date'] > $table[5]) {
-                    continue;
-                }
-
-                $lines = $this->fetchQuandlCSV($url, $params);
-                $header = str_getcsv(array_shift($lines));
-                $chunk = [];
-                foreach ($lines as $line) {
-                    $line = array_combine($header, str_getcsv($line));
-                    $price = [
-                        'security_id' => $security->id,
-                        'volume' => (
-                            array_key_exists('Volume', $line) &&
-                            !empty($line['Volume'])
-                        ) ? $line['Volume'] : null,
-                    ];
-
-                    if (
-                        array_key_exists('Trade Date', $line) &&
-                        !empty($line['Trade Date'])
-                    ) {
-                        $price['date'] = $line['Trade Date'];
-                    } else {
-                        $price['date'] = $line['Date'];
-                    }
-
-                    if (
-                        array_key_exists('Previous Settlement', $line) &&
-                        !empty($line['Previous Settlement'])
-                    ) {
-                        $price['close'] = $line['Previous Settlement'];
-                    } else if (
-                        array_key_exists('Settle', $line) &&
-                        !empty($line['Settle'])
-                    ) {
-                        $price['close'] = $line['Settle'];
-                    } else if (
-                        array_key_exists('Last', $line) &&
-                        !empty($line['Last'])
-                    ) {
-                        $price['close'] = $line['Last'];
-                    } else {
-                        continue;
-                    }
-
-                    $chunk[] = $price;
-
-                    if (count($chunk) > 1000) {
-                        Price::upsert($chunk, ['security_id', 'date']);
-                        $chunk = [];
-                    }
-                }
-                Price::upsert($chunk, ['security_id', 'date']);
-            }
-        }
-        \Log::info('Futures data successfully updated from Quandl.');
     }
 
 }
