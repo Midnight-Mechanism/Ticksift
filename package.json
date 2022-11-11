@@ -19,18 +19,18 @@
     "lodash": "^4.17.21",
     "popper.js": "^1.16",
     "resolve-url-loader": "^5.0.0",
-    "sass": "^1.55.0",
-    "sass-loader": "^13.1.0"
+    "sass": "^1.56.1",
+    "sass-loader": "^13.2.0"
   },
   "dependencies": {
     "color": "^4.2.3",
-    "dayjs": "^1.11.5",
+    "dayjs": "^1.11.6",
     "dropzone": "^5.9.3",
     "flatpickr": "^4.6.13",
     "jstat": "^1.9.5",
-    "plotly.js-dist": "^2.15.0",
+    "plotly.js-dist": "^2.16.1",
     "select2": "^4.0.13",
-    "tabulator-tables": "5.4.0",
+    "tabulator-tables": "5.4.2",
     "technicalindicators": "^3.1.0"
   }
 }
