@@ -46,6 +46,8 @@ export default function Explorer(props: any) {
     { value: 'recessions', label: 'Recessions' },
   ];
 
+  const [loading, setLoading] = useState<boolean>(true);
+
   const [selectedDates, setSelectedDates] = useState<any>();
   const [selectedSecurities, setSelectedSecurities] = useLocalStorage('selectedSecurities');
   const [selectedChart, setSelectedChart] = useLocalStorage('selectedChart', chartOptions[0]);
@@ -57,7 +59,7 @@ export default function Explorer(props: any) {
 
   const [priceData, setPriceData] = useState<any>();
   const [ratioPriceData, setRatioPriceData] = useState<any>();
-  const [chartData, setChartData] = useLocalStorage('chartData');
+  const [chartData, setChartData] = useState<any>();
   const [recessions, setRecessions] = useState<any>();
 
   const getSecurityOptions = useCallback(
@@ -77,6 +79,7 @@ export default function Explorer(props: any) {
 
   const getPriceData = (securities: any, callback: any) => {
     if (selectedDates && securities) {
+      setLoading(true);
       window.axios
         .get(window.route('securities.prices'), {
           params: {
@@ -596,6 +599,11 @@ export default function Explorer(props: any) {
     generateChartData();
   }, [priceData, ratioPriceData, selectedChart, selectedScale, selectedIndicators, varThreshold]);
 
+  // stop loading once chart has loaded
+  useEffect(() => {
+    setLoading(false);
+  }, [chartData]);
+
   const renderVarPercentileInput = () => {
     if (selectedChart?.value === 'histvar') {
       return (
@@ -634,10 +642,9 @@ export default function Explorer(props: any) {
     if (chartData) {
       return (
         <Plot
-          className="w-full"
+          className={`w-full chart-fluid ${loading ? 'loading' : ''}`}
           style={{
             minHeight: '400px',
-            height: '70vmin',
           }}
           useResizeHandler
           data={chartData?.data}

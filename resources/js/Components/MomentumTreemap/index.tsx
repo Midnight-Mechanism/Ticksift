@@ -1,14 +1,21 @@
 import Color from 'color';
 import { groupBy, map, mapValues, without } from 'lodash';
-import { useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import Plot from 'react-plotly.js';
 
-import { useLocalStorage } from '@/Hooks/UseLocalStorage';
 import { chartColor } from '@/Utilities/Constants';
 import { formatCurrency } from '@/Utilities/NumberHelpers';
 
-export default function MomentumTreemap({ data, calculateSecuritySize }: { data: any; calculateSecuritySize: any }) {
-  const [chartData, setChartData] = useLocalStorage('momentumChartData');
+export default function MomentumTreemap({
+  data,
+  calculateSecuritySize,
+  className = '',
+}: {
+  data: any;
+  calculateSecuritySize: any;
+  className?: string;
+}) {
+  const [chartData, setChartData] = useState<any>();
   useEffect(() => {
     if (data) {
       setChartData(generateChartData(data));
@@ -115,11 +122,10 @@ export default function MomentumTreemap({ data, calculateSecuritySize }: { data:
   if (chartData?.values?.length) {
     return (
       <Plot
-        className="w-full"
+        className={`w-full chart-fluid ${className}`}
         useResizeHandler
         style={{
           minHeight: '800px',
-          height: '70vmin',
         }}
         data={[
           {

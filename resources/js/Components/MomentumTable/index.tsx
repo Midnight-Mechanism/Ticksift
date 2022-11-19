@@ -3,10 +3,11 @@ import 'tabulator-tables/dist/css/tabulator_midnight.css';
 
 import { formatCurrency, formatPercentage } from '@/Utilities/NumberHelpers';
 
-export default function MomentumTable({ data, type }: { data: any; type: string }) {
+export default function MomentumTable({ data, type, className = '' }: { data: any; type: string; className?: string }) {
   if (data) {
     return (
       <ReactTabulator
+        className={`tabulator ${className}`}
         options={{
           layout: 'fitColumns',
           minHeight: '300',
