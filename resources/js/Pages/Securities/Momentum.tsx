@@ -34,10 +34,16 @@ export default function Momentum(props: any) {
             data={results ? [...results.winners, ...results.losers] : null}
             calculateSecuritySize={(s: any) => s.latest_close * s.volume}
           />
-          <ChartTitle className="mt-3" text="Winners" />
-          <MomentumTable type="winners" data={results?.winners} />
-          <ChartTitle className="mt-3" text="Losers" />
-          <MomentumTable type="losers" data={results?.losers} />
+          <div className="grid grid-cols-1 sm:grid-cols-1 2xl:grid-cols-2 gap-x-8 justify-items-center">
+            <div className="w-full mt-3">
+              <ChartTitle text="Winners" />
+              <MomentumTable type="winners" data={results?.winners} />
+            </div>
+            <div className="w-full mt-3">
+              <ChartTitle text="Losers" />
+              <MomentumTable type="losers" data={results?.losers} />
+            </div>
+          </div>
         </div>
       </div>
     </Layout>
