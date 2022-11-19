@@ -4,8 +4,9 @@ import Plot from 'react-plotly.js';
 import Color from 'color';
 import { chartColor } from '@/Utilities/Constants';
 import { formatCurrency } from '@/Utilities/NumberHelpers';
+import { groupBy, map, mapValues, without } from 'lodash';
 
-export default function MomentumTreemap({ data, calculateSecuritySize }) {
+export default function MomentumTreemap({ data, calculateSecuritySize }: { data: any; calculateSecuritySize: any }) {
   const [chartData, setChartData] = useLocalStorage('momentumChartData');
   useEffect(() => {
     if (data) {
@@ -13,8 +14,8 @@ export default function MomentumTreemap({ data, calculateSecuritySize }) {
     }
   }, [data]);
 
-  const generateChartData = rawData => {
-    const results = {
+  const generateChartData = (rawData: any) => {
+    const results: any = {
       labels: [],
       parents: [],
       text: [],
@@ -24,35 +25,33 @@ export default function MomentumTreemap({ data, calculateSecuritySize }) {
       customdata: [],
     };
 
-    rawData = _(rawData)
-      .map(securityData => {
-        if (!securityData.sector) {
-          securityData.sector = 'No Sector';
-          securityData.industry = 'No Industry';
-        }
-        // consolidate "increase" and "decrease" into "change"
-        if ('increase' in securityData) {
-          securityData.change = securityData.increase;
-          delete securityData['increase'];
-        } else if ('decrease' in securityData) {
-          securityData.change = securityData.decrease * -1;
-          delete securityData['decrease'];
-        }
-        return securityData;
-      })
-      .without(undefined)
-      .groupBy('sector')
-      .mapValues(function (securities) {
-        const sector_color = securities[0].sector_color;
-        return {
-          color: sector_color ? '#' + sector_color : null,
-          industries: _.groupBy(securities, 'industry'),
-        };
-      })
-      .value();
+    rawData = map(rawData, (securityData: any) => {
+      if (!securityData.sector) {
+        securityData.sector = 'No Sector';
+        securityData.industry = 'No Industry';
+      }
+      // consolidate "increase" and "decrease" into "change"
+      if ('increase' in securityData) {
+        securityData.change = securityData.increase;
+        delete securityData['increase'];
+      } else if ('decrease' in securityData) {
+        securityData.change = securityData.decrease * -1;
+        delete securityData['decrease'];
+      }
+      return securityData;
+    });
+    rawData = without(rawData, undefined);
+    rawData = groupBy(rawData, 'sector');
+    rawData = mapValues(rawData, (securities: any) => {
+      const sector_color = securities[0].sector_color;
+      return {
+        color: sector_color ? '#' + sector_color : null,
+        industries: groupBy(securities, 'industry'),
+      };
+    });
 
-    for (const [sector, sectorData] of Object.entries(rawData)) {
-      let sectorLabel = `<b><span style='text-transform: uppercase'>${sector}</span></b>`;
+    Object.entries(rawData).forEach(([sector, sectorData]: [string, any]) => {
+      const sectorLabel = `<b><span style='text-transform: uppercase'>${sector}</span></b>`;
       results.labels.push(sectorLabel);
       results.parents.push('');
       results.text.push(null);
@@ -60,8 +59,8 @@ export default function MomentumTreemap({ data, calculateSecuritySize }) {
       results.lineColors.push(sectorData.color);
       results.values.push(0);
       results.customdata.push(null);
-      for (const [industry, industryData] of Object.entries(sectorData.industries)) {
-        let industryLabel = `<span style='text-transform: uppercase'>${industry}</span>`;
+      Object.entries(sectorData.industries).forEach(([industry, industryData]: [string, any]) => {
+        const industryLabel = `<span style='text-transform: uppercase'>${industry}</span>`;
         results.labels.push(industryLabel);
         results.parents.push(sectorLabel);
         results.text.push(null);
@@ -69,7 +68,7 @@ export default function MomentumTreemap({ data, calculateSecuritySize }) {
         results.lineColors.push(sectorData.color);
         results.values.push(0);
         results.customdata.push(null);
-        for (const securityData of Object.values(industryData)) {
+        industryData.forEach((securityData: any) => {
           results.parents.push(industryLabel);
           results.customdata.push(securityData.ticker);
           const label = `<b><span style='font-size: 200%'>${securityData.short_name}</span></b>`;
@@ -105,9 +104,9 @@ export default function MomentumTreemap({ data, calculateSecuritySize }) {
           results.text.push(text);
           results.values.push(calculateSecuritySize(securityData));
           results.lineColors.push(null);
-        }
-      }
-    }
+        });
+      });
+    });
 
     return results;
   };
@@ -129,6 +128,7 @@ export default function MomentumTreemap({ data, calculateSecuritySize }) {
             text: chartData.text,
             values: chartData.values,
             customdata: chartData.customdata,
+            // @ts-ignore: types need to be updated
             hoverinfo: 'label+text',
             textposition: 'middle center',
             marker: {

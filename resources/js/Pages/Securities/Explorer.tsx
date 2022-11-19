@@ -11,8 +11,10 @@ import { useLocalStorage } from '@/Hooks/UseLocalStorage';
 import dayjs from 'dayjs';
 import { SMA, EMA, BollingerBands, RSI, TRIX } from 'technicalindicators';
 import { chartColor, gridColor } from '@/Utilities/Constants';
+import { BollingerBandsOutput } from 'technicalindicators/declarations/volatility/BollingerBands';
+import { debounce, cloneDeep, reduce, zipObject, mergeWith, isArray, mean, map, sortBy } from 'lodash';
 
-export default function Explorer(props) {
+export default function Explorer(props: any) {
   const chartOptions = [
     { value: 'line', label: 'Line Chart' },
     { value: 'candlestick', label: 'Candlestick Chart' },
@@ -43,7 +45,7 @@ export default function Explorer(props) {
     { value: 'recessions', label: 'Recessions' },
   ];
 
-  const [selectedDates, setSelectedDates] = useState();
+  const [selectedDates, setSelectedDates] = useState<any>();
   const [selectedSecurities, setSelectedSecurities] = useLocalStorage('selectedSecurities');
   const [selectedChart, setSelectedChart] = useLocalStorage('selectedChart', chartOptions[0]);
   const [selectedScale, setSelectedScale] = useLocalStorage('selectedScale', scaleOptions[0]);
@@ -52,41 +54,41 @@ export default function Explorer(props) {
 
   const [varThreshold, setVarThreshold] = useState(5);
 
-  const [priceData, setPriceData] = useState();
-  const [ratioPriceData, setRatioPriceData] = useState();
+  const [priceData, setPriceData] = useState<any>();
+  const [ratioPriceData, setRatioPriceData] = useState<any>();
   const [chartData, setChartData] = useLocalStorage('chartData');
-  const [recessions, setRecessions] = useState();
+  const [recessions, setRecessions] = useState<any>();
 
   const getSecurityOptions = useCallback(
-    _.debounce((input, callback) => {
-      axios
-        .get(route('securities.search'), {
+    debounce((input, callback) => {
+      window.axios
+        .get(window.route('securities.search'), {
           params: {
             q: input,
           },
         })
-        .then(res => {
+        .then((res: any) => {
           callback(res.data);
         });
     }, 250),
     []
   );
 
-  const getPriceData = (securities, callback) => {
+  const getPriceData = (securities: any, callback: any) => {
     if (selectedDates && securities) {
-      axios
-        .get(route('securities.prices'), {
+      window.axios
+        .get(window.route('securities.prices'), {
           params: {
             security_ids: securities,
             dates: selectedDates,
           },
         })
-        .then(res => callback(res.data));
+        .then((res: any) => callback(res.data));
     }
   };
 
   useEffect(() => {
-    axios.get(route('indicators.recessions')).then(res => setRecessions(res.data));
+    window.axios.get(window.route('indicators.recessions')).then((res: any) => setRecessions(res.data));
   }, []);
 
   const generateChartData = () => {
@@ -94,7 +96,7 @@ export default function Explorer(props) {
       return;
     }
 
-    const layout = {
+    const layout: any = {
       autosize: true,
       font: {
         color: 'white',
@@ -104,7 +106,7 @@ export default function Explorer(props) {
       xaxis: {
         gridcolor: gridColor,
         automargin: true,
-        range: selectedDates?.length >= 2 ? selectedDates : [selectedDates[0], selectedDates[0]],
+        range: selectedDates && selectedDates.length < 2 ? [selectedDates[0], selectedDates[0]] : selectedDates,
       },
       yaxis: {
         gridcolor: gridColor,
@@ -129,14 +131,14 @@ export default function Explorer(props) {
     // add base traces
     switch (selectedChart?.value) {
       case 'line': {
-        priceData.forEach(security => {
+        priceData.forEach((security: any) => {
           data.push({
             name: security.short_name,
             legendgroup: security.short_name,
             type: 'scattergl',
-            x: security.prices.map(p => p.date),
-            y: security.prices.map(p => p.close),
-            text: security.prices.map(p => formatCurrency(p.close, security.currency_code)),
+            x: security.prices.map((p: any) => p.date),
+            y: security.prices.map((p: any) => p.close),
+            text: security.prices.map((p: any) => formatCurrency(p.close, security.currency_code)),
             hovertemplate: 'Close: %{text}',
           });
         });
@@ -145,16 +147,16 @@ export default function Explorer(props) {
       }
       case 'candlestick':
       case 'ohlc': {
-        priceData.forEach(security => {
+        priceData.forEach((security: any) => {
           data.push({
             name: security.short_name,
             legendgroup: security.short_name,
             type: selectedChart.value,
-            x: security.prices.map(p => p.date),
-            open: security.prices.map(p => p.open),
-            high: security.prices.map(p => p.high),
-            low: security.prices.map(p => p.low),
-            close: security.prices.map(p => p.close),
+            x: security.prices.map((p: any) => p.date),
+            open: security.prices.map((p: any) => p.open),
+            high: security.prices.map((p: any) => p.high),
+            low: security.prices.map((p: any) => p.low),
+            close: security.prices.map((p: any) => p.close),
           });
         });
         layout.title = 'Prices';
@@ -164,24 +166,24 @@ export default function Explorer(props) {
         // determine max volume across all securities
         // this factors into bubble size
         let maxVolume = 0;
-        priceData.forEach(security => {
-          maxVolume = Math.max(maxVolume, Math.max(...security.prices.map(p => p.volume)));
+        priceData.forEach((security: any) => {
+          maxVolume = Math.max(maxVolume, Math.max(...security.prices.map((p: any) => p.volume)));
         });
 
-        priceData.forEach(security => {
+        priceData.forEach((security: any) => {
           data.push({
             name: security.short_name,
             legendgroup: security.short_name,
             type: 'scattergl',
             mode: 'markers',
-            x: security.prices.map(p => p.date),
-            y: security.prices.map(p => p.close),
+            x: security.prices.map((p: any) => p.date),
+            y: security.prices.map((p: any) => p.close),
             marker: {
-              size: security.prices.map(p => p.volume),
+              size: security.prices.map((p: any) => p.volume),
               sizemode: 'area',
               sizeref: (2.0 * maxVolume) / 15 ** 2,
             },
-            text: security.prices.map(p => formatCurrency(p.close, security.currency_code)),
+            text: security.prices.map((p: any) => formatCurrency(p.close, security.currency_code)),
             hovertemplate: 'Close: %{text}<br>Volume: %{marker.size:,} shares',
           });
         });
@@ -191,25 +193,25 @@ export default function Explorer(props) {
         if (ratioPriceData) {
           const ratioSecurity = ratioPriceData[0];
 
-          priceData.forEach(security => {
+          priceData.forEach((security: any) => {
             const overlappingPrices = security.prices
-              .map(price => {
-                const ratioPrice = ratioSecurity.prices.find(ratioPrice => ratioPrice.date == price.date);
+              .map((price: any) => {
+                const ratioPrice = ratioSecurity.prices.find((ratioPrice: any) => ratioPrice.date == price.date);
                 if (ratioPrice) {
                   price.ratio_close = ratioPrice.close;
                   price.ratio = price.close / price.ratio_close;
                   return price;
                 }
               })
-              .filter(price => price != null);
+              .filter((price: any) => price != null);
             if (overlappingPrices.length > 0) {
               data.push({
                 name: security.short_name,
                 legendgroup: security.short_name,
                 type: 'scattergl',
-                x: overlappingPrices.map(a => a.date),
-                y: overlappingPrices.map(a => a.ratio),
-                customdata: overlappingPrices.map(a => [
+                x: overlappingPrices.map((a: any) => a.date),
+                y: overlappingPrices.map((a: any) => a.ratio),
+                customdata: overlappingPrices.map((a: any) => [
                   formatCurrency(a.close, security.currency_code),
                   formatCurrency(a.ratio_close, ratioSecurity.currency_code),
                 ]),
@@ -223,10 +225,10 @@ export default function Explorer(props) {
         break;
       }
       case 'histvar': {
-        const returns = [];
-        priceData.forEach(security => {
-          let previousPrice;
-          security.prices.map(price => {
+        const returns: any[] = [];
+        priceData.forEach((security: any) => {
+          let previousPrice: any;
+          security.prices.map((price: any) => {
             if (previousPrice) {
               returns.push(Math.log(price.close / previousPrice.close));
             }
@@ -279,7 +281,7 @@ export default function Explorer(props) {
         break;
       }
       case 'correlation': {
-        const trace = {
+        const trace: any = {
           x: [],
           y: [],
           z: [],
@@ -289,10 +291,10 @@ export default function Explorer(props) {
           zmin: -1,
           zmax: 1,
         };
-        const sortedPriceData = _(_.cloneDeep(priceData)).sortBy('short_name').value();
+        const sortedPriceData = sortBy(cloneDeep(priceData), 'short_name');
         sortedPriceData.forEach(security => {
-          const dates = security.prices.map(p => p.date);
-          const close = security.prices.map(p => p.close);
+          const dates = security.prices.map((p: any) => p.date);
+          const close = security.prices.map((p: any) => p.close);
           // calculate correlation data for security
           sortedPriceData.forEach(comparedSecurity => {
             let coeff;
@@ -320,22 +322,23 @@ export default function Explorer(props) {
               // use old coefficient if we've computed the correlation already
               coeff = oldCoeff;
             } else {
-              const comparedDates = comparedSecurity.prices.map(p => p.date);
-              const comparedClose = comparedSecurity.prices.map(p => p.close);
-              const overlappingDates = dates.filter(date => comparedDates.includes(date));
+              const comparedDates = comparedSecurity.prices.map((p: any) => p.date);
+              const comparedClose = comparedSecurity.prices.map((p: any) => p.close);
+              const overlappingDates = dates.filter((date: string) => comparedDates.includes(date));
 
               if (overlappingDates.length <= 1) {
                 return;
               }
 
-              const coeffData = [];
-              const comparedCoeffData = [];
+              const coeffData: number[] = [];
+              const comparedCoeffData: number[] = [];
 
-              overlappingDates.forEach(date => {
+              overlappingDates.forEach((date: string) => {
                 coeffData.push(close[dates.indexOf(date)]);
                 comparedCoeffData.push(comparedClose[comparedDates.indexOf(date)]);
               });
 
+              // @ts-ignore
               coeff = pcorrtest(coeffData, comparedCoeffData).pcorr;
               if (coeff) {
                 coeff = parseFloat(coeff.toFixed(2));
@@ -366,41 +369,41 @@ export default function Explorer(props) {
 
     // add indicators
     if (selectedIndicators?.length && data.length && !['histvar', 'correlation'].includes(selectedChart?.value)) {
-      const indicators = selectedIndicators.map(i => i.value);
+      const indicators = selectedIndicators.map((i: any) => i.value);
       const indicatorHoverTemplate = '%{y:$,.2f}';
 
       // calculate date values across all securities
-      const dateValues = _.reduce(
+      const dateValues = reduce(
         data,
         (results, trace) => {
-          const keyed = _.zipObject(trace.x, trace.y || trace.close);
-          return _.mergeWith(results, keyed, function (obj, src) {
-            if (_.isArray(obj)) {
+          const keyed = zipObject(trace.x, trace.y || trace.close);
+          return mergeWith(results, keyed, function (obj, src) {
+            if (isArray(obj)) {
               return obj.concat(src);
             } else {
               return [src];
             }
           });
         },
-        _.zipObject(data[0].x, data[0].y || data[0].close)
+        zipObject(data[0].x, data[0].y || data[0].close)
       );
 
       // get mean for each date
-      const dateMeans = _.map(dateValues, (values, key) => {
+      const dateMeans: any[] = map(dateValues, (values: any[], key: any) => {
         return {
           date: key,
-          mean: _.mean(values),
+          mean: mean(values),
         };
-      }).sort((a, b) => (a.date > b.date ? 1 : -1));
+      }).sort((a: any, b: any) => (a.date > b.date ? 1 : -1));
 
       const startDate = dayjs(dateMeans[0]['date']);
       const endDate = dayjs(dateMeans[dateMeans.length - 1]['date']);
       const dayRange = endDate.diff(startDate, 'days');
-      const indicatorPeriod = parseInt(dayRange / 10);
+      const indicatorPeriod = parseInt((dayRange / 10).toString());
 
       // add recessions
       if (indicators.includes('recessions')) {
-        recessions?.forEach(indicator => {
+        recessions?.forEach((indicator: any) => {
           layout.shapes.push({
             type: 'rect',
             xref: 'x',
@@ -419,13 +422,13 @@ export default function Explorer(props) {
 
       // add simple moving average
       if (indicators.includes('simple-moving-average')) {
-        let smaValues = SMA.calculate({
+        const smaValues = SMA.calculate({
           period: indicatorPeriod,
-          values: dateMeans.map(a => a.mean),
+          values: dateMeans.map((a: any) => a.mean),
         });
         data.push({
           name: 'Simple Moving Average',
-          x: dateMeans.map(a => a.date).slice(indicatorPeriod - 1),
+          x: dateMeans.map((a: any) => a.date).slice(indicatorPeriod - 1),
           y: smaValues,
           hovertemplate: indicatorHoverTemplate,
           mode: 'lines',
@@ -440,13 +443,13 @@ export default function Explorer(props) {
 
       // add exponential moving average
       if (indicators.includes('exponential-moving-average')) {
-        let emaValues = EMA.calculate({
+        const emaValues = EMA.calculate({
           period: indicatorPeriod,
-          values: dateMeans.map(a => a.mean),
+          values: dateMeans.map((a: any) => a.mean),
         });
         data.push({
           name: 'Exponential Moving Average',
-          x: dateMeans.map(a => a.date).slice(indicatorPeriod - 1),
+          x: dateMeans.map((a: any) => a.date).slice(indicatorPeriod - 1),
           y: emaValues,
           hovertemplate: indicatorHoverTemplate,
           mode: 'lines',
@@ -461,19 +464,19 @@ export default function Explorer(props) {
 
       // add Bollinger Bands
       if (indicators.includes('bollinger-bands')) {
-        let bollingerValues = [];
+        let bollingerValues: BollingerBandsOutput[] = [];
         if (indicatorPeriod) {
           bollingerValues = BollingerBands.calculate({
             period: indicatorPeriod,
-            values: dateMeans.map(a => a.mean),
+            values: dateMeans.map((a: any) => a.mean),
             stdDev: 2,
           });
         }
         data.push({
           name: 'Bollinger Bands',
           mode: 'lines',
-          x: dateMeans.map(a => a.date).slice(indicatorPeriod - 1),
-          y: bollingerValues.map(a => a.middle),
+          x: dateMeans.map((a: any) => a.date).slice(indicatorPeriod - 1),
+          y: bollingerValues.map((a: any) => a.middle),
           hovertemplate: indicatorHoverTemplate,
           legendgroup: 'Bollinger Bands',
           line: {
@@ -486,8 +489,8 @@ export default function Explorer(props) {
         data.push({
           name: 'Upper BB',
           mode: 'lines',
-          x: dateMeans.map(a => a.date).slice(indicatorPeriod - 1),
-          y: bollingerValues.map(a => a.upper),
+          x: dateMeans.map((a: any) => a.date).slice(indicatorPeriod - 1),
+          y: bollingerValues.map((a: any) => a.upper),
           hovertemplate: indicatorHoverTemplate,
           legendgroup: 'Bollinger Bands',
           showlegend: false,
@@ -501,8 +504,8 @@ export default function Explorer(props) {
           name: 'Lower BB',
           mode: 'lines',
           fill: 'tonexty',
-          x: dateMeans.map(a => a.date).slice(indicatorPeriod - 1),
-          y: bollingerValues.map(a => a.lower),
+          x: dateMeans.map((a: any) => a.date).slice(indicatorPeriod - 1),
+          y: bollingerValues.map((a: any) => a.lower),
           hovertemplate: indicatorHoverTemplate,
           legendgroup: 'Bollinger Bands',
           showlegend: false,
@@ -522,14 +525,14 @@ export default function Explorer(props) {
 
         // add RSI
         if (indicators.includes('rsi')) {
-          let rsiValues = RSI.calculate({
+          const rsiValues = RSI.calculate({
             period: indicatorPeriod,
-            values: dateMeans.map(a => a.mean),
+            values: dateMeans.map((a: any) => a.mean),
           });
           data.push({
             name: 'Relative Strength Index',
             mode: 'lines',
-            x: dateMeans.map(a => a.date).slice(indicatorPeriod - 1),
+            x: dateMeans.map((a: any) => a.date).slice(indicatorPeriod - 1),
             y: rsiValues,
             yaxis: 'y2',
             line: {
@@ -541,14 +544,14 @@ export default function Explorer(props) {
 
         // add TRIX
         if (indicators.includes('trix')) {
-          let trixValues = TRIX.calculate({
+          const trixValues = TRIX.calculate({
             period: indicatorPeriod / 3,
-            values: dateMeans.map(a => a.mean),
+            values: dateMeans.map((a: any) => a.mean),
           });
           data.push({
             name: 'Triple Exponential Average',
             mode: 'lines',
-            x: dateMeans.map(a => a.date).slice(indicatorPeriod - 1),
+            x: dateMeans.map((a: any) => a.date).slice(indicatorPeriod - 1),
             y: trixValues,
             yaxis: 'y2',
             line: {
@@ -567,7 +570,7 @@ export default function Explorer(props) {
   useEffect(() => {
     if (selectedSecurities) {
       getPriceData(
-        selectedSecurities?.map(s => s.value),
+        selectedSecurities?.map((s: any) => s.value),
         setPriceData
       );
     } else {
@@ -603,7 +606,7 @@ export default function Explorer(props) {
             min="0"
             max="100"
             defaultValue={varThreshold}
-            handleChange={e => setVarThreshold(e.target.value)}
+            handleChange={(e: any) => setVarThreshold(e.target.value)}
           />
         </div>
       );
@@ -617,7 +620,6 @@ export default function Explorer(props) {
         <ChartSelect
           isAsync
           className="pt-0 pb-2"
-          label="Ratio"
           placeholder="Search for a denominator security..."
           onChange={setSelectedRatioSecurity}
           loadOptions={getSecurityOptions}
@@ -654,7 +656,7 @@ export default function Explorer(props) {
   };
 
   return (
-    <Layout auth={props.auth} errors={props.errors}>
+    <Layout auth={props.auth}>
       <Head title="Explorer" />
 
       <div className="py-3 py-12">

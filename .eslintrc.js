@@ -1,5 +1,6 @@
 module.exports = {
   root: true,
+  parser: '@typescript-eslint/parser',
   parserOptions: {
     ecmaVersion: 2020, // Use the latest ecmascript standard
     sourceType: 'module', // Allows using import/export statements
@@ -8,13 +9,14 @@ module.exports = {
     },
   },
   settings: {
+    'import/resolver': {
+      typescript: {
+        alwaysTryTypes: true,
+        project: '.',
+      },
+    },
     react: {
       version: 'detect',
-    },
-    'import/resolver': {
-      jsconfig: {
-        config: 'jsconfig.json',
-      },
     },
   },
   env: {
@@ -24,14 +26,16 @@ module.exports = {
   },
   extends: [
     'eslint:recommended',
+    'plugin:@typescript-eslint/recommended',
     'plugin:import/recommended',
     'plugin:react/recommended',
     'plugin:react-hooks/recommended',
     'plugin:prettier/recommended',
   ],
-  plugins: ['prettier'],
+  plugins: ['@typescript-eslint', 'prettier'],
   ignorePatterns: ['public/build/', 'vendor'],
   rules: {
+    'react-hooks/exhaustive-deps': 'off',
     'react/jsx-first-prop-new-line': [2, 'multiline'],
     'react/jsx-max-props-per-line': [2, { maximum: 1, when: 'multiline' }],
     'react/jsx-indent-props': [2, 2],
@@ -46,10 +50,11 @@ module.exports = {
     'react/react-in-jsx-scope': 'off',
     'react/prop-types': 'off',
     'no-console': 2,
+    '@typescript-eslint/no-explicit-any': 'off',
+    '@typescript-eslint/ban-ts-comment': 'off',
   },
   globals: {
     route: 'readonly',
     axios: 'readonly',
-    _: 'readonly',
   },
 };

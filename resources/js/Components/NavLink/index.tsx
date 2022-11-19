@@ -1,6 +1,16 @@
 import { Link } from '@inertiajs/inertia-react';
 
-export default function NavLink({ method = 'get', href, active, children }) {
+export default function NavLink({
+  method = 'get',
+  href,
+  active,
+  children,
+}: {
+  method?: string;
+  href: string;
+  active?: boolean;
+  children?: any;
+}) {
   return (
     <Link
       method={method}

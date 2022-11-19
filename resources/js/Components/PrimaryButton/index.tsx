@@ -1,4 +1,14 @@
-export default function PrimaryButton({ type = 'submit', className = '', processing, children }) {
+export default function PrimaryButton({
+  type = 'submit',
+  className = '',
+  processing,
+  children,
+}: {
+  type: 'submit' | 'reset' | 'button' | undefined;
+  className: string;
+  processing: boolean;
+  children: JSX.Element;
+}) {
   return (
     <button
       type={type}

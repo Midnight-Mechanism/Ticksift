@@ -1,5 +1,9 @@
-import _ from 'lodash';
-window._ = _;
+declare global {
+  interface Window {
+    axios: any;
+    route: any;
+  }
+}
 
 import axios from 'axios';
 window.axios = axios;

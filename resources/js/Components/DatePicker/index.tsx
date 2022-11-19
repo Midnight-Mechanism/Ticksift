@@ -6,8 +6,16 @@ import dayjs from 'dayjs';
 import 'flatpickr/dist/themes/dark.css';
 import './styles.css';
 
-export default function DatePicker({ minDate, maxDate, handleChange }) {
-  const calendar = useRef(null);
+export default function DatePicker({
+  minDate,
+  maxDate,
+  handleChange,
+}: {
+  minDate: string;
+  maxDate: string;
+  handleChange: any;
+}) {
+  const calendar = useRef<Flatpickr>(null);
   const [dateRange, setDateRange] = useLocalStorage('dates', [
     dayjs(maxDate).subtract(1, 'month').format('YYYY-MM-DD'),
     maxDate,
@@ -19,17 +27,17 @@ export default function DatePicker({ minDate, maxDate, handleChange }) {
     }
   }, [dateRange]);
 
-  function renderDateButton(id, label, dates) {
+  const renderDateButton = (id: string, label: string, dates: string[]) => {
     return (
       <button
         id={`button-${id}`}
         className="bg-ticksift-light w-full hover:bg-teal-800 text-white font-bold py-2 px-4 rounded uppercase"
-        onClick={() => calendar.current.flatpickr.setDate(dates, true)}
+        onClick={() => calendar.current?.flatpickr.setDate(dates, true)}
       >
         {label}
       </button>
     );
-  }
+  };
 
   return (
     <div className="grid grid-cols-3 gap-3 items-center mb-3">

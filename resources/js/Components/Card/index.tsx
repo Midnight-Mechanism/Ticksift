@@ -1,6 +1,16 @@
 import { Link } from '@inertiajs/inertia-react';
 
-export default function Card({ link, imageLink, title, body }) {
+export default function Card({
+  link,
+  imageLink,
+  title,
+  body,
+}: {
+  link: string;
+  imageLink: string;
+  title: string;
+  body: string;
+}) {
   return (
     <Link href={link}>
       <div className="h-full rounded overflow-hidden shadow-lg bg-teal-800">

@@ -14,12 +14,24 @@ export default function TextInput({
   required,
   isFocused,
   handleChange,
+}: {
+  type?: string;
+  name?: string;
+  min?: string;
+  max?: string;
+  defaultValue?: any;
+  value?: any;
+  className?: string;
+  autoComplete?: string;
+  required?: boolean;
+  isFocused?: boolean;
+  handleChange?: any;
 }) {
-  const input = useRef();
+  const input = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (isFocused) {
-      input.current.focus();
+      input.current?.focus();
     }
   }, []);
 

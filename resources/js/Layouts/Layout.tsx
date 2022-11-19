@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import Logo from '@/Components/Logo';
 import NavLink from '@/Components/NavLink';
 import ResponsiveNavLink from '@/Components/ResponsiveNavLink';
 import { Link } from '@inertiajs/inertia-react';
 
-export default function Layout({ auth, header, children }) {
+export default function Layout({ auth, header, children }: { auth: any; header?: any; children?: any }) {
   const [showingNavigationDropdown, setShowingNavigationDropdown] = useState(false);
 
   return (
@@ -15,19 +15,25 @@ export default function Layout({ auth, header, children }) {
             <div className="flex">
               <div className="shrink-0 flex items-center">
                 <Link href="/">
-                  <Logo className="block h-9 w-auto text-gray-500" />
+                  <Logo />
                 </Link>
               </div>
 
               <div className="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex">
-                <NavLink href={route('securities.explorer')} active={route().current('securities.explorer')}>
+                <NavLink
+                  href={window.route('securities.explorer')}
+                  active={window.route().current('securities.explorer')}
+                >
                   Explorer
                 </NavLink>
-                <NavLink href={route('securities.momentum')} active={route().current('securities.momentum')}>
+                <NavLink
+                  href={window.route('securities.momentum')}
+                  active={window.route().current('securities.momentum')}
+                >
                   Momentum
                 </NavLink>
                 {auth?.user && (
-                  <NavLink method="post" href={route('logout')} as="button">
+                  <NavLink method="post" href={window.route('logout')}>
                     Log Out
                   </NavLink>
                 )}
@@ -62,10 +68,16 @@ export default function Layout({ auth, header, children }) {
 
         <div className={(showingNavigationDropdown ? 'block' : 'hidden') + ' sm:hidden'}>
           <div className="pt-2 pb-3 space-y-1">
-            <ResponsiveNavLink href={route('securities.explorer')} active={route().current('securities.explorer')}>
+            <ResponsiveNavLink
+              href={window.route('securities.explorer')}
+              active={window.route().current('securities.explorer')}
+            >
               Explorer
             </ResponsiveNavLink>
-            <ResponsiveNavLink href={route('securities.momentum')} active={route().current('securities.momentum')}>
+            <ResponsiveNavLink
+              href={window.route('securities.momentum')}
+              active={window.route().current('securities.momentum')}
+            >
               Momentum
             </ResponsiveNavLink>
           </div>
@@ -73,7 +85,7 @@ export default function Layout({ auth, header, children }) {
           {auth?.user && (
             <div className="pt-4 pb-1 border-t border-gray-200">
               <div className="mt-3 space-y-1">
-                <ResponsiveNavLink method="post" href={route('logout')} as="button">
+                <ResponsiveNavLink method="post" href={window.route('logout')} as="button">
                   Log Out
                 </ResponsiveNavLink>
               </div>

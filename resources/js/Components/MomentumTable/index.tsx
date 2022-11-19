@@ -3,7 +3,7 @@ import { formatCurrency } from '@/Utilities/NumberHelpers';
 
 import 'tabulator-tables/dist/css/tabulator_midnight.css';
 
-export default function MomentumTable({ data, type }) {
+export default function MomentumTable({ data, type }: { data: any; type: string }) {
   if (data) {
     return (
       <ReactTabulator
@@ -50,7 +50,7 @@ export default function MomentumTable({ data, type }) {
             minWidth: 50,
             responsive: 2,
             formatter: function (cell) {
-              return formatCurrency(cell.getValue(), cell.getData().currency_code);
+              return formatCurrency(cell.getValue(), 'USD');
             },
           },
           {
@@ -60,7 +60,7 @@ export default function MomentumTable({ data, type }) {
             minWidth: 50,
             responsive: 2,
             formatter: function (cell) {
-              return formatCurrency(cell.getValue(), cell.getData().currency_code);
+              return formatCurrency(cell.getValue(), 'USD');
             },
           },
           {

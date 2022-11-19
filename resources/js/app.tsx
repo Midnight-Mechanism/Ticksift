@@ -1,7 +1,6 @@
 import './bootstrap';
 import '../css/app.css';
 
-import React from 'react';
 import { createRoot } from 'react-dom/client';
 import { createInertiaApp } from '@inertiajs/inertia-react';
 import { InertiaProgress } from '@inertiajs/progress';
@@ -11,17 +10,17 @@ const appName = window.document.getElementsByTagName('title')[0]?.innerText || '
 
 // clear local storage if last visit more than a day ago
 try {
-  const lastVisited = window.localStorage.getItem('lastVisited');
-  if (Date.now() - lastVisited > 86400000) {
+  const lastVisited: string | null = localStorage.getItem('lastVisited');
+  if (lastVisited && Date.now() - parseInt(lastVisited) > 86400000) {
     localStorage.clear();
   }
 } finally {
-  window.localStorage.setItem('lastVisited', Date.now());
+  localStorage.setItem('lastVisited', Date.now().toString());
 }
 
 createInertiaApp({
   title: title => `${title} - ${appName}`,
-  resolve: name => resolvePageComponent(`./Pages/${name}.jsx`, import.meta.glob('./Pages/**/*.jsx')),
+  resolve: name => resolvePageComponent(`./Pages/${name}.tsx`, import.meta.glob('./Pages/**/*.tsx')),
   setup({ el, App, props }) {
     const root = createRoot(el);
 

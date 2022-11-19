@@ -6,24 +6,24 @@ import MomentumTable from '@/Components/MomentumTable';
 import ChartTitle from '@/Components/ChartTitle';
 import { useLocalStorage } from '@/Hooks/UseLocalStorage';
 
-export default function Momentum(props) {
+export default function Momentum(props: any) {
   //const data = axios.get('securities.get-momentum')
   const [results, setResults] = useLocalStorage('momentumResults');
 
-  const onDateChange = dates => {
+  const onDateChange = (dates: string[]) => {
     if (dates.length) {
-      axios
-        .post(route('securities.momentum-results'), {
+      window.axios
+        .post(window.route('securities.momentum-results'), {
           dates: dates,
         })
-        .then(r => {
+        .then((r: any) => {
           setResults(r.data);
         });
     }
   };
 
   return (
-    <Layout auth={props.auth} errors={props.errors}>
+    <Layout auth={props.auth}>
       <Head title="Momentum" />
 
       <div className="py-12">
@@ -32,7 +32,7 @@ export default function Momentum(props) {
           <ChartTitle text="Sectors" />
           <MomentumTreemap
             data={results ? [...results.winners, ...results.losers] : null}
-            calculateSecuritySize={s => s.latest_close * s.volume}
+            calculateSecuritySize={(s: any) => s.latest_close * s.volume}
           />
           <ChartTitle className="mt-3" text="Winners" />
           <MomentumTable type="winners" data={results?.winners} />

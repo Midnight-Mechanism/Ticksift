@@ -12,6 +12,15 @@ export default function ChartSelect({
   onChange,
   loadOptions,
   options,
+}: {
+  isAsync?: boolean;
+  isMulti?: boolean;
+  placeholder?: string;
+  className?: string;
+  defaultValue?: string;
+  onChange?: any;
+  loadOptions?: any;
+  options?: any[];
 }) {
   if (isAsync) {
     return (
