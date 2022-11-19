@@ -1,0 +1,4 @@
+.modebar-btn {
+  /* fixes broken modebar button padding with Tailwind */
+  display: inline-block;
+}
