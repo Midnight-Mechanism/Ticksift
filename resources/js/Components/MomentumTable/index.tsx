@@ -1,7 +1,7 @@
 import { ReactTabulator } from 'react-tabulator';
-import { formatCurrency, formatPercentage } from '@/Utilities/NumberHelpers';
-
 import 'tabulator-tables/dist/css/tabulator_midnight.css';
+
+import { formatCurrency, formatPercentage } from '@/Utilities/NumberHelpers';
 
 export default function MomentumTable({ data, type }: { data: any; type: string }) {
   if (data) {

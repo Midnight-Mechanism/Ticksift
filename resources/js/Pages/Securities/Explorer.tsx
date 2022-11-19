@@ -1,18 +1,19 @@
-import { useCallback, useState, useEffect } from 'react';
-import Layout from '@/Layouts/Layout';
 import { Head } from '@inertiajs/inertia-react';
+import pcorrtest from '@stdlib/stats/pcorrtest';
+import dayjs from 'dayjs';
+import { debounce, cloneDeep, reduce, zipObject, mergeWith, isArray, mean, map, sortBy } from 'lodash';
+import { useCallback, useState, useEffect } from 'react';
+import Plot from 'react-plotly.js';
+import { SMA, EMA, BollingerBands, RSI, TRIX } from 'technicalindicators';
+import { BollingerBandsOutput } from 'technicalindicators/declarations/volatility/BollingerBands';
+
+import ChartSelect from '@/Components/ChartSelect';
 import DatePicker from '@/Components/DatePicker';
 import TextInput from '@/Components/TextInput';
-import ChartSelect from '@/Components/ChartSelect';
-import { getNumberWithOrdinal, formatCurrency } from '@/Utilities/NumberHelpers';
-import Plot from 'react-plotly.js';
-import pcorrtest from '@stdlib/stats/pcorrtest';
 import { useLocalStorage } from '@/Hooks/UseLocalStorage';
-import dayjs from 'dayjs';
-import { SMA, EMA, BollingerBands, RSI, TRIX } from 'technicalindicators';
+import Layout from '@/Layouts/Layout';
 import { chartColor, gridColor } from '@/Utilities/Constants';
-import { BollingerBandsOutput } from 'technicalindicators/declarations/volatility/BollingerBands';
-import { debounce, cloneDeep, reduce, zipObject, mergeWith, isArray, mean, map, sortBy } from 'lodash';
+import { getNumberWithOrdinal, formatCurrency } from '@/Utilities/NumberHelpers';
 
 export default function Explorer(props: any) {
   const chartOptions = [

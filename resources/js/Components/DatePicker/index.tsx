@@ -1,9 +1,10 @@
-import { useRef, useEffect } from 'react';
-import { useLocalStorage } from '@/Hooks/UseLocalStorage';
-import Flatpickr from 'react-flatpickr';
 import dayjs from 'dayjs';
-
 import 'flatpickr/dist/themes/dark.css';
+import { useRef, useEffect } from 'react';
+import Flatpickr from 'react-flatpickr';
+
+import { useLocalStorage } from '@/Hooks/UseLocalStorage';
+
 import './styles.css';
 
 export default function DatePicker({

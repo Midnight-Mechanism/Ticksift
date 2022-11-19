@@ -1,5 +1,5 @@
-import Layout from '@/Layouts/Layout';
 import Card from '@/Components/Card';
+import Layout from '@/Layouts/Layout';
 
 export default function Home(props: any) {
   return (

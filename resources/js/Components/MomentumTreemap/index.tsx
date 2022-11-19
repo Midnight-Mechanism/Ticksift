@@ -1,10 +1,11 @@
-import { useEffect } from 'react';
-import { useLocalStorage } from '@/Hooks/UseLocalStorage';
-import Plot from 'react-plotly.js';
 import Color from 'color';
+import { groupBy, map, mapValues, without } from 'lodash';
+import { useEffect } from 'react';
+import Plot from 'react-plotly.js';
+
+import { useLocalStorage } from '@/Hooks/UseLocalStorage';
 import { chartColor } from '@/Utilities/Constants';
 import { formatCurrency } from '@/Utilities/NumberHelpers';
-import { groupBy, map, mapValues, without } from 'lodash';
 
 export default function MomentumTreemap({ data, calculateSecuritySize }: { data: any; calculateSecuritySize: any }) {
   const [chartData, setChartData] = useLocalStorage('momentumChartData');

@@ -1,10 +1,11 @@
-import Layout from '@/Layouts/Layout';
 import { Head } from '@inertiajs/inertia-react';
-import DatePicker from '@/Components/DatePicker';
-import MomentumTreemap from '@/Components/MomentumTreemap';
-import MomentumTable from '@/Components/MomentumTable';
+
 import ChartTitle from '@/Components/ChartTitle';
+import DatePicker from '@/Components/DatePicker';
+import MomentumTable from '@/Components/MomentumTable';
+import MomentumTreemap from '@/Components/MomentumTreemap';
 import { useLocalStorage } from '@/Hooks/UseLocalStorage';
+import Layout from '@/Layouts/Layout';
 
 export default function Momentum(props: any) {
   //const data = axios.get('securities.get-momentum')

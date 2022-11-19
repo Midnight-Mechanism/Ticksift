@@ -35,6 +35,25 @@ module.exports = {
   plugins: ['@typescript-eslint', 'prettier'],
   ignorePatterns: ['public/build/', 'vendor'],
   rules: {
+    'import/order': [
+      1,
+      {
+        alphabetize: {
+          order: 'asc',
+          caseInsensitive: true,
+        },
+        groups: ['external', ['internal', 'parent', 'sibling', 'index'], 'unknown'],
+        pathGroups: [
+          {
+            pattern: '{.,..}/*.css',
+            group: 'index',
+            position: 'after',
+          },
+        ],
+        'newlines-between': 'always',
+        warnOnUnassignedImports: true,
+      },
+    ],
     'react-hooks/exhaustive-deps': 'off',
     'react/jsx-first-prop-new-line': [2, 'multiline'],
     'react/jsx-max-props-per-line': [2, { maximum: 1, when: 'multiline' }],
