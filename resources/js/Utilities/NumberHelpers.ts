@@ -11,6 +11,14 @@ export const formatCurrency = (number: number, code: string) => {
   }).format(number);
 };
 
+export const formatPercentage = (percentage: number, decimals = 0) => {
+  return percentage.toLocaleString('en-US', {
+    style: 'percent',
+    minimumFractionDigits: decimals,
+    maximumFractionDigits: decimals,
+  });
+};
+
 export const getNumberWithOrdinal = (number: number) => {
   const suffixes = ['th', 'st', 'nd', 'rd'];
   const base = number % 100;
