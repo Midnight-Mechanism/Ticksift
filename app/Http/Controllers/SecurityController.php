@@ -2,22 +2,22 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\SourceTable;
 use App\Models\Price;
 use App\Models\Security;
+use App\Models\SourceTable;
 use DB;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
+use Inertia\Inertia;
 
 class SecurityController extends Controller
 {
-
     /**
      * Build the winners and losers list from prices.
      *
-     * @param   \Illuminate\Support\Collection  $earliest_prices
-     * @param   \Illuminate\Support\Collection  $latest_prices
+     * @param  \Illuminate\Support\Collection  $earliest_prices
+     * @param  \Illuminate\Support\Collection  $latest_prices
      * @return  array
      */
     protected static function buildWinnersLosers(Collection $earliestPrices, Collection $latestPrices)
@@ -31,13 +31,15 @@ class SecurityController extends Controller
 
             $latest_price = $latest_prices->get($short_name);
 
-            if (! $latest_price || $earliest_price->close == $latest_price->close) continue;
+            if (! $latest_price || $earliest_price->close == $latest_price->close) {
+                continue;
+            }
 
             $coeff = $latest_price->close / $earliest_price->close;
             $volume = round(($latest_price->volume + $earliest_price->volume) / 2);
 
             unset($earliest_price->volume);
-            $base = (array)$earliest_price + [
+            $base = (array) $earliest_price + [
                 'earliest_close' => $earliest_price->close,
                 'latest_close' => $latest_price->close,
                 'volume' => $volume,
@@ -63,15 +65,16 @@ class SecurityController extends Controller
      * @param use_cached
      * @return array
      */
-    public static function calculateMomentum($start_date, $end_date, $use_cached = TRUE, $security_ids = null) {
+    public static function calculateMomentum($start_date, $end_date, $use_cached = true, $security_ids = null)
+    {
         $cache_key = 'momentum';
 
         if ($security_ids) {
-            $cache_key .= '-' . implode('-', $security_ids);
+            $cache_key .= '-'.implode('-', $security_ids);
         }
 
-        $cache_key .= '-start-' . $start_date;
-        $cache_key .= '-end-' . $end_date;
+        $cache_key .= '-start-'.$start_date;
+        $cache_key .= '-end-'.$end_date;
 
         if ($use_cached) {
             $cached_results = Cache::get($cache_key);
@@ -80,7 +83,7 @@ class SecurityController extends Controller
             }
         }
 
-        $query =  DB::table('prices')
+        $query = DB::table('prices')
             ->whereBetween('date', [$start_date, $end_date])
             ->join('securities', 'prices.security_id', 'securities.id')
             ->leftJoin('industries', 'securities.industry_id', 'industries.id')
@@ -96,7 +99,7 @@ class SecurityController extends Controller
         $query->select(
             'ticker',
             'securities.name',
-            DB::raw("COALESCE(ticker, securities.name) AS short_name"),
+            DB::raw('COALESCE(ticker, securities.name) AS short_name'),
             'industries.name AS industry',
             'sectors.name AS sector',
             'sectors.color AS sector_color',
@@ -121,6 +124,7 @@ class SecurityController extends Controller
         ];
 
         Cache::put($cache_key, $results, now()->addWeek());
+
         return $results;
     }
 
@@ -129,20 +133,20 @@ class SecurityController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function getMomentum(Request $request)
+    public function momentumResults(Request $request)
     {
-        $dates = explode(' ', $request->input('dates'));
+        $dates = $request->input('dates');
 
         if (count($dates) > 1) {
-            // date range, e.g. "1995-01-01 to 1995-02-01"
+            // date range
             $start_date = $dates[0];
-            $end_date = $dates[2];
+            $end_date = $dates[1];
 
             $request->session()->put([
                 'security_dates' => [$start_date, $end_date],
             ]);
         } else {
-            // single date, e.g. "1995-01-01"
+            // single date
             // we want the start date to be the prior trading day
             $earlier_price = Price::select('date')
                 ->where('date', '<=', $dates[0])
@@ -158,7 +162,7 @@ class SecurityController extends Controller
             ]);
         }
 
-        $results = $this->calculateMomentum($start_date, $end_date, TRUE, $request->input('security_ids'));
+        $results = $this->calculateMomentum($start_date, $end_date, true, $request->input('security_ids'));
 
         return response()->json($results, 200, [], JSON_NUMERIC_CHECK);
     }
@@ -170,7 +174,7 @@ class SecurityController extends Controller
      */
     public function explorer(Request $request)
     {
-        return view('securities.explorer');
+        return Inertia::render('Securities/Explorer');
     }
 
     /**
@@ -180,10 +184,11 @@ class SecurityController extends Controller
      */
     public function momentum(Request $request)
     {
-        $old_dates = $request->session()->get('security_dates');
+        $stored_dates = $request->session()->get('security_dates');
 
-        return view('securities.momentum')
-            ->with('old_dates', $old_dates);
+        return Inertia::render('Securities/Momentum', [
+            'storedDates' => $stored_dates,
+        ]);
     }
 
     /**
@@ -196,9 +201,8 @@ class SecurityController extends Controller
         $tickers = $request->input('tickers');
         $security = Security::whereIn('ticker', $tickers)
             ->select(
-                'id',
-                'ticker',
-                'name'
+                'id as value',
+                'name AS label',
             )
             ->get();
 
@@ -214,32 +218,33 @@ class SecurityController extends Controller
     {
         $query = $request->input('q');
         $source_tables = SourceTable::all();
-        $results = Security::where('ticker', 'ILIKE', '%' . $query . '%')
-            ->orWhere('name', 'ILIKE', '%' . $query . '%')
+        $results = Security::where('ticker', 'ILIKE', '%'.$query.'%')
+            ->orWhere('name', 'ILIKE', '%'.$query.'%')
             ->select(
-                'id',
+                'id as value',
                 'source_table_id',
-                DB::raw("CASE WHEN ticker IS NULL THEN name ELSE CONCAT(ticker, ' - ', name) END AS text")
+                DB::raw("CASE WHEN ticker IS NULL THEN name ELSE CONCAT(ticker, ' - ', name) END AS label")
             )
             ->orderBy('ticker')->orderBy('name')
             ->get()
-            ->groupBy(function($security) use ($source_tables) {
+            ->groupBy(function ($security) use ($source_tables) {
                 $source_table_id = $security->source_table_id;
                 unset($security->source_table_id);
+
                 return $source_tables->firstWhere('id', $source_table_id)->group ?? 'Misc.';
-            })->sortBy(function($security, $type) {
+            })->sortBy(function ($security, $type) {
                 switch($type) {
-                case 'Securities':
-                    return 1;
-                case 'Misc.':
-                    return 0;
-                default:
-                    return 2;
+                    case 'Securities':
+                        return 1;
+                    case 'Misc.':
+                        return 0;
+                    default:
+                        return 2;
                 }
-            })->map(function($securities, $type) {
+            })->map(function ($securities, $type) {
                 return [
-                    'text' => $type,
-                    'children' => $securities,
+                    'label' => $type,
+                    'options' => $securities,
                 ];
             })->values();
 
@@ -253,15 +258,15 @@ class SecurityController extends Controller
      */
     public function prices(Request $request)
     {
-        $dates = explode(' ', $request->input('dates'));
+        $dates = $request->input('dates');
         $security_ids = $request->input('security_ids');
 
         $start_date = $dates[0];
         if (count($dates) > 1) {
-            // date range, e.g. "1995-01-01 to 1995-02-01"
-            $end_date = $dates[2];
+            // date range
+            $end_date = $dates[1];
         } else {
-            // single date, e.g. "1995-01-01"
+            // single date
             $end_date = $dates[0];
         }
 
@@ -289,7 +294,7 @@ class SecurityController extends Controller
                 'currency_code' => $security->currency ? $security->currency->code : null,
                 'prices' => $security
                     ->prices()
-                    ->whereBetween('date', [$start_date, $end_date,])
+                    ->whereBetween('date', [$start_date, $end_date])
                     ->select(
                         'date',
                         'open',

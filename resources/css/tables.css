@@ -1,0 +1,34 @@
+.tabulator,
+.tabulator-header,
+.tabulator-col {
+  background-color: var(--ticksift-black) !important;
+}
+
+.tabulator-placeholder {
+  display: inline-block !important;
+}
+
+.tabulator-tableHolder {
+  overflow-x: hidden !important;
+}
+
+.tabulator-header {
+  border-bottom-color: gray !important;
+}
+
+.tabulator-col,
+.tabulator-cell {
+  border-right-color: gray !important;
+}
+
+.tabulator-row-even {
+  background-color: var(--ticksift-black) !important;
+}
+
+.tabulator-row-odd {
+  background-color: var(--ticksift-dark) !important;
+}
+
+.tabulator-selected {
+  background-color: var(--ticksift-black) !important;
+}

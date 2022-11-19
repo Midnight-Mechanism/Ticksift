@@ -2,10 +2,10 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
-use Illuminate\Support\Facades\Cache;
 use App\Http\Controllers\SecurityController;
 use Carbon\Carbon;
+use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Cache;
 
 class CalculateMomentumPresets extends Command
 {
@@ -52,8 +52,8 @@ class CalculateMomentumPresets extends Command
         ];
 
         foreach ($date_ranges as [$start_date, $end_date]) {
-            SecurityController::calculateMomentum($start_date, $end_date, $use_cached = FALSE);
-            \Log::info('Momentum cached for ' . $start_date . ' to ' . $end_date);
+            SecurityController::calculateMomentum($start_date, $end_date, $use_cached = false);
+            \Log::info('Momentum cached for '.$start_date.' to '.$end_date);
         }
     }
 }

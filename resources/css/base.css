@@ -1,0 +1,9 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --ticksift-light: #0d4d4d;
+  --ticksift-dark: #001f1f;
+  --ticksift-black: #000f0f;
+}

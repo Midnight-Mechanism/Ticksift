@@ -34,5 +34,4 @@ class PublicPagesTest extends TestCase
         $this->get('/users/create')->assertStatus(302);
         $this->get('/profile/create')->assertStatus(302);
     }
-
 }

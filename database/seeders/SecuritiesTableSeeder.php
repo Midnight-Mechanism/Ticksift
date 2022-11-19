@@ -2,17 +2,17 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
-use App\Models\SourceTable;
-use App\Models\Exchange;
-use App\Models\Currency;
 use App\Models\Category;
-use App\Models\SicSector;
-use App\Models\SicIndustry;
-use App\Models\Sector;
-use App\Models\Industry;
-use App\Models\Security;
+use App\Models\Currency;
 use App\Models\Cusip;
+use App\Models\Exchange;
+use App\Models\Industry;
+use App\Models\Sector;
+use App\Models\Security;
+use App\Models\SicIndustry;
+use App\Models\SicSector;
+use App\Models\SourceTable;
+use Illuminate\Database\Seeder;
 
 class SecuritiesTableSeeder extends Seeder
 {
@@ -24,13 +24,13 @@ class SecuritiesTableSeeder extends Seeder
     public function run()
     {
         $filename = glob('stock_data/SHARADAR_TICKERS*.csv')[0];
-        $file = fopen($filename,"r");
+        $file = fopen($filename, 'r');
 
-        $header = TRUE;
-        while (($line = fgetcsv($file)) !== FALSE) {
-            if (!$header) {
+        $header = true;
+        while (($line = fgetcsv($file)) !== false) {
+            if (! $header) {
                 // only include securities for which we have price data
-                if (!in_array($line[0], ['SEP', 'SFP'])) {
+                if (! in_array($line[0], ['SEP', 'SFP'])) {
                     continue;
                 }
 
@@ -38,7 +38,7 @@ class SecuritiesTableSeeder extends Seeder
                 $exchange_id = Exchange::firstOrCreate(['name' => $line[4]])->id;
                 $category_id = Category::firstOrCreate(['name' => $line[6]])->id;
                 $cusips = explode(' ', $line[7]);
-                if($line[8]) {
+                if ($line[8]) {
                     $sic_sector_id = SicSector::firstOrCreate(
                         ['code' => $line[8]],
                         ['name' => $line[9]]
@@ -61,7 +61,7 @@ class SecuritiesTableSeeder extends Seeder
                 $security = Security::updateOrCreate(
                     [
                         'source_table_id' => $source_table_id,
-                        'source_id' => $line[1]
+                        'source_id' => $line[1],
                     ],
                     [
                         'ticker' => $line[2],
@@ -93,7 +93,7 @@ class SecuritiesTableSeeder extends Seeder
                     }
                 }
             } else {
-                $header = FALSE;
+                $header = false;
             }
         }
 

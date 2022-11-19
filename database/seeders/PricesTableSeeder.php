@@ -2,10 +2,10 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
 use App\Models\Security;
 use App\Models\SourceTable;
 use Carbon\Carbon;
+use Illuminate\Database\Seeder;
 
 class PricesTableSeeder extends Seeder
 {
@@ -19,26 +19,26 @@ class PricesTableSeeder extends Seeder
         $securities = Security::select('id', 'source_table_id', 'ticker')
             ->get()
             ->groupBy('source_table_id')
-            ->mapWithKeys(function($sub_securities, $source_table_id) {
+            ->mapWithKeys(function ($sub_securities, $source_table_id) {
                 return [
-                    $source_table_id => $sub_securities->mapWithKeys(function($sub_security) {
+                    $source_table_id => $sub_securities->mapWithKeys(function ($sub_security) {
                         return [$sub_security->ticker => $sub_security->id];
-                    })
+                    }),
                 ];
             });
 
         foreach ($securities as $source_table_id => $source_table_securities) {
-            $filename = glob('stock_data/SHARADAR_' . SourceTable::findOrFail($source_table_id)->name . '*.csv')[0];
-            $file = fopen($filename,"r");
+            $filename = glob('stock_data/SHARADAR_'.SourceTable::findOrFail($source_table_id)->name.'*.csv')[0];
+            $file = fopen($filename, 'r');
 
-            $header = TRUE;
+            $header = true;
             $chunk = [];
             $insertCount = 0;
             $missing_tickers = [];
-            while (($line = fgetcsv($file)) !== FALSE) {
-                if (!$header) {
+            while (($line = fgetcsv($file)) !== false) {
+                if (! $header) {
                     $security_id = $source_table_securities->get($line[0]);
-                    if (!empty($security_id)) {
+                    if (! empty($security_id)) {
                         $chunk[] = [
                             'security_id' => $security_id,
                             'date' => $line[1],
@@ -55,7 +55,7 @@ class PricesTableSeeder extends Seeder
                         ];
                     } else {
                         \Log::info($line[0]);
-                        if (!in_array($line[0], $missing_tickers)) {
+                        if (! in_array($line[0], $missing_tickers)) {
                             $missing_tickers[] = $line[0];
                         }
                     }
@@ -63,10 +63,10 @@ class PricesTableSeeder extends Seeder
                         $insertCount = $insertCount + count($chunk);
                         DB::table('prices')->insert($chunk);
                         $chunk = [];
-                        \Log::info($insertCount . ' inserted');
+                        \Log::info($insertCount.' inserted');
                     }
                 } else {
-                    $header = FALSE;
+                    $header = false;
                 }
                 unset($line);
             }
@@ -74,11 +74,11 @@ class PricesTableSeeder extends Seeder
             $insertCount = $insertCount + count($chunk);
             DB::table('prices')->insert($chunk);
             $chunk = [];
-            \Log::info($insertCount . ' inserted');
+            \Log::info($insertCount.' inserted');
 
             fclose($file);
             if (count($missing_tickers) > 0) {
-                $this->command->error("There was price data for unknown securities:");
+                $this->command->error('There was price data for unknown securities:');
                 $this->command->error(implode(' ', $missing_tickers));
             }
         }

@@ -2,13 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Models\Portfolio;
 use Auth;
+use Illuminate\Http\Request;
 
 class PortfolioController extends Controller
 {
-
     /**
      * Display a listing of the resource.
      *
@@ -17,16 +16,17 @@ class PortfolioController extends Controller
     public function index()
     {
         $user = Auth::user();
+
         return view('portfolios.index')->with(
             'portfolios',
             $user->portfolios()
                  ->with('securities:securities.id,ticker,name')
                  ->get()
-                 ->map(function($item, $key) {
+                 ->map(function ($item, $key) {
                      return [
                          'id' => $item->id,
                          'name' => $item->name,
-                         'securities' => $item->securities->map(function($security) {
+                         'securities' => $item->securities->map(function ($security) {
                              return $security->ticker ?? $security->name;
                          })->join(', '),
                          'updated_at' => $item->updated_at,
@@ -61,7 +61,7 @@ class PortfolioController extends Controller
      * Update an existing resource.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  $id
+     * @param    $id
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, $id)
@@ -72,10 +72,12 @@ class PortfolioController extends Controller
 
         if ($user->can('update', $portfolio)) {
             $portfolio->securities()->sync($security_ids);
+
             return back()
                 ->with('status', 'success')
                 ->with('message', __('portfolios.updated'));
         }
+
         return back()
             ->with('status', 'danger')
             ->with('message', __('portfolios.no_permission'));
@@ -84,8 +86,7 @@ class PortfolioController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param int $id
-     *
+     * @param  int  $id
      * @return \Illuminate\Http\Response
      */
     public function destroy($id)
@@ -95,10 +96,12 @@ class PortfolioController extends Controller
 
         if ($user->can('delete', $portfolio)) {
             $portfolio->delete();
+
             return back()
                 ->with('status', 'success')
                 ->with('message', __('portfolios.deleted'));
         }
+
         return back()
             ->with('status', 'danger')
             ->with('message', __('portfolios.no_permission'));
@@ -115,7 +118,7 @@ class PortfolioController extends Controller
         $portfolio_ids = $request->input('portfolio_ids');
 
         $securities = [];
-        foreach($portfolio_ids as $portfolio_id) {
+        foreach ($portfolio_ids as $portfolio_id) {
             $portfolio = Portfolio::find($portfolio_id);
             if ($user->can('view', $portfolio)) {
                 $securities = array_merge($securities, $portfolio
@@ -129,8 +132,8 @@ class PortfolioController extends Controller
                     ->toArray()
                 );
             }
-
         }
+
         return response()->json($securities, 200, [], JSON_NUMERIC_CHECK);
     }
 }

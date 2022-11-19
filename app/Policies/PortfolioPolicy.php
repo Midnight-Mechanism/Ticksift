@@ -2,8 +2,8 @@
 
 namespace App\Policies;
 
-use App\Models\User;
 use App\Models\Portfolio;
+use App\Models\User;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
 class PortfolioPolicy
@@ -30,9 +30,8 @@ class PortfolioPolicy
      */
     public function view(User $user, Portfolio $portfolio)
     {
-        return (
-            $portfolio->users()->where('users.id', $user->id)->exists() || $portfolio->users->isEmpty()
-        );
+        return
+            $portfolio->users()->where('users.id', $user->id)->exists() || $portfolio->users->isEmpty();
     }
 
     /**

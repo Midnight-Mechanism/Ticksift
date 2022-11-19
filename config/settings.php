@@ -55,7 +55,7 @@ return [
     /*
      * ReCaptcha Site Key
      */
-    'reCaptchSite'   => env('RE_CAP_SITE', 'YOURGOOGLECAPTCHAsitekeyHERE'),
+    'reCaptchSite' => env('RE_CAP_SITE', 'YOURGOOGLECAPTCHAsitekeyHERE'),
 
     /*
      * ReCaptcha Secret
@@ -70,10 +70,10 @@ return [
     /*
      * Google Maps API Key
      */
-    'googleMapsAPIKey'    => env('GOOGLEMAPS_API_KEY', 'YOURGOOGLEMAPSkeyHERE'),
+    'googleMapsAPIKey' => env('GOOGLEMAPS_API_KEY', 'YOURGOOGLEMAPSkeyHERE'),
 
     /*
      * DropZone CDN
      */
-    'dropZoneJsCDN'    => env('DROPZONE_JS_CDN', 'https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.4.0/dropzone.js'),
+    'dropZoneJsCDN' => env('DROPZONE_JS_CDN', 'https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.4.0/dropzone.js'),
 ];

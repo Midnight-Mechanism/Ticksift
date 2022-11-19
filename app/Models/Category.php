@@ -24,5 +24,4 @@ class Category extends Model
         'name',
         'security_id',
     ];
-
 }

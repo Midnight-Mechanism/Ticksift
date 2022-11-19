@@ -4,7 +4,9 @@ use App\Http\Controllers\IndicatorController;
 use App\Http\Controllers\PortfolioController;
 use App\Http\Controllers\SecurityController;
 use App\Http\Controllers\UserController;
-use Illuminate\Foundation\Auth\EmailVerificationRequest;
+use Illuminate\Foundation\Application;
+use Illuminate\Support\Facades\Route;
+use Inertia\Inertia;
 
 /*
 |--------------------------------------------------------------------------
@@ -15,27 +17,24 @@ use Illuminate\Foundation\Auth\EmailVerificationRequest;
 | routes are loaded by the RouteServiceProvider within a group which
 | contains the "web" middleware group. Now create something great!
 |
-| Middleware options can be located in `app/Http/Kernel.php`
-|
 */
 
-// public
-Route::middleware(['web'])->group(function () {
-    Route::view('/', 'landing')->name('landing');
-
-    Route::get('securities/explorer', [SecurityController::class, 'explorer'])->name('securities.explorer');
-    Route::get('securities/momentum', [SecurityController::class, 'momentum'])->name('securities.momentum');
-
-    Route::get('securities/find', [SecurityController::class, 'find'])->name('securities.find');
-    Route::get('securities/search', [SecurityController::class, 'search'])->name('securities.search');
-
-    Route::get('securities/prices', [SecurityController::class, 'prices'])->name('securities.prices');
-    Route::get('securities/get-momentum', [SecurityController::class, 'getMomentum'])->name('securities.get-momentum');
-
-    Route::post('users/store-chart-options', [UserController::class, 'storeChartOptions'])->name('users.store-chart-options');
-
-    Route::get('indicators/recessions', [IndicatorController::class, 'recessions'])->name('indicators.recessions');
+Route::get('/', function () {
+    return Inertia::render('Home');
 });
+
+Route::get('securities/explorer', [SecurityController::class, 'explorer'])->name('securities.explorer');
+Route::get('securities/momentum', [SecurityController::class, 'momentum'])->name('securities.momentum');
+
+Route::get('securities/find', [SecurityController::class, 'find'])->name('securities.find');
+Route::get('securities/search', [SecurityController::class, 'search'])->name('securities.search');
+
+Route::get('securities/prices', [SecurityController::class, 'prices'])->name('securities.prices');
+Route::post('securities/momentum', [SecurityController::class, 'momentumResults'])->name('securities.momentum-results');
+
+Route::post('users/store-chart-options', [UserController::class, 'storeChartOptions'])->name('users.store-chart-options');
+
+Route::get('indicators/recessions', [IndicatorController::class, 'recessions'])->name('indicators.recessions');
 
 // activated users
 Route::middleware(['auth', 'verified'])->group(function () {

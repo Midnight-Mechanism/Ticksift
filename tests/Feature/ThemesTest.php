@@ -13,7 +13,9 @@ class ThemesTest extends TestCase
     use WithoutMiddleware;
 
     private $_faker;
+
     private $_themeName;
+
     private $_themeUrl;
 
     /**
@@ -28,11 +30,11 @@ class ThemesTest extends TestCase
         $this->_themeUrl = $this->_faker->url;
 
         $theme = Theme::create([
-            'name'          => $this->_themeName,
-            'link'          => $this->_themeUrl,
-            'notes'         => 'Test Default Theme.',
-            'status'        => 1,
-            'taggable_id'   => 0,
+            'name' => $this->_themeName,
+            'link' => $this->_themeUrl,
+            'notes' => 'Test Default Theme.',
+            'status' => 1,
+            'taggable_id' => 0,
             'taggable_type' => 'theme',
         ]);
         $theme->taggable_id = $theme->id;

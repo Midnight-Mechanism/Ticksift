@@ -2,9 +2,9 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
-use App\Models\Security;
 use App\Models\Portfolio;
+use App\Models\Security;
+use Illuminate\Database\Seeder;
 
 class PortfoliosTableSeeder extends Seeder
 {

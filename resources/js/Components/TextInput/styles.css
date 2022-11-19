@@ -1,0 +1,5 @@
+.text-input {
+  background-color: var(--ticksift-black) !important;
+  color: white;
+  border-radius: 3px !important;
+}

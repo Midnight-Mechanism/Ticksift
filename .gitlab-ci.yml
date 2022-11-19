@@ -15,29 +15,15 @@ stages:
   - build
   - deploy
 
-build_dev:
+build:
   stage: build
   script:
     - npm install
     - composer install
-    - npm run dev
+    - npm run build
   artifacts:
     paths:
       - "public/"
-  rules:
-    - if: '$CI_COMMIT_BRANCH == "develop" || $CI_MERGE_REQUEST_ID'
-
-build_prod:
-  stage: build
-  script:
-    - npm install
-    - composer install
-    - npm run prod
-  artifacts:
-    paths:
-      - "public/"
-  rules:
-    - if: '$CI_COMMIT_BRANCH == "main"'
 
 deploy_review:
   stage: deploy

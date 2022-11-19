@@ -2,20 +2,19 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
-use Illuminate\Database\Eloquent\Builder;
-use App\Models\SourceTable;
-use App\Models\Exchange;
-use App\Models\Category;
-use App\Models\SicSector;
-use App\Models\SicIndustry;
-use App\Models\Sector;
-use App\Models\Industry;
-use App\Models\Currency;
-use App\Models\Security;
-use App\Models\Cusip;
 use App\Models\Action;
+use App\Models\Category;
+use App\Models\Currency;
+use App\Models\Cusip;
+use App\Models\Exchange;
+use App\Models\Industry;
 use App\Models\Price;
+use App\Models\Sector;
+use App\Models\Security;
+use App\Models\SicIndustry;
+use App\Models\SicSector;
+use App\Models\SourceTable;
+use Illuminate\Console\Command;
 use ZipArchive;
 
 class UpdateQuandl extends Command
@@ -37,9 +36,9 @@ class UpdateQuandl extends Command
     /**
      * Whether to update momentum on completion
      *
-     * @var boolean
+     * @var bool
      */
-    private $update_momentum = FALSE;
+    private $update_momentum = false;
 
     /**
      * The Quandl API key
@@ -73,31 +72,33 @@ class UpdateQuandl extends Command
         $this->updateFredPrices();
         $this->updateLondonPrices();
         $this->updateRecessions();
-        if($this->update_momentum) {
+        if ($this->update_momentum) {
             \Artisan::call('momentum:calculate-presets');
         }
     }
 
-    private function fetchQuandlCSV($url, $params = [], $bulk_export = FALSE) {
+    private function fetchQuandlCSV($url, $params = [], $bulk_export = false)
+    {
         $params['api_key'] = $this->quandl_key;
         if ($bulk_export) {
-            $params['qopts.export'] = TRUE;
+            $params['qopts.export'] = true;
         }
 
-        $url .= '?' . http_build_query($params);
+        $url .= '?'.http_build_query($params);
 
         $curl = curl_init();
         curl_setopt($curl, CURLOPT_URL, $url);
-        curl_setopt($curl, CURLOPT_RETURNTRANSFER, TRUE);
+        curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
         $results = curl_exec($curl);
         curl_close($curl);
 
         if ($bulk_export) {
-            $results = json_decode($results, TRUE);
+            $results = json_decode($results, true);
             if ($results && array_key_exists('datatable_bulk_download', $results)) {
                 $bulk_link = $results['datatable_bulk_download']['file']['link'];
             } else {
-                \Log::error('Could not get data at URL ' . $url);
+                \Log::error('Could not get data at URL '.$url);
+
                 return [];
             }
 
@@ -120,15 +121,16 @@ class UpdateQuandl extends Command
 
         $lines = array_filter(explode(PHP_EOL, $results));
 
-        return($lines);
+        return $lines;
     }
 
-    private function fetchQuandlDBMetadata($group) {
+    private function fetchQuandlDBMetadata($group)
+    {
         $zip_filename = tempnam(sys_get_temp_dir(), 'quandl_meta_');
         $zip_file = fopen($zip_filename, 'w');
 
         $curl = curl_init();
-        curl_setopt($curl, CURLOPT_URL, 'https://www.quandl.com/api/v3/databases/' . $group . '/metadata?api_key=' . $this->quandl_key);
+        curl_setopt($curl, CURLOPT_URL, 'https://www.quandl.com/api/v3/databases/'.$group.'/metadata?api_key='.$this->quandl_key);
         curl_setopt($curl, CURLOPT_FILE, $zip_file);
         curl_setopt($curl, CURLOPT_FOLLOWLOCATION, true);
         curl_exec($curl);
@@ -143,10 +145,12 @@ class UpdateQuandl extends Command
         $lines = explode(PHP_EOL, $results);
         // delete header row
         array_shift($lines);
-        return($lines);
+
+        return $lines;
     }
 
-    private function updateSharadarSecurities() {
+    private function updateSharadarSecurities()
+    {
         // get link to bulk download file
         $url = 'https://www.quandl.com/api/v3/datatables/SHARADAR/TICKERS';
         $params = [];
@@ -160,19 +164,19 @@ class UpdateQuandl extends Command
             $params['lastupdated.lte'] = $this->argument('end_date');
         }
 
-        $lines = $this->fetchQuandlCSV($url, $params, $bulk_export = TRUE);
+        $lines = $this->fetchQuandlCSV($url, $params, $bulk_export = true);
         $header = str_getcsv(array_shift($lines));
 
         foreach ($lines as $line) {
             $line = array_combine($header, str_getcsv($line));
-            if (!SourceTable::where('name', $line['table'])->exists()) {
+            if (! SourceTable::where('name', $line['table'])->exists()) {
                 continue;
             }
             $source_table_id = SourceTable::where('name', $line['table'])->first()->id;
             $exchange_id = Exchange::firstOrCreate(['name' => $line['exchange']])->id;
             $category_id = Category::firstOrCreate(['name' => $line['category']])->id;
             $cusips = explode(' ', $line['cusips']);
-            if($line['siccode']) {
+            if ($line['siccode']) {
                 $sic_sector_id = SicSector::firstOrCreate(
                     ['code' => $line['siccode']],
                     ['name' => $line['sicsector']]
@@ -231,7 +235,8 @@ class UpdateQuandl extends Command
         \Log::info('Security data successfully updated from Quandl.');
     }
 
-    private function updateActions() {
+    private function updateActions()
+    {
         $url = 'https://www.quandl.com/api/v3/datatables/SHARADAR/ACTIONS';
         $params = [];
 
@@ -244,7 +249,7 @@ class UpdateQuandl extends Command
             $params['date.lte'] = $this->argument('end_date');
         }
 
-        $lines = $this->fetchQuandlCSV($url, $params, $bulk_export = TRUE);
+        $lines = $this->fetchQuandlCSV($url, $params, $bulk_export = true);
         $header = str_getcsv(array_shift($lines));
 
         $chunk = [];
@@ -280,12 +285,13 @@ class UpdateQuandl extends Command
         \Log::info('Action data successfully updated from Quandl.');
     }
 
-    private function updateSharadarPrices() {
+    private function updateSharadarPrices()
+    {
         // get link to bulk download file
-        foreach(['SEP', 'SFP'] as $source_table_name) {
+        foreach (['SEP', 'SFP'] as $source_table_name) {
             $source_table = SourceTable::where('name', $source_table_name)->first();
             $newest_price_updated = Price::sourceTableFilter($source_table->name)->max('source_last_updated');
-            $url = 'https://www.quandl.com/api/v3/datatables/SHARADAR/' . $source_table->name;
+            $url = 'https://www.quandl.com/api/v3/datatables/SHARADAR/'.$source_table->name;
             $params = [];
 
             if ($this->argument('start_date')) {
@@ -297,7 +303,7 @@ class UpdateQuandl extends Command
                 $params['lastupdated.lte'] = $this->argument('end_date');
             }
 
-            $lines = $this->fetchQuandlCSV($url, $params, $bulk_export = TRUE);
+            $lines = $this->fetchQuandlCSV($url, $params, $bulk_export = true);
             $header = str_getcsv(array_shift($lines));
 
             $chunk = [];
@@ -320,7 +326,7 @@ class UpdateQuandl extends Command
                         'source_last_updated' => $line['lastupdated'],
                     ];
                 } else {
-                    \Log::info('Security ' . $line['ticker'] . ' on table ' . $source_table->name . ' not found');
+                    \Log::info('Security '.$line['ticker'].' on table '.$source_table->name.' not found');
                 }
                 if (count($chunk) > 1000) {
                     Price::upsert($chunk, ['security_id', 'date']);
@@ -329,27 +335,28 @@ class UpdateQuandl extends Command
             }
             Price::upsert($chunk, ['security_id', 'date']);
             if (Price::sourceTableFilter($source_table->name)->max('source_last_updated') > $newest_price_updated) {
-                $this->update_momentum = TRUE;
+                $this->update_momentum = true;
             }
         }
 
         \Log::info('SHARADAR price data successfully updated from Quandl.');
     }
 
-    private function updateFredPrices() {
+    private function updateFredPrices()
+    {
         $fed_debt_table = SourceTable::firstOrCreate(['name' => 'GFDEBTN']);
         $usd = Currency::firstOrCreate(['code' => 'USD']);
         $fed_debt_security = Security::firstOrCreate([
             'source_table_id' => $fed_debt_table->id,
             'name' => 'U.S. Federal Debt',
         ], [
-            'is_delisted' => FALSE,
+            'is_delisted' => false,
             'currency_id' => $usd->id,
             'scale_marketcap' => 0,
             'scale_revenue' => 0,
         ]);
 
-        $url = 'https://www.quandl.com/api/v3/datasets/FRED/' . $fed_debt_table->name . '.csv';
+        $url = 'https://www.quandl.com/api/v3/datasets/FRED/'.$fed_debt_table->name.'.csv';
 
         $lines = $this->fetchQuandlCSV($url, $params = []);
         $header = str_getcsv(array_shift($lines));
@@ -367,9 +374,10 @@ class UpdateQuandl extends Command
         \Log::info('FRED price data successfully updated from Quandl.');
     }
 
-    private function updateLondonPrices() {
+    private function updateLondonPrices()
+    {
         $usd = Currency::firstOrCreate(['code' => 'USD']);
-        foreach([
+        foreach ([
             'GOLD' => [
                 'name' => 'LBMA Gold Prices',
                 'source' => 'LBMA',
@@ -392,7 +400,7 @@ class UpdateQuandl extends Command
             ],
         ] as $source_table_name => $security_data) {
             $source_table = SourceTable::firstOrCreate(['name' => $source_table_name]);
-            $url = 'https://www.quandl.com/api/v3/datasets/' . $security_data['source'] . '/' . $source_table_name . '.csv';
+            $url = 'https://www.quandl.com/api/v3/datasets/'.$security_data['source'].'/'.$source_table_name.'.csv';
             $params = [];
 
             if ($this->argument('start_date')) {
@@ -414,7 +422,7 @@ class UpdateQuandl extends Command
                     'source_table_id' => $source_table->id,
                     'name' => $security_data['name'],
                 ], [
-                    'is_delisted' => FALSE,
+                    'is_delisted' => false,
                     'currency_id' => $usd->id,
                     'scale_marketcap' => 0,
                     'scale_revenue' => 0,
@@ -441,7 +449,8 @@ class UpdateQuandl extends Command
         \Log::info('LBMA price data successfully updated from Quandl.');
     }
 
-    private function updateRecessions() {
+    private function updateRecessions()
+    {
         $url = 'https://www.quandl.com/api/v3/datasets/FRED/USREC.csv';
 
         $lines = $this->fetchQuandlCSV($url, $params = []);
@@ -457,5 +466,4 @@ class UpdateQuandl extends Command
         \DB::table('recessions')->upsert($recessions, ['date']);
         \Log::info('FRED recession data successfully updated from Quandl.');
     }
-
 }

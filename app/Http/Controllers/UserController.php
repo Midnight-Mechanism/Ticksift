@@ -3,11 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
-use App\Models\Client;
 use Auth;
-use Invite;
-use Validator;
 use Illuminate\Http\Request;
+use Validator;
 
 class UserController extends Controller
 {
@@ -16,7 +14,8 @@ class UserController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function profile(Request $request) {
+    public function profile(Request $request)
+    {
         return view('auth.profile', []);
     }
 
@@ -25,7 +24,8 @@ class UserController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function updateProfile(Request $request) {
+    public function updateProfile(Request $request)
+    {
         $validator = Validator::make($request->all(), [
             'first_name' => 'required',
             'last_name' => 'required',
@@ -47,13 +47,13 @@ class UserController extends Controller
             ->with('message', __('auth.updated'));
     }
 
-
     /**
      * Update a user's password.
      *
      * @return \Illuminate\Http\Response
      */
-    public function updatePassword(Request $request) {
+    public function updatePassword(Request $request)
+    {
         $validator = Validator::make($request->all(), [
             'password' => 'required|min:6|max:20|confirmed',
         ]);
@@ -87,9 +87,9 @@ class UserController extends Controller
 
     /**
      * Store chart options in session
-     *
      */
-    public function storeChartOptions(Request $request) {
+    public function storeChartOptions(Request $request)
+    {
         $request->session()->put([
             'chart_type' => $request->input('chart_type'),
             'chart_scale' => $request->input('chart_scale'),

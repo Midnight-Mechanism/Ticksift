@@ -5,7 +5,6 @@ namespace App\Http\Middleware;
 use Auth;
 use Closure;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Route;
 
 class CheckCurrentUser
@@ -13,14 +12,13 @@ class CheckCurrentUser
     /**
      * Handle an incoming request.
      *
-     * @param \Illuminate\Http\Request $request
-     * @param \Closure                 $next
-     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  \Closure  $next
      * @return mixed
      */
     public function handle($request, Closure $next)
     {
-        if (!$request->user()) {
+        if (! $request->user()) {
             abort(403, 'Unauthorized action.');
         }
 

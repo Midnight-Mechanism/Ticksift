@@ -18,7 +18,6 @@ return new class extends Migration
             $table->dropColumn('activated');
             $table->dropColumn('token');
         });
-
     }
 
     /**

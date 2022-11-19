@@ -15,7 +15,6 @@ class ConnectRelationshipsSeeder extends Seeder
      */
     public function run()
     {
-
         /**
          * Get Available Permissions.
          */

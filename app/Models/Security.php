@@ -85,5 +85,4 @@ class Security extends Model
     {
         return $this->belongsToMany('App\Models\Portfolio');
     }
-
 }

@@ -2,9 +2,8 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
-use \App\Models\SourceTable;
+use Illuminate\Database\Eloquent\Model;
 
 class Price extends Model
 {
@@ -46,9 +45,11 @@ class Price extends Model
     /**
      * A function to retrieve the results for a given source table
      */
-    public static function sourceTableFilter($source_table_name) {
+    public static function sourceTableFilter($source_table_name)
+    {
         $source_table = SourceTable::where('name', $source_table_name)->first();
-        return Price::whereHas('security', function(Builder $query) use ($source_table) {
+
+        return Price::whereHas('security', function (Builder $query) use ($source_table) {
             $query->where('source_table_id', $source_table->id);
         });
     }
