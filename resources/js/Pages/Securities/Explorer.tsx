@@ -12,7 +12,7 @@ import DatePicker from '@/Components/DatePicker';
 import TextInput from '@/Components/TextInput';
 import { useLocalStorage } from '@/Hooks/UseLocalStorage';
 import Layout from '@/Layouts/Layout';
-import { chartColor, gridColor } from '@/Utilities/Constants';
+import { mobileBreakpoint, chartColor, gridColor } from '@/Utilities/Constants';
 import { getNumberWithOrdinal, formatCurrency } from '@/Utilities/NumberHelpers';
 
 export default function Explorer(props: any) {
@@ -47,6 +47,8 @@ export default function Explorer(props: any) {
   ];
 
   const [loading, setLoading] = useState<boolean>(true);
+
+  const [width, setWidth] = useState<number>(0);
 
   const [selectedDates, setSelectedDates] = useState<any>();
   const [selectedSecurities, setSelectedSecurities] = useLocalStorage('selectedSecurities');
@@ -123,7 +125,9 @@ export default function Explorer(props: any) {
         gridcolor: gridColor,
         automargin: true,
       },
-      legend: {},
+      legend: {
+        orientation: width < mobileBreakpoint ? 'h' : 'v',
+      },
       paper_bgcolor: chartColor,
       plot_bgcolor: chartColor,
       shapes: [],
@@ -277,7 +281,10 @@ export default function Explorer(props: any) {
         );
 
         layout.title = 'Historical Value at Risk';
-        layout.xaxis.title = 'Continuously Compounded Daily Return';
+        layout.xaxis.title = {
+          text: 'Continuously Compounded Daily Return',
+          standoff: 50,
+        };
         layout.yaxis.title = 'Frequency';
         layout.xaxis.tickformat = '.0%';
         layout.yaxis.tickprefix = null;
@@ -603,6 +610,18 @@ export default function Explorer(props: any) {
   useEffect(() => {
     setLoading(false);
   }, [chartData]);
+
+  // set width on window resize
+  useEffect(() => {
+    window.addEventListener('resize', () => setWidth(window.innerWidth));
+  }, [setWidth]);
+
+  // modify chart legend orientation on width change
+  useEffect(() => {
+    if (chartData?.layout?.legend) {
+      chartData.layout.legend.orientation = width < mobileBreakpoint ? 'h' : 'v';
+    }
+  }, [width]);
 
   const renderVarPercentileInput = () => {
     if (selectedChart?.value === 'histvar') {

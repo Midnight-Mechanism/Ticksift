@@ -8,7 +8,7 @@ import ResponsiveNavLink from '@/Components/ResponsiveNavLink';
 
 export default function Layout({ auth, header, children }: { auth?: any; header?: any; children?: any }) {
   const [showingNavigationDropdown, setShowingNavigationDropdown] = useState(false);
-  const { trackPageView, trackEvent } = useMatomo();
+  const { trackPageView } = useMatomo();
 
   useEffect(() => {
     trackPageView();
