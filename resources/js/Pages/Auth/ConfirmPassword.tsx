@@ -1,10 +1,11 @@
-import React, { useEffect } from 'react';
-import Layout from '@/Layouts/Layout';
+import { Head, useForm } from '@inertiajs/inertia-react';
+import { useEffect } from 'react';
+
 import InputError from '@/Components/InputError';
 import InputLabel from '@/Components/InputLabel';
 import PrimaryButton from '@/Components/PrimaryButton';
 import TextInput from '@/Components/TextInput';
-import { Head, useForm } from '@inertiajs/inertia-react';
+import Layout from '@/Layouts/Layout';
 
 export default function ConfirmPassword() {
   const { data, setData, post, processing, errors, reset } = useForm({
@@ -17,14 +18,14 @@ export default function ConfirmPassword() {
     };
   }, []);
 
-  const onHandleChange = event => {
+  const onHandleChange = (event: any) => {
     setData(event.target.name, event.target.value);
   };
 
-  const submit = e => {
+  const submit = (e: any) => {
     e.preventDefault();
 
-    post(route('password.confirm'));
+    post(window.route('password.confirm'));
   };
 
   return (

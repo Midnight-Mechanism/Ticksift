@@ -186,9 +186,7 @@ class SecurityController extends Controller
     {
         $stored_dates = $request->session()->get('security_dates');
 
-        return Inertia::render('Securities/Momentum', [
-            'storedDates' => $stored_dates,
-        ]);
+        return Inertia::render('Securities/Momentum');
     }
 
     /**

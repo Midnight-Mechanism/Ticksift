@@ -5,8 +5,60 @@ import Logo from '@/Components/Logo';
 import NavLink from '@/Components/NavLink';
 import ResponsiveNavLink from '@/Components/ResponsiveNavLink';
 
-export default function Layout({ auth, header, children }: { auth: any; header?: any; children?: any }) {
+export default function Layout({ auth, header, children }: { auth?: any; header?: any; children?: any }) {
   const [showingNavigationDropdown, setShowingNavigationDropdown] = useState(false);
+
+  type NavLinkData = {
+    name: string;
+    route: string;
+    method?: string;
+  };
+
+  const navLinks: { left: NavLinkData[]; right: NavLinkData[] } = {
+    left: [
+      { name: 'Explorer', route: 'securities.explorer' },
+      { name: 'Momentum', route: 'securities.momentum' },
+    ],
+    right: [],
+  };
+
+  if (auth?.user) {
+    //navLinks.left.push({ name: 'Portfolios', route: 'portfolios.index' });
+    navLinks.right.push({ name: 'Log Out', route: 'logout', method: 'post' });
+  } else {
+    navLinks.right.push({ name: 'Log In', route: 'login' });
+    navLinks.right.push({ name: 'Register', route: 'register' });
+  }
+
+  const renderNavLinks = (data: NavLinkData[]) => {
+    return data.map(navLink => {
+      return (
+        <NavLink
+          key={navLink.route}
+          href={window.route(navLink.route)}
+          active={window.route().current(navLink.route)}
+          method={navLink.method}
+        >
+          {navLink.name}
+        </NavLink>
+      );
+    });
+  };
+
+  const renderResponsiveNavLinks = (data: NavLinkData[]) => {
+    return data.map(navLink => {
+      return (
+        <ResponsiveNavLink
+          key={navLink.route}
+          href={window.route(navLink.route)}
+          active={window.route().current(navLink.route)}
+          method={navLink.method}
+        >
+          {navLink.name}
+        </ResponsiveNavLink>
+      );
+    });
+  };
 
   return (
     <div className="flex flex-col min-h-screen bg-ticksift-dark text-white">
@@ -20,31 +72,14 @@ export default function Layout({ auth, header, children }: { auth: any; header?:
                 </Link>
               </div>
 
-              <div className="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex">
-                <NavLink
-                  href={window.route('securities.explorer')}
-                  active={window.route().current('securities.explorer')}
-                >
-                  Explorer
-                </NavLink>
-                <NavLink
-                  href={window.route('securities.momentum')}
-                  active={window.route().current('securities.momentum')}
-                >
-                  Momentum
-                </NavLink>
-                {auth?.user && (
-                  <NavLink method="post" href={window.route('logout')}>
-                    Log Out
-                  </NavLink>
-                )}
-              </div>
+              <div className="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex">{renderNavLinks(navLinks.left)}</div>
             </div>
+            <div className="hidden float-right space-x-8 sm:flex">{renderNavLinks(navLinks.right)}</div>
 
             <div className="-mr-2 flex items-center sm:hidden">
               <button
                 onClick={() => setShowingNavigationDropdown(previousState => !previousState)}
-                className="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:bg-gray-100 focus:text-gray-500 transition duration-150 ease-in-out"
+                className="inline-flex items-center justify-center p-2 rounded-md text-gray-400"
               >
                 <svg className="h-6 w-6" stroke="currentColor" fill="none" viewBox="0 0 24 24">
                   <path
@@ -68,30 +103,8 @@ export default function Layout({ auth, header, children }: { auth: any; header?:
         </div>
 
         <div className={(showingNavigationDropdown ? 'block' : 'hidden') + ' sm:hidden'}>
-          <div className="pt-2 pb-3 space-y-1">
-            <ResponsiveNavLink
-              href={window.route('securities.explorer')}
-              active={window.route().current('securities.explorer')}
-            >
-              Explorer
-            </ResponsiveNavLink>
-            <ResponsiveNavLink
-              href={window.route('securities.momentum')}
-              active={window.route().current('securities.momentum')}
-            >
-              Momentum
-            </ResponsiveNavLink>
-          </div>
-
-          {auth?.user && (
-            <div className="pt-4 pb-1 border-t border-gray-200">
-              <div className="mt-3 space-y-1">
-                <ResponsiveNavLink method="post" href={window.route('logout')} as="button">
-                  Log Out
-                </ResponsiveNavLink>
-              </div>
-            </div>
-          )}
+          <div className="pt-2 pb-2 space-y-1">{renderResponsiveNavLinks(navLinks.left)}</div>
+          <div className="pt-2 pb-2 border-t border-gray-200 space-y-1">{renderResponsiveNavLinks(navLinks.right)}</div>
         </div>
       </nav>
 
@@ -101,7 +114,7 @@ export default function Layout({ auth, header, children }: { auth: any; header?:
         </header>
       )}
 
-      <main className="grow">{children}</main>
+      <main className="grow py-12">{children}</main>
       <nav className="bg-ticksift-light">
         <div className="mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16">

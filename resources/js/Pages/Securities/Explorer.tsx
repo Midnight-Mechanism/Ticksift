@@ -667,30 +667,28 @@ export default function Explorer(props: any) {
     <Layout auth={props.auth}>
       <Head title="Explorer" />
 
-      <div className="py-3 py-12">
-        <div className="mx-auto px-4 sm:px-6 lg:px-8">
-          <DatePicker minDate={props.priceDates.min} maxDate={props.priceDates.max} handleChange={setSelectedDates} />
-          <ChartSelect
-            isAsync
-            isMulti
-            placeholder="Search for securities..."
-            defaultValue={selectedSecurities}
-            onChange={setSelectedSecurities}
-            loadOptions={getSecurityOptions}
-          />
-          <ChartSelect defaultValue={selectedChart} onChange={setSelectedChart} options={chartOptions} />
-          {renderVarPercentileInput()}
-          {renderRatioSelect()}
-          <ChartSelect defaultValue={selectedScale} onChange={setSelectedScale} options={scaleOptions} />
-          <ChartSelect
-            isMulti
-            placeholder="Add technical indicators..."
-            defaultValue={selectedIndicators}
-            onChange={setSelectedIndicators}
-            options={indicatorOptions}
-          />
-          {renderChart()}
-        </div>
+      <div className="mx-auto px-4 sm:px-6 lg:px-8">
+        <DatePicker minDate={props.priceDates.min} maxDate={props.priceDates.max} handleChange={setSelectedDates} />
+        <ChartSelect
+          isAsync
+          isMulti
+          placeholder="Search for securities..."
+          defaultValue={selectedSecurities}
+          onChange={setSelectedSecurities}
+          loadOptions={getSecurityOptions}
+        />
+        <ChartSelect defaultValue={selectedChart} onChange={setSelectedChart} options={chartOptions} />
+        {renderVarPercentileInput()}
+        {renderRatioSelect()}
+        <ChartSelect defaultValue={selectedScale} onChange={setSelectedScale} options={scaleOptions} />
+        <ChartSelect
+          isMulti
+          placeholder="Add technical indicators..."
+          defaultValue={selectedIndicators}
+          onChange={setSelectedIndicators}
+          options={indicatorOptions}
+        />
+        {renderChart()}
       </div>
     </Layout>
   );
