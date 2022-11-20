@@ -48,7 +48,7 @@ export default function Explorer(props: any) {
 
   const [loading, setLoading] = useState<boolean>(true);
 
-  const [width, setWidth] = useState<number>(0);
+  const [width, setWidth] = useState<number>(window.innerWidth);
 
   const [selectedDates, setSelectedDates] = useState<any>();
   const [selectedSecurities, setSelectedSecurities] = useLocalStorage('selectedSecurities');
