@@ -11,7 +11,6 @@
         @routes
         @viteReactRefresh
         @vite(['resources/js/app.tsx', "resources/js/Pages/{$page['component']}.tsx"])
-        @vite('resources/js/stats.js')
         @inertiaHead
     </head>
     <body style="background-color: #001f1f;" class="font-sans antialiased">
