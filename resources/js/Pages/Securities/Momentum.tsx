@@ -9,11 +9,13 @@ import Layout from '@/Layouts/Layout';
 
 export default function Momentum(props: any) {
   const [loading, setLoading] = useState<boolean>();
+  const [selectedDates, setSelectedDates] = useState<string[]>([]);
   const [results, setResults] = useState<any>();
 
   const onDateChange = (dates: string[]) => {
     if (dates.length) {
       setLoading(true);
+      setSelectedDates(dates);
       window.axios
         .post(window.route('securities.momentum-results'), {
           dates: dates,
@@ -36,6 +38,7 @@ export default function Momentum(props: any) {
         <ChartTitle text="Sectors" />
         <MomentumTreemap
           data={results ? [...results.winners, ...results.losers] : null}
+          dates={selectedDates}
           calculateSecuritySize={(s: any) => s.latest_close * s.volume}
           className={loading ? 'loading' : ''}
         />

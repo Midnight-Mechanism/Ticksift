@@ -674,6 +674,7 @@ export default function Explorer(props: any) {
               format: 'png',
               height: 1080,
               width: 1920,
+              filename: ['ticksift', 'explorer', selectedChart?.value, selectedDates.join('_to_')].join('_'),
             },
           }}
         />
