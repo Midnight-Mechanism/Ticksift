@@ -67,11 +67,11 @@ class UpdateQuandl extends Command
         $this->quandl_key = env('QUANDL_KEY');
 
         $this->updateSharadarSecurities();
-        $this->updateActions();
         $this->updateSharadarPrices();
         $this->updateFredPrices();
         $this->updateLondonPrices();
         $this->updateRecessions();
+        $this->updateActions();
         if ($this->update_momentum) {
             \Artisan::call('momentum:calculate-presets');
         }
