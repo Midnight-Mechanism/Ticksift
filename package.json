@@ -5,7 +5,7 @@
     "dev": "php artisan serve & vite",
     "build": "vite build",
     "lint": "eslint --fix .",
-    "format": "prettier 'resources/js/**/*.{js,jsx,ts,tsx}' --write",
+    "format": "./vendor/bin/pint && prettier 'resources/js/**/*.{js,jsx,ts,tsx}' --write",
     "pre-commit": "npm run format && lint-staged && pretty-quick --staged"
   },
   "lint-staged": {
