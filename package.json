@@ -52,6 +52,7 @@
     "typescript": "^4.9.3"
   },
   "dependencies": {
+    "@jonkoops/matomo-tracker-react": "^0.7.0",
     "@stdlib/stdlib": "^0.0.96",
     "color": "^4.2.3",
     "dayjs": "^1.11.6",

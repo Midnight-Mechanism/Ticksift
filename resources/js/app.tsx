@@ -1,5 +1,6 @@
 import { createInertiaApp } from '@inertiajs/inertia-react';
 import { InertiaProgress } from '@inertiajs/progress';
+import { MatomoProvider, createInstance } from '@jonkoops/matomo-tracker-react';
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import { createRoot } from 'react-dom/client';
 
@@ -7,6 +8,18 @@ import '../css/app.css';
 import './bootstrap';
 
 const appName = window.document.getElementsByTagName('title')[0]?.innerText || 'Laravel';
+
+const baseStatsDomain = 'https://stats.midnightmechanism.com';
+const instance = createInstance({
+  urlBase: baseStatsDomain,
+  srcUrl: `${baseStatsDomain}/main.js`,
+  trackerUrl: `${baseStatsDomain}/main`,
+  siteId: 2,
+  heartBeat: {
+    active: true,
+    seconds: 5,
+  },
+});
 
 // clear local storage if last visit more than a day ago
 try {
@@ -24,7 +37,11 @@ createInertiaApp({
   setup({ el, App, props }) {
     const root = createRoot(el);
 
-    root.render(<App {...props} />);
+    root.render(
+      <MatomoProvider value={instance}>
+        <App {...props} />
+      </MatomoProvider>
+    );
   },
 });
 

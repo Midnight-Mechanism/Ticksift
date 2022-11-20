@@ -1,5 +1,6 @@
 import { Link } from '@inertiajs/inertia-react';
-import { useState } from 'react';
+import { useMatomo } from '@jonkoops/matomo-tracker-react';
+import { useState, useEffect } from 'react';
 
 import Logo from '@/Components/Logo';
 import NavLink from '@/Components/NavLink';
@@ -7,6 +8,11 @@ import ResponsiveNavLink from '@/Components/ResponsiveNavLink';
 
 export default function Layout({ auth, header, children }: { auth?: any; header?: any; children?: any }) {
   const [showingNavigationDropdown, setShowingNavigationDropdown] = useState(false);
+  const { trackPageView, trackEvent } = useMatomo();
+
+  useEffect(() => {
+    trackPageView();
+  }, []);
 
   type NavLinkData = {
     name: string;
