@@ -18,6 +18,7 @@ export default function Layout({ auth, header, children }: { auth?: any; header?
     name: string;
     route: string;
     method?: string;
+    as?: string;
   };
 
   const navLinks: { left: NavLinkData[]; right: NavLinkData[] } = {
@@ -30,7 +31,7 @@ export default function Layout({ auth, header, children }: { auth?: any; header?
 
   if (auth?.user) {
     //navLinks.left.push({ name: 'Portfolios', route: 'portfolios.index' });
-    navLinks.right.push({ name: 'Log Out', route: 'logout', method: 'post' });
+    navLinks.right.push({ name: 'Log Out', route: 'logout', method: 'post', as: 'button' });
   } else {
     navLinks.right.push({ name: 'Log In', route: 'login' });
     navLinks.right.push({ name: 'Register', route: 'register' });
@@ -44,6 +45,7 @@ export default function Layout({ auth, header, children }: { auth?: any; header?
           href={window.route(navLink.route)}
           active={window.route().current(navLink.route)}
           method={navLink.method}
+          as={navLink.as}
         >
           {navLink.name}
         </NavLink>
@@ -59,6 +61,7 @@ export default function Layout({ auth, header, children }: { auth?: any; header?
           href={window.route(navLink.route)}
           active={window.route().current(navLink.route)}
           method={navLink.method}
+          as={navLink.as}
         >
           {navLink.name}
         </ResponsiveNavLink>

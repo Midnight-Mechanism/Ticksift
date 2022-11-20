@@ -2,11 +2,13 @@ import { Link } from '@inertiajs/inertia-react';
 
 export default function NavLink({
   method = 'get',
+  as = 'a',
   href,
   active,
   children,
 }: {
   method?: string;
+  as?: string;
   href: string;
   active?: boolean;
   children?: any;
@@ -14,6 +16,7 @@ export default function NavLink({
   return (
     <Link
       method={method}
+      as={as}
       href={href}
       className={
         active
