@@ -123,7 +123,7 @@ export default function SecurityPicker({
 
   if (canSavePortfolio && (portfolioToUpdate || selectedSecurities?.length)) {
     return (
-      <div className={`flex ${className}`}>
+      <div className={`flex flex-col gap-3 sm:flex-row ${className}`}>
         <FormModal
           title={`${portfolioToUpdate ? 'Update' : 'Create'} Portfolio`}
           isOpen={createModalIsOpen}
@@ -167,7 +167,7 @@ export default function SecurityPicker({
         {select}
         <form className="flex" onSubmit={createPortfolio}>
           <PrimaryButton
-            className="ml-3"
+            className="w-full"
             type={portfolioToUpdate ? 'submit' : 'button'}
             onClick={() => portfolioToUpdate ?? setCreateModalIsOpen(true)}
             processing={createFormProps.processing}
@@ -176,12 +176,7 @@ export default function SecurityPicker({
           </PrimaryButton>
         </form>
         {portfolioToUpdate && (
-          <PrimaryButton
-            className="ml-3"
-            type="button"
-            backgroundColorClass="bg-red-800"
-            onClick={() => setDeleteModalIsOpen(true)}
-          >
+          <PrimaryButton type="button" backgroundColorClass="bg-red-800" onClick={() => setDeleteModalIsOpen(true)}>
             Delete
           </PrimaryButton>
         )}
