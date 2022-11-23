@@ -4,6 +4,7 @@ import './styles.css';
 
 export default function TextInput({
   type = 'text',
+  label,
   name,
   min,
   max,
@@ -15,6 +16,7 @@ export default function TextInput({
   isFocused,
   handleChange,
 }: {
+  label?: string;
   type?: string;
   name?: string;
   min?: string;
@@ -25,7 +27,7 @@ export default function TextInput({
   autoComplete?: string;
   required?: boolean;
   isFocused?: boolean;
-  handleChange?: any;
+  handleChange: any;
 }) {
   const input = useRef<HTMLInputElement>(null);
 
@@ -37,6 +39,7 @@ export default function TextInput({
 
   return (
     <div className="flex flex-col items-start">
+      {label && <label htmlFor={name}>{label}</label>}
       <input
         type={type}
         name={name}

@@ -42,6 +42,15 @@ class Security extends Model
         'company_url',
     ];
 
+    protected $appends = [
+        'ticker_name',
+    ];
+
+    public function getTickerNameAttribute()
+    {
+        return $this->ticker ? $this->ticker.' - '.$this->name : $this->name;
+    }
+
     /**
      * A security has a source table.
      */

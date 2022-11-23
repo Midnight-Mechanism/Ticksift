@@ -12,6 +12,7 @@ export default function ChartSelect({
   onChange,
   loadOptions,
   options,
+  value,
 }: {
   isAsync?: boolean;
   isMulti?: boolean;
@@ -21,34 +22,33 @@ export default function ChartSelect({
   onChange?: any;
   loadOptions?: any;
   options?: any[];
+  value?: any;
 }) {
   if (isAsync) {
     return (
-      <div>
-        <AsyncSelect
-          className={`react-select-container ${className}`}
-          classNamePrefix="react-select"
-          isMulti={isMulti}
-          defaultValue={defaultValue}
-          onChange={onChange}
-          placeholder={placeholder}
-          loadOptions={loadOptions}
-          options={options}
-        />
-      </div>
-    );
-  }
-  return (
-    <div>
-      <Select
+      <AsyncSelect
         className={`react-select-container ${className}`}
         classNamePrefix="react-select"
         isMulti={isMulti}
         defaultValue={defaultValue}
-        placeholder={placeholder}
         onChange={onChange}
+        placeholder={placeholder}
+        loadOptions={loadOptions}
         options={options}
+        value={value}
       />
-    </div>
+    );
+  }
+  return (
+    <Select
+      className={`react-select-container ${className}`}
+      classNamePrefix="react-select"
+      isMulti={isMulti}
+      defaultValue={defaultValue}
+      placeholder={placeholder}
+      onChange={onChange}
+      options={options}
+      value={value}
+    />
   );
 }

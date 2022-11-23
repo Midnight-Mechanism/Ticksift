@@ -13,8 +13,11 @@ module.exports = {
   theme: {
     extend: {
       colors: {
+        'ticksift-bright': '#1eb3b3',
         'ticksift-light': '#0d4d4d',
         'ticksift-dark': '#001f1f',
+        'ticksift-accent-light': '#5278cc',
+        'ticksift-accent-dark': '#2e4372',
         'ticksift-black': '#000f0f',
       },
       fontFamily: {

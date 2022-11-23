@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Price;
 use App\Models\Security;
 use App\Models\SourceTable;
+use Auth;
 use DB;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
@@ -174,7 +175,14 @@ class SecurityController extends Controller
      */
     public function explorer(Request $request)
     {
-        return Inertia::render('Securities/Explorer');
+        $user = Auth::user();
+
+        return Inertia::render('Securities/Explorer', [
+            'portfolios' => $user ? $user
+                ->portfolios()
+                ->with('securities')
+                ->get() : null,
+        ]);
     }
 
     /**
@@ -200,7 +208,7 @@ class SecurityController extends Controller
         $security = Security::whereIn('ticker', $tickers)
             ->select(
                 'id as value',
-                'name AS label',
+                DB::raw("CASE WHEN ticker IS NULL THEN name ELSE CONCAT(ticker, ' - ', name) END AS label")
             )
             ->get();
 

@@ -32,8 +32,6 @@ Route::get('securities/search', [SecurityController::class, 'search'])->name('se
 Route::get('securities/prices', [SecurityController::class, 'prices'])->name('securities.prices');
 Route::post('securities/momentum', [SecurityController::class, 'momentumResults'])->name('securities.momentum-results');
 
-Route::post('users/store-chart-options', [UserController::class, 'storeChartOptions'])->name('users.store-chart-options');
-
 Route::get('indicators/recessions', [IndicatorController::class, 'recessions'])->name('indicators.recessions');
 
 // activated users
@@ -42,7 +40,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('update-password', [UserController::class, 'updatePassword'])->name('update-password');
     Route::post('update-profile', [UserController::class, 'updateProfile'])->name('update-profile');
 
-    Route::get('portfolios/search', [PortfolioController::class, 'search'])->name('portfolios.search');
     Route::get('portfolios/securities', [PortfolioController::class, 'securities'])->name('portfolios.securities');
     Route::resource('portfolios', PortfolioController::class, [
         'except' => [

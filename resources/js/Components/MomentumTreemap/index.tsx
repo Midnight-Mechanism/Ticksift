@@ -10,12 +10,12 @@ export default function MomentumTreemap({
   data,
   calculateSecuritySize,
   className = '',
-  dates,
+  screenshotFilename = 'treemap.png',
 }: {
   data: any;
   calculateSecuritySize: any;
   className?: string;
-  dates: string[];
+  screenshotFilename?: string;
 }) {
   const [chartData, setChartData] = useState<any>();
 
@@ -166,7 +166,7 @@ export default function MomentumTreemap({
             format: 'png',
             height: 3000,
             width: 4000,
-            filename: ['ticksift', 'momentum', dates.join('_to_')].join('_'),
+            filename: screenshotFilename,
           },
         }}
       />

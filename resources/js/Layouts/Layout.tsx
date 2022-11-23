@@ -1,7 +1,10 @@
 import { Link } from '@inertiajs/inertia-react';
 import { useMatomo } from '@jonkoops/matomo-tracker-react';
 import { useState, useEffect } from 'react';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
+import '../../css/toast.css';
 import Logo from '@/Components/Logo';
 import NavLink from '@/Components/NavLink';
 import ResponsiveNavLink from '@/Components/ResponsiveNavLink';
@@ -30,7 +33,7 @@ export default function Layout({ auth, header, children }: { auth?: any; header?
   };
 
   if (auth?.user) {
-    //navLinks.left.push({ name: 'Portfolios', route: 'portfolios.index' });
+    navLinks.left.push({ name: 'Portfolios', route: 'portfolios.index' });
     navLinks.right.push({ name: 'Log Out', route: 'logout', method: 'post', as: 'button' });
   } else {
     navLinks.right.push({ name: 'Log In', route: 'login' });
@@ -123,7 +126,10 @@ export default function Layout({ auth, header, children }: { auth?: any; header?
         </header>
       )}
 
-      <main className="grow py-12">{children}</main>
+      <main className="grow py-12">
+        {children}
+        <ToastContainer theme="dark" position="bottom-right" />
+      </main>
       <nav className="bg-ticksift-light">
         <div className="mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16">

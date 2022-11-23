@@ -12,34 +12,34 @@ export default function Momentum(props: any) {
   const [selectedDates, setSelectedDates] = useState<string[]>([]);
   const [results, setResults] = useState<any>();
 
-  const onDateChange = (dates: string[]) => {
-    if (dates.length) {
+  useEffect(() => {
+    if (selectedDates.length) {
       setLoading(true);
-      setSelectedDates(dates);
       window.axios
         .post(window.route('securities.momentum-results'), {
-          dates: dates,
+          dates: selectedDates,
         })
         .then((r: any) => {
           setResults(r.data);
         });
     }
-  };
+  }, [selectedDates]);
 
   useEffect(() => {
     setLoading(false);
   }, [results]);
+
   return (
     <Layout auth={props.auth}>
       <Head title="Momentum" />
 
       <div className="mx-auto px-4 sm:px-6 lg:px-8">
-        <DatePicker minDate={props.priceDates.min} maxDate={props.priceDates.max} handleChange={onDateChange} />
+        <DatePicker minDate={props.priceDates.min} maxDate={props.priceDates.max} handleChange={setSelectedDates} />
         <ChartTitle text="Sectors" />
         <MomentumTreemap
           data={results ? [...results.winners, ...results.losers] : null}
-          dates={selectedDates}
           calculateSecuritySize={(s: any) => s.latest_close * s.volume}
+          screenshotFilename={['ticksift', 'momentum', selectedDates.join('_to_')].join('_')}
           className={loading ? 'loading' : ''}
         />
         <div className="grid grid-cols-1 sm:grid-cols-1 2xl:grid-cols-2 gap-x-8 justify-items-center">

@@ -44,7 +44,7 @@ export default function DatePicker({
     <div className="grid grid-cols-3 gap-3 items-center mb-3">
       <div className="col-span-full lg:col-span-1">
         <Flatpickr
-          className="w-full bg-black"
+          className="w-full bg-ticksift-black rounded"
           ref={calendar}
           options={{
             mode: 'range',

@@ -1,14 +1,15 @@
 import { Head } from '@inertiajs/inertia-react';
 import pcorrtest from '@stdlib/stats/pcorrtest';
 import dayjs from 'dayjs';
-import { debounce, cloneDeep, reduce, zipObject, mergeWith, isArray, mean, map, sortBy } from 'lodash';
-import { useCallback, useState, useEffect } from 'react';
+import { cloneDeep, reduce, zipObject, mergeWith, isArray, mean, map, sortBy, unionBy } from 'lodash';
+import { useState, useEffect } from 'react';
 import Plot from 'react-plotly.js';
 import { SMA, EMA, BollingerBands, RSI, TRIX } from 'technicalindicators';
 import { BollingerBandsOutput } from 'technicalindicators/declarations/volatility/BollingerBands';
 
 import ChartSelect from '@/Components/ChartSelect';
 import DatePicker from '@/Components/DatePicker';
+import SecurityPicker from '@/Components/SecurityPicker';
 import TextInput from '@/Components/TextInput';
 import { useLocalStorage } from '@/Hooks/UseLocalStorage';
 import Layout from '@/Layouts/Layout';
@@ -63,21 +64,6 @@ export default function Explorer(props: any) {
   const [ratioPriceData, setRatioPriceData] = useState<any>();
   const [chartData, setChartData] = useState<any>();
   const [recessions, setRecessions] = useState<any>();
-
-  const getSecurityOptions = useCallback(
-    debounce((input, callback) => {
-      window.axios
-        .get(window.route('securities.search'), {
-          params: {
-            q: input,
-          },
-        })
-        .then((res: any) => {
-          callback(res.data);
-        });
-    }, 250),
-    []
-  );
 
   const getPriceData = (securities: any, callback: any) => {
     if (selectedDates && securities) {
@@ -229,6 +215,7 @@ export default function Explorer(props: any) {
             }
           });
           layout.title = `Closing Prices to ${ratioSecurity.short_name}`;
+          layout.yaxis.tickprefix = null;
         }
         break;
       }
@@ -623,12 +610,48 @@ export default function Explorer(props: any) {
     }
   }, [width]);
 
-  const renderVarPercentileInput = () => {
-    if (selectedChart?.value === 'histvar') {
-      return (
-        <div>
-          <label>Highlight Percentile:</label>
+  return (
+    <Layout auth={props.auth}>
+      <Head title="Explorer" />
+
+      <div className="mx-auto px-4 sm:px-6 lg:px-8">
+        <DatePicker minDate={props.priceDates.min} maxDate={props.priceDates.max} handleChange={setSelectedDates} />
+        {props.auth.user && (
+          <ChartSelect
+            className="pt-2"
+            placeholder="Add one of your portfolios..."
+            onChange={(selectedPortfolio: any) => {
+              if (selectedPortfolio) {
+                const securitiesToAdd = props.portfolios
+                  ?.find((p: any) => p.id === selectedPortfolio.value)
+                  ?.securities?.map((s: any) => {
+                    return {
+                      value: s.id,
+                      label: s.ticker_name,
+                    };
+                  });
+                setSelectedSecurities(unionBy(selectedSecurities, securitiesToAdd, 'value'));
+              }
+            }}
+            options={props.portfolios.map((p: any) => {
+              return {
+                value: p.id,
+                label: p.name,
+              };
+            })}
+            value={null}
+          />
+        )}
+        <SecurityPicker
+          isMulti
+          canSavePortfolio={props.auth.user}
+          value={selectedSecurities}
+          handleChange={setSelectedSecurities}
+        />
+        <ChartSelect defaultValue={selectedChart} onChange={setSelectedChart} options={chartOptions} />
+        {selectedChart?.value === 'histvar' && (
           <TextInput
+            label="Highlight Percentile:"
             type="number"
             className="mb-2"
             min="0"
@@ -636,70 +659,15 @@ export default function Explorer(props: any) {
             defaultValue={varThreshold}
             handleChange={(e: any) => setVarThreshold(e.target.value)}
           />
-        </div>
-      );
-    }
-    return null;
-  };
-
-  const renderRatioSelect = () => {
-    if (selectedChart?.value === 'ratio') {
-      return (
-        <ChartSelect
-          isAsync
-          className="pt-0 pb-2"
-          placeholder="Search for a denominator security..."
-          onChange={setSelectedRatioSecurity}
-          loadOptions={getSecurityOptions}
-        />
-      );
-    }
-    return null;
-  };
-
-  const renderChart = () => {
-    if (chartData) {
-      return (
-        <Plot
-          className={`w-full chart-fluid ${loading ? 'loading' : ''}`}
-          style={{
-            minHeight: '400px',
-          }}
-          useResizeHandler
-          data={chartData?.data}
-          layout={chartData?.layout}
-          config={{
-            displaylogo: false,
-            toImageButtonOptions: {
-              format: 'png',
-              height: 1080,
-              width: 1920,
-              filename: ['ticksift', 'explorer', selectedChart?.value, selectedDates.join('_to_')].join('_'),
-            },
-          }}
-        />
-      );
-    }
-    return null;
-  };
-
-  return (
-    <Layout auth={props.auth}>
-      <Head title="Explorer" />
-
-      <div className="mx-auto px-4 sm:px-6 lg:px-8">
-        <DatePicker minDate={props.priceDates.min} maxDate={props.priceDates.max} handleChange={setSelectedDates} />
-        <ChartSelect
-          isAsync
-          isMulti
-          placeholder="Search for securities..."
-          defaultValue={selectedSecurities}
-          onChange={setSelectedSecurities}
-          loadOptions={getSecurityOptions}
-        />
-        <ChartSelect defaultValue={selectedChart} onChange={setSelectedChart} options={chartOptions} />
-        {renderVarPercentileInput()}
-        {renderRatioSelect()}
+        )}
+        {selectedChart?.value === 'ratio' && (
+          <SecurityPicker
+            className="pt-0 pb-2"
+            placeholder="Search for a denominator security..."
+            defaultValue={selectedRatioSecurity}
+            handleChange={setSelectedRatioSecurity}
+          />
+        )}
         <ChartSelect defaultValue={selectedScale} onChange={setSelectedScale} options={scaleOptions} />
         <ChartSelect
           isMulti
@@ -708,7 +676,26 @@ export default function Explorer(props: any) {
           onChange={setSelectedIndicators}
           options={indicatorOptions}
         />
-        {renderChart()}
+        {chartData && (
+          <Plot
+            className={`py-2 w-full chart-fluid ${loading ? 'loading' : ''}`}
+            style={{
+              minHeight: '400px',
+            }}
+            useResizeHandler
+            data={chartData?.data}
+            layout={chartData?.layout}
+            config={{
+              displaylogo: false,
+              toImageButtonOptions: {
+                format: 'png',
+                height: 1080,
+                width: 1920,
+                filename: ['ticksift', 'explorer', selectedChart?.value, selectedDates.join('_to_')].join('_'),
+              },
+            }}
+          />
+        )}
       </div>
     </Layout>
   );
