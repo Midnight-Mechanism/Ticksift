@@ -681,6 +681,7 @@ export default function Explorer(props: any) {
             className={`py-2 w-full chart-fluid ${loading ? 'loading' : ''}`}
             style={{
               minHeight: '400px',
+              height: '70vmin',
             }}
             useResizeHandler
             data={chartData?.data}
