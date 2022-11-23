@@ -125,11 +125,8 @@ export default function MomentumTreemap({
   if (chartData?.values?.length) {
     return (
       <Plot
-        className={`w-full chart-fluid ${className}`}
+        className={`w-full h-full ${className}`}
         useResizeHandler
-        style={{
-          minHeight: '800px',
-        }}
         data={[
           {
             type: 'treemap',

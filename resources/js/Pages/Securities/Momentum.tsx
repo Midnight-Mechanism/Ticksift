@@ -36,20 +36,26 @@ export default function Momentum(props: any) {
       <div className="mx-auto px-4 sm:px-6 lg:px-8">
         <DatePicker minDate={props.priceDates.min} maxDate={props.priceDates.max} handleChange={setSelectedDates} />
         <ChartTitle text="Sectors" />
-        <MomentumTreemap
-          data={results ? [...results.winners, ...results.losers] : null}
-          calculateSecuritySize={(s: any) => s.latest_close * s.volume}
-          screenshotFilename={['ticksift', 'momentum', selectedDates.join('_to_')].join('_')}
-          className={loading ? 'loading' : ''}
-        />
+        <div className="chart-placeholder" style={{ height: '70vmin', minHeight: 800 }}>
+          <MomentumTreemap
+            data={results ? [...results.winners, ...results.losers] : null}
+            calculateSecuritySize={(s: any) => s.latest_close * s.volume}
+            screenshotFilename={['ticksift', 'momentum', selectedDates.join('_to_')].join('_')}
+            className={loading ? 'loading' : ''}
+          />
+        </div>
         <div className="grid grid-cols-1 sm:grid-cols-1 2xl:grid-cols-2 gap-x-8 justify-items-center">
           <div className="w-full mt-3">
             <ChartTitle text="Winners" />
-            <MomentumTable type="winners" data={results?.winners} className={loading ? 'loading' : ''} />
+            <div className="chart-placeholder" style={{ height: '50vmin', minHeight: 300 }}>
+              <MomentumTable type="winners" data={results?.winners} className={loading ? 'loading' : ''} />
+            </div>
           </div>
           <div className="w-full mt-3">
             <ChartTitle text="Losers" />
-            <MomentumTable type="losers" data={results?.losers} className={loading ? 'loading' : ''} />
+            <div className="chart-placeholder" style={{ height: '50vmin', minHeight: 300 }}>
+              <MomentumTable type="losers" data={results?.losers} className={loading ? 'loading' : ''} />
+            </div>
           </div>
         </div>
       </div>

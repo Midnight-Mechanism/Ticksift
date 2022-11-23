@@ -97,16 +97,18 @@ export default function Portfolios(props: any) {
           handleChange={setSelectedSecurities}
         />
         {selectedSecurities?.length > 0 && results && (
-          <MomentumTreemap
-            data={results}
-            calculateSecuritySize={() => 1}
-            screenshotFilename={[
-              'ticksift',
-              selectedPortfolio?.name?.replace(/[^a-z0-9]/gi, '_') ?? 'portfolio',
-              selectedDates.join('_to_'),
-            ].join('_')}
-            className={loading ? 'loading' : ''}
-          />
+          <div style={{ height: '50vmin' }}>
+            <MomentumTreemap
+              data={results}
+              calculateSecuritySize={() => 1}
+              screenshotFilename={[
+                'ticksift',
+                selectedPortfolio?.name?.replace(/[^a-z0-9]/gi, '_') ?? 'portfolio',
+                selectedDates.join('_to_'),
+              ].join('_')}
+              className={loading ? 'loading' : ''}
+            />
+          </div>
         )}
       </div>
     </Layout>

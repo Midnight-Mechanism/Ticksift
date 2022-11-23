@@ -4,8 +4,8 @@
 }
 
 .chart {
-  &-fluid {
-    height: 70vmin;
+  &-placeholder {
+    background-color: var(--ticksift-black);
   }
 }
 
