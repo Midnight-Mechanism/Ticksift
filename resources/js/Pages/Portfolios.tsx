@@ -39,7 +39,11 @@ export default function Portfolios(props: any) {
       <Head title="Portfolios" />
 
       <div className="mx-auto px-4 sm:px-6 lg:px-8">
-        <DatePicker minDate={props.priceDates.min} maxDate={props.priceDates.max} handleChange={setSelectedDates} />
+        <DatePicker
+          minDate={props.totalDateRange.min}
+          maxDate={props.totalDateRange.max}
+          handleChange={setSelectedDates}
+        />
         <ReactTabulator
           events={{
             rowSelectionChanged: (rows: any) => {

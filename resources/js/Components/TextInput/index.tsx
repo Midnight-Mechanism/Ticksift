@@ -21,8 +21,8 @@ export default function TextInput({
   name?: string;
   min?: string;
   max?: string;
-  defaultValue?: any;
-  value?: any;
+  defaultValue?: string | number;
+  value?: string | number;
   className?: string;
   autoComplete?: string;
   required?: boolean;

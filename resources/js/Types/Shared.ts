@@ -1,5 +1,5 @@
 export type SelectOption = {
-  value: string;
+  value: string | number;
   label: string;
 };
 
@@ -25,20 +25,29 @@ export type Security = {
 };
 
 export type MomentumResult = {
-  date: string;
-  open: number;
-  high: number;
-  low: number;
-  close: number;
+  ticker: string;
+  name: string;
+  short_name: string;
+  industry: string;
+  sector: string;
+  sector_color: string;
+  scale_marketcap: number;
+  currency_code: string;
+  earliest_close: number;
+  latest_close: number;
   volume: number;
-  ratio: number;
-  ratio_close: number;
+  change: number;
 };
 
 export type Portfolio = {
   id: number;
   name: string;
   securities: Security[];
+};
+
+export type Recession = {
+  start_date: string;
+  end_date: string;
 };
 
 export type User = {
@@ -52,117 +61,4 @@ export type Auth = {
 export type TotalDateRange = {
   min: string;
   max: string;
-};
-
-export type ChartTrace = {
-  x?: string[] | number[];
-  y?: string[] | number[];
-  z?: string[] | number[];
-  xbins?: {
-    size: number;
-  };
-  xaxis?: string;
-  yaxis?: string;
-  open?: number[];
-  high?: number[];
-  low?: number[];
-  close?: number[];
-  name?: string;
-  legendgroup?: string;
-  showlegend?: boolean;
-  type?: string;
-  fill?: string;
-  mode?: string;
-  marker?: {
-    color?: string;
-    line?: {
-      color?: string;
-      width?: number;
-    };
-    size?: string | number[];
-    sizemode?: string;
-    sizeref?: number;
-  };
-  customdata?: any;
-  text?: string[];
-  hovertemplate?: string;
-  line?: {
-    color?: string;
-    dash?: string;
-    shape?: string;
-    width?: number;
-  };
-};
-
-export type ChartLayout = {
-  autosize?: boolean;
-  barmode?: string;
-  font?: {
-    color?: string;
-  };
-  dragmode?: string;
-  hovermode?: string;
-  xaxis: {
-    title?:
-      | string
-      | {
-          text?: string;
-          standoff?: number;
-        };
-    gridcolor?: string;
-    automargin?: boolean;
-    range?: string[] | number[];
-    type?: string;
-    tickformat?: string;
-  };
-  yaxis: {
-    title?: string;
-    domain?: string[] | number[];
-    gridcolor?: string;
-    automargin?: boolean;
-    type?: string;
-    tickprefix?: string;
-  };
-  yaxis2?: {
-    domain?: string[] | number[];
-    gridcolor?: string;
-    automargin?: true;
-  };
-  legend?: {
-    orientation?: string;
-  };
-  paper_bgcolor?: string;
-  plot_bgcolor?: string;
-  shapes: {
-    type?: string;
-    xref?: string;
-    yref?: string;
-    x0?: string | number;
-    x1?: string | number;
-    y0: string | number;
-    y1: string | number;
-    fillcolor: string;
-    line: {
-      width: number;
-    };
-  }[];
-  title?: string;
-  annotations: {
-    x?: string;
-    y?: string;
-    text?: string;
-    font?: {
-      color?: string;
-    };
-    showarrow?: boolean;
-  }[];
-  grid?: {
-    rows: number;
-    columns: number;
-  };
-};
-
-export type Recession = {
-  start_date: string;
-  end_date: string;
 };

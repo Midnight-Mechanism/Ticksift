@@ -1,11 +1,11 @@
+import axios, { AxiosStatic } from 'axios';
+
 declare global {
   interface Window {
-    axios: any;
-    route: any;
+    axios: AxiosStatic;
+    route: (route: string, params?: any, absolute?: boolean) => string;
   }
 }
 
-import axios from 'axios';
 window.axios = axios;
-
 window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';

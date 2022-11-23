@@ -6,8 +6,14 @@ import DatePicker from '@/Components/DatePicker';
 import MomentumTable from '@/Components/MomentumTable';
 import MomentumTreemap from '@/Components/MomentumTreemap';
 import Layout from '@/Layouts/Layout';
+import { Auth, MomentumResult, TotalDateRange } from '@/Types/Shared';
 
-export default function Momentum(props: any) {
+type Props = {
+  auth: Auth;
+  totalDateRange: TotalDateRange;
+};
+
+export default function Momentum(props: Props) {
   const [loading, setLoading] = useState<boolean>();
   const [selectedDates, setSelectedDates] = useState<string[]>([]);
   const [results, setResults] = useState<any>();
@@ -34,12 +40,16 @@ export default function Momentum(props: any) {
       <Head title="Momentum" />
 
       <div className="mx-auto px-4 sm:px-6 lg:px-8">
-        <DatePicker minDate={props.priceDates.min} maxDate={props.priceDates.max} handleChange={setSelectedDates} />
+        <DatePicker
+          minDate={props.totalDateRange.min}
+          maxDate={props.totalDateRange.max}
+          handleChange={setSelectedDates}
+        />
         <ChartTitle text="Sectors" />
         <div className="chart-placeholder" style={{ height: '70vmin', minHeight: 800 }}>
           <MomentumTreemap
             data={results ? [...results.winners, ...results.losers] : null}
-            calculateSecuritySize={(s: any) => s.latest_close * s.volume}
+            calculateSecuritySize={(s: MomentumResult) => s.latest_close * s.volume}
             screenshotFilename={['ticksift', 'momentum', selectedDates.join('_to_')].join('_')}
             className={loading ? 'loading' : ''}
           />

@@ -14,7 +14,7 @@ export default function DatePicker({
 }: {
   minDate: string;
   maxDate: string;
-  handleChange: any;
+  handleChange: (dateRange: string[]) => void;
 }) {
   const calendar = useRef<Flatpickr>(null);
   const [dateRange, setDateRange] = useLocalStorage('dates', [

@@ -1,4 +1,5 @@
 import { useForm } from '@inertiajs/inertia-react';
+import { AxiosResponse } from 'axios';
 import { debounce } from 'lodash';
 import { useState, useEffect, useCallback } from 'react';
 import { toast } from 'react-toastify';
@@ -7,6 +8,7 @@ import ChartSelect from '@/Components/ChartSelect';
 import FormModal from '@/Components/Modal';
 import PrimaryButton from '@/Components/PrimaryButton';
 import TextInput from '@/Components/TextInput';
+import { Portfolio } from '@/Types/Shared';
 
 export default function SecurityPicker({
   defaultValue,
@@ -22,7 +24,7 @@ export default function SecurityPicker({
   defaultValue?: any;
   isMulti?: boolean;
   canSavePortfolio?: boolean;
-  portfolioToUpdate?: any;
+  portfolioToUpdate?: Portfolio;
   onPortfolioUpdate?: any;
   placeholder?: string;
   className?: string;
@@ -66,7 +68,7 @@ export default function SecurityPicker({
             q: input,
           },
         })
-        .then((res: any) => {
+        .then((res: AxiosResponse) => {
           callback(res.data);
         });
     }, 250),
@@ -76,12 +78,12 @@ export default function SecurityPicker({
   const createPortfolio = (e: any) => {
     e.preventDefault();
 
-    const route = portfolioToUpdate
-      ? window.route('portfolios.update', portfolioToUpdate.id)
+    const portfolioRoute = portfolioToUpdate
+      ? window.route('portfolios.update', portfolioToUpdate?.id)
       : window.route('portfolios.store');
-    const method = portfolioToUpdate ? createFormProps.put : createFormProps.post;
+    const portfolioMethod = portfolioToUpdate ? createFormProps.put : createFormProps.post;
 
-    method(route, {
+    portfolioMethod(portfolioRoute, {
       onSuccess: (r: any) => {
         setCreateModalIsOpen(false);
         if (onPortfolioUpdate) {
@@ -95,7 +97,7 @@ export default function SecurityPicker({
   const deletePortfolio = (e: any) => {
     e.preventDefault();
 
-    deleteFormProps.delete(window.route('portfolios.destroy', portfolioToUpdate.id), {
+    deleteFormProps.delete(window.route('portfolios.destroy', portfolioToUpdate?.id), {
       onSuccess: (r: any) => {
         setDeleteModalIsOpen(false);
         if (onPortfolioUpdate) {

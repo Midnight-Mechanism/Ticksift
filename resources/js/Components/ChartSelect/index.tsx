@@ -1,6 +1,8 @@
 import Select from 'react-select';
 import AsyncSelect from 'react-select/async';
 
+import { SelectOption } from '@/Types/Shared';
+
 import './styles.css';
 
 export default function ChartSelect({
@@ -21,7 +23,7 @@ export default function ChartSelect({
   defaultValue?: string;
   onChange?: any;
   loadOptions?: any;
-  options?: any[];
+  options?: SelectOption[];
   value?: any;
 }) {
   if (isAsync) {

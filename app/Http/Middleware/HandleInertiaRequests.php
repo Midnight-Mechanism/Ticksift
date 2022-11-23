@@ -48,7 +48,7 @@ class HandleInertiaRequests extends Middleware
                     'location' => $request->url(),
                 ]);
             },
-            'priceDates' => [
+            'totalDateRange' => [
                 'min' => Cache::get('min-sep-date', '1997-12-31'),
                 'max' => Price::max('date'),
             ],
