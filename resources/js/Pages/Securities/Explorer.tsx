@@ -591,9 +591,9 @@ export default function Explorer(props: Props) {
 
   useEffect(() => {
     if (selectedRatioSecurity) {
-      getPriceData([selectedRatioSecurity?.value], setRatioPriceData);
+      getPriceData([selectedRatioSecurity.value], setRatioPriceData);
     }
-  }, [selectedRatioSecurity]);
+  }, [selectedDates, selectedRatioSecurity]);
 
   useEffect(() => {
     if (!selectedSecurities?.length) {
@@ -661,7 +661,7 @@ export default function Explorer(props: Props) {
         )}
         <SecurityPicker
           isMulti
-          canSavePortfolio={typeof props.auth.user !== 'undefined'}
+          canSavePortfolio={props.auth.user != undefined}
           value={selectedSecurities}
           handleChange={setSelectedSecurities}
         />

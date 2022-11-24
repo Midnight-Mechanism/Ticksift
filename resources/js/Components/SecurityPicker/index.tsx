@@ -45,9 +45,7 @@ export default function SecurityPicker({
   });
 
   useEffect(() => {
-    if (value) {
-      setSelectedSecurities(value);
-    }
+    setSelectedSecurities(value);
   }, [value]);
 
   useEffect(() => {
@@ -117,7 +115,7 @@ export default function SecurityPicker({
       defaultValue={selectedSecurities}
       onChange={setSelectedSecurities}
       loadOptions={getSecurityOptions}
-      {...(value && { value: value })}
+      value={value}
     />
   );
 
