@@ -101,7 +101,7 @@ export default function Portfolios(props: any) {
           handleChange={setSelectedSecurities}
         />
         {selectedSecurities?.length > 0 && results && (
-          <div style={{ height: '50vmin' }}>
+          <div style={{ height: '50vmin', minHeight: 500 }}>
             <MomentumTreemap
               data={results}
               calculateSecuritySize={() => 1}
