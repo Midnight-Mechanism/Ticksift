@@ -9,6 +9,7 @@ export default function ChartSelect({
   isAsync = false,
   isMulti,
   placeholder,
+  noOptionsMessage,
   className = 'py-2',
   defaultValue,
   onChange,
@@ -19,6 +20,7 @@ export default function ChartSelect({
   isAsync?: boolean;
   isMulti?: boolean;
   placeholder?: string;
+  noOptionsMessage?: any;
   className?: string;
   defaultValue?: string;
   onChange?: any;
@@ -35,6 +37,7 @@ export default function ChartSelect({
         defaultValue={defaultValue}
         onChange={onChange}
         placeholder={placeholder}
+        noOptionsMessage={noOptionsMessage}
         loadOptions={loadOptions}
         options={options}
         value={value}
@@ -48,6 +51,7 @@ export default function ChartSelect({
       isMulti={isMulti}
       defaultValue={defaultValue}
       placeholder={placeholder}
+      noOptionsMessage={noOptionsMessage}
       onChange={onChange}
       options={options}
       value={value}

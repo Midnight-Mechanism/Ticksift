@@ -39,7 +39,11 @@ export default function TextInput({
 
   return (
     <div className="flex flex-col items-start">
-      {label && <label htmlFor={name}>{label}</label>}
+      {label && (
+        <label className="pb-1" htmlFor={name}>
+          {label}
+        </label>
+      )}
       <input
         type={type}
         name={name}

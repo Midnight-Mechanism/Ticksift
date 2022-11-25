@@ -112,6 +112,9 @@ export default function SecurityPicker({
       isAsync
       isMulti={isMulti}
       placeholder={placeholder}
+      noOptionsMessage={({ inputValue }: { inputValue: string }) =>
+        inputValue ? 'No results found.' : 'Type a name or ticker symbol...'
+      }
       defaultValue={selectedSecurities}
       onChange={setSelectedSecurities}
       loadOptions={getSecurityOptions}

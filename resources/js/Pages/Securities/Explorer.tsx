@@ -55,6 +55,9 @@ export default function Explorer(props: Props) {
     { value: 'recessions', label: 'Recessions' },
   ];
 
+  const chartsWithoutIndicators = ['histvar', 'correlation'];
+  const chartsWithoutScales = chartsWithoutIndicators;
+
   const [loading, setLoading] = useState<boolean>(true);
 
   const [width, setWidth] = useState<number>(window.innerWidth);
@@ -373,7 +376,7 @@ export default function Explorer(props: Props) {
     }
 
     // add indicators
-    if (selectedIndicators?.length && data.length && !['histvar', 'correlation'].includes(selectedChart?.value)) {
+    if (selectedIndicators?.length && data.length && !chartsWithoutIndicators.includes(selectedChart?.value)) {
       const indicators = selectedIndicators.map((i: SelectOption) => i.value);
       const indicatorHoverTemplate = '%{y:$,.2f}';
 
@@ -665,55 +668,61 @@ export default function Explorer(props: Props) {
           value={selectedSecurities}
           handleChange={setSelectedSecurities}
         />
-        <ChartSelect defaultValue={selectedChart} onChange={setSelectedChart} options={chartOptions} />
-        {selectedChart?.value === 'histvar' && (
-          <TextInput
-            label="Highlight Percentile:"
-            type="number"
-            className="mb-2"
-            min="0"
-            max="100"
-            defaultValue={varThreshold}
-            handleChange={(e: any) => setVarThreshold(e.target.value)}
-          />
-        )}
-        {selectedChart?.value === 'ratio' && (
-          <SecurityPicker
-            className="pt-0 pb-2"
-            placeholder="Search for a denominator security..."
-            defaultValue={selectedRatioSecurity}
-            handleChange={setSelectedRatioSecurity}
-          />
-        )}
-        <ChartSelect defaultValue={selectedScale} onChange={setSelectedScale} options={scaleOptions} />
-        <ChartSelect
-          isMulti
-          placeholder="Add technical indicators..."
-          defaultValue={selectedIndicators}
-          onChange={setSelectedIndicators}
-          options={indicatorOptions}
-        />
-        {chartData && (
-          <Plot
-            className={`py-2 w-full chart-fluid ${loading ? 'loading' : ''}`}
-            style={{
-              minHeight: '400px',
-              height: '70vmin',
-            }}
-            useResizeHandler
-            data={chartData?.data}
-            layout={chartData?.layout}
-            config={{
-              displaylogo: false,
-              toImageButtonOptions: {
-                format: 'png',
-                height: 1080,
-                width: 1920,
-                filename: ['ticksift', 'explorer', selectedChart?.value, selectedDates.join('_to_')].join('_'),
-              },
-            }}
-          />
-        )}
+        <div className={selectedSecurities?.length ? '' : 'hidden'}>
+          <ChartSelect defaultValue={selectedChart} onChange={setSelectedChart} options={chartOptions} />
+          {selectedChart?.value === 'histvar' && (
+            <TextInput
+              label="Highlight Percentile:"
+              type="number"
+              className="mb-2"
+              min="0"
+              max="100"
+              defaultValue={varThreshold}
+              handleChange={(e: any) => setVarThreshold(e.target.value)}
+            />
+          )}
+          {selectedChart?.value === 'ratio' && (
+            <SecurityPicker
+              className="pt-0 pb-2"
+              placeholder="Search for a denominator security..."
+              defaultValue={selectedRatioSecurity}
+              handleChange={setSelectedRatioSecurity}
+            />
+          )}
+          {!chartsWithoutScales.includes(selectedChart?.value) && (
+            <ChartSelect defaultValue={selectedScale} onChange={setSelectedScale} options={scaleOptions} />
+          )}
+          {!chartsWithoutIndicators.includes(selectedChart?.value) && (
+            <ChartSelect
+              isMulti
+              placeholder="Add technical indicators..."
+              defaultValue={selectedIndicators}
+              onChange={setSelectedIndicators}
+              options={indicatorOptions}
+            />
+          )}
+          {chartData && (
+            <Plot
+              className={`py-2 w-full chart-fluid ${loading ? 'loading' : ''}`}
+              style={{
+                minHeight: '400px',
+                height: '70vmin',
+              }}
+              useResizeHandler
+              data={chartData?.data}
+              layout={chartData?.layout}
+              config={{
+                displaylogo: false,
+                toImageButtonOptions: {
+                  format: 'png',
+                  height: 1080,
+                  width: 1920,
+                  filename: ['ticksift', 'explorer', selectedChart?.value, selectedDates.join('_to_')].join('_'),
+                },
+              }}
+            />
+          )}
+        </div>
       </div>
     </Layout>
   );
