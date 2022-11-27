@@ -2,9 +2,7 @@ import { Link } from '@inertiajs/inertia-react';
 import { useMatomo } from '@jonkoops/matomo-tracker-react';
 import { useState, useEffect } from 'react';
 import { ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
 
-import '../../css/toast.css';
 import Logo from '@/Components/Logo';
 import NavLink from '@/Components/NavLink';
 import ResponsiveNavLink from '@/Components/ResponsiveNavLink';

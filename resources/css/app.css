@@ -1,3 +1,6 @@
 @import 'base.css';
 @import 'charts.css';
 @import 'tables.css';
+
+@import 'react-toastify/dist/ReactToastify.css';
+@import 'toast.css';
