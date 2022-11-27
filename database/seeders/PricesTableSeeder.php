@@ -3,9 +3,9 @@
 namespace Database\Seeders;
 
 use App\Models\Security;
-use App\Models\SourceTable;
 use Carbon\Carbon;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
 
 class PricesTableSeeder extends Seeder
 {
@@ -28,12 +28,11 @@ class PricesTableSeeder extends Seeder
             });
 
         foreach ($securities as $source_table_id => $source_table_securities) {
-            $filename = glob('stock_data/SHARADAR_'.SourceTable::findOrFail($source_table_id)->name.'*.csv')[0];
+            $filename = storage_path('app/prices.csv');
             $file = fopen($filename, 'r');
 
             $header = true;
             $chunk = [];
-            $insertCount = 0;
             $missing_tickers = [];
             while (($line = fgetcsv($file)) !== false) {
                 if (! $header) {
@@ -47,7 +46,6 @@ class PricesTableSeeder extends Seeder
                             'low' => $line[4],
                             'close' => $line[5],
                             'volume' => $line[6] ?: null,
-                            'dividends' => $line[7],
                             'close_unadj' => $line[8],
                             'source_last_updated' => $line[9],
                             'created_at' => Carbon::now(),
@@ -60,10 +58,8 @@ class PricesTableSeeder extends Seeder
                         }
                     }
                     if (count($chunk) > 1000) {
-                        $insertCount = $insertCount + count($chunk);
                         DB::table('prices')->insert($chunk);
                         $chunk = [];
-                        \Log::info($insertCount.' inserted');
                     }
                 } else {
                     $header = false;
@@ -71,10 +67,8 @@ class PricesTableSeeder extends Seeder
                 unset($line);
             }
 
-            $insertCount = $insertCount + count($chunk);
             DB::table('prices')->insert($chunk);
             $chunk = [];
-            \Log::info($insertCount.' inserted');
 
             fclose($file);
             if (count($missing_tickers) > 0) {

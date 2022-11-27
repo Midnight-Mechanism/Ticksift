@@ -198,24 +198,6 @@ class SecurityController extends Controller
     }
 
     /**
-     * Find the specified resource by ticker.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function find(Request $request)
-    {
-        $tickers = $request->input('tickers');
-        $security = Security::whereIn('ticker', $tickers)
-            ->select(
-                'id as value',
-                DB::raw("CASE WHEN ticker IS NULL THEN name ELSE CONCAT(ticker, ' - ', name) END AS label")
-            )
-            ->get();
-
-        return response()->json($security);
-    }
-
-    /**
      * Search for the specified resource.
      *
      * @return \Illuminate\Http\Response
@@ -224,35 +206,42 @@ class SecurityController extends Controller
     {
         $query = $request->input('q');
         $source_tables = SourceTable::all();
-        $results = Security::where('ticker', 'ILIKE', '%'.$query.'%')
-            ->orWhere('name', 'ILIKE', '%'.$query.'%')
+        $like_operator = (DB::getDriverName() === 'pgsql') ? 'ILIKE' : 'LIKE';
+        $results = Security::where('ticker', $like_operator, '%'.$query.'%')
+            ->orWhere('name', $like_operator, '%'.$query.'%')
             ->select(
-                'id as value',
+                'id AS value',
                 'source_table_id',
-                DB::raw("CASE WHEN ticker IS NULL THEN name ELSE CONCAT(ticker, ' - ', name) END AS label")
+                'name',
+                'ticker',
             )
             ->orderBy('ticker')->orderBy('name')
             ->get()
-            ->groupBy(function ($security) use ($source_tables) {
-                $source_table_id = $security->source_table_id;
-                unset($security->source_table_id);
+        ->map(function ($security) {
+            $security->label = $security->ticker_name;
+            unset($security->ticker_name);
 
-                return $source_tables->firstWhere('id', $source_table_id)->group ?? 'Misc.';
-            })->sortBy(function ($security, $type) {
-                switch($type) {
-                    case 'Securities':
-                        return 1;
-                    case 'Misc.':
-                        return 0;
-                    default:
-                        return 2;
-                }
-            })->map(function ($securities, $type) {
-                return [
-                    'label' => $type,
-                    'options' => $securities,
-                ];
-            })->values();
+            return $security;
+        })->groupBy(function ($security) use ($source_tables) {
+            $source_table_id = $security->source_table_id;
+            unset($security->source_table_id);
+
+            return $source_tables->firstWhere('id', $source_table_id)->group ?? 'Misc.';
+        })->sortBy(function ($security, $type) {
+            switch($type) {
+                case 'Securities':
+                    return 1;
+                case 'Misc.':
+                    return 0;
+                default:
+                    return 2;
+            }
+        })->map(function ($securities, $type) {
+            return [
+                'label' => $type,
+                'options' => $securities,
+            ];
+        })->values();
 
         return response()->json($results);
     }

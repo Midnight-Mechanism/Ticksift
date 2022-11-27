@@ -15,8 +15,7 @@ return new class extends Migration
     {
         Schema::table('users', function (Blueprint $table) {
             $table->timestamp('email_verified_at')->nullable();
-            $table->dropColumn('activated');
-            $table->dropColumn('token');
+            $table->dropColumn(['activated', 'token']);
         });
     }
 

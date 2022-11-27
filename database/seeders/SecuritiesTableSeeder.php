@@ -23,7 +23,7 @@ class SecuritiesTableSeeder extends Seeder
      */
     public function run()
     {
-        $filename = glob('stock_data/SHARADAR_TICKERS*.csv')[0];
+        $filename = storage_path('app/securities.csv');
         $file = fopen($filename, 'r');
 
         $header = true;

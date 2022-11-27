@@ -26,7 +26,6 @@ Route::get('/', function () {
 Route::get('securities/explorer', [SecurityController::class, 'explorer'])->name('securities.explorer');
 Route::get('securities/momentum', [SecurityController::class, 'momentum'])->name('securities.momentum');
 
-Route::get('securities/find', [SecurityController::class, 'find'])->name('securities.find');
 Route::get('securities/search', [SecurityController::class, 'search'])->name('securities.search');
 
 Route::get('securities/prices', [SecurityController::class, 'prices'])->name('securities.prices');
