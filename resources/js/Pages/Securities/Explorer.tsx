@@ -76,6 +76,32 @@ export default function Explorer(props: Props) {
   const [chartData, setChartData] = useState<any>();
   const [recessions, setRecessions] = useState<any>();
 
+  useEffect(() => {
+    const tickersToAdd = new URLSearchParams(document.location.search).get('add_tickers')?.split(',');
+    if (tickersToAdd) {
+      window.axios
+        .get(window.route('securities.find'), {
+          params: {
+            tickers: tickersToAdd,
+          },
+        })
+        .then((res: AxiosResponse) => {
+          setSelectedSecurities(
+            unionBy(
+              selectedSecurities,
+              res.data.map((s: Security) => {
+                return {
+                  value: s.id,
+                  label: s.ticker_name,
+                };
+              }),
+              'value'
+            )
+          );
+        });
+    }
+  }, []);
+
   const getPriceData = (securities: number[], callback: (data: AxiosResponse) => void) => {
     if (selectedDates && securities) {
       setLoading(true);

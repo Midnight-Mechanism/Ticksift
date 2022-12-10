@@ -198,6 +198,25 @@ class SecurityController extends Controller
     }
 
     /**
+     * Find the specified resource by ticker.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function find(Request $request)
+    {
+        $tickers = $request->input('tickers');
+        $security = Security::whereIn('ticker', $tickers)
+            ->select(
+                'id',
+                'ticker',
+                'name',
+            )
+            ->get();
+
+        return response()->json($security);
+    }
+
+    /**
      * Search for the specified resource.
      *
      * @return \Illuminate\Http\Response

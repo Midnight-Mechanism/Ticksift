@@ -1,3 +1,4 @@
+import { Inertia } from '@inertiajs/inertia';
 import Color from 'color';
 import { groupBy, map, mapValues, without } from 'lodash';
 import { useState, useEffect } from 'react';
@@ -127,6 +128,13 @@ export default function MomentumTreemap({
       <Plot
         className={`w-full h-full ${className}`}
         useResizeHandler
+        onTreemapClick={(data: any) => {
+          const ticker = data.points[0].customdata;
+          if (ticker) {
+            Inertia.visit(`${window.route('securities.explorer', { add_tickers: ticker })}`);
+            return false;
+          }
+        }}
         data={[
           {
             type: 'treemap',
