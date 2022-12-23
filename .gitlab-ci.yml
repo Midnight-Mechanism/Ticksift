@@ -1,9 +1,9 @@
 variables:
-  SSH_SERVER: "gitlab-runner@ticksift.com"
-  REVIEW_DOMAIN: "review.midnightmechanism.com"
+  SSH_SERVER: 'gitlab-runner@ticksift.com'
+  REVIEW_DOMAIN: 'review.midnightmechanism.com'
 
 image:
-  name: lorisleiva/laravel-docker:stable
+  name: lorisleiva/laravel-docker:8.1
 
 cache:
   key: ${CI_COMMIT_REF_SLUG}
@@ -23,7 +23,7 @@ build:
     - npm run build
   artifacts:
     paths:
-      - "public/"
+      - 'public/'
 
 deploy_review:
   stage: deploy
