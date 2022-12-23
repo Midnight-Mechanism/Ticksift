@@ -1,8 +1,9 @@
 import { Inertia } from '@inertiajs/inertia';
 import Color from 'color';
-import { groupBy, map, mapValues, without } from 'lodash';
-import { useState, useEffect } from 'react';
+import { groupBy, map, mapValues, unionBy, without } from 'lodash';
+import { useState, useEffect, useRef } from 'react';
 import Plot from 'react-plotly.js';
+import { toast } from 'react-toastify';
 
 import { chartColor } from '@/Utilities/Constants';
 import { formatCurrency } from '@/Utilities/NumberHelpers';
@@ -19,12 +20,39 @@ export default function MomentumTreemap({
   screenshotFilename?: string;
 }) {
   const [chartData, setChartData] = useState<any>();
+  const [clickedSecurities, setClickedSecurities] = useState<any>([]);
+  const explorerToastId = useRef<null | string | number>(null);
 
   useEffect(() => {
     if (data) {
       setChartData(generateChartData(data));
     }
   }, [data]);
+
+  useEffect(() => {
+    if (clickedSecurities?.length) {
+      const toastMessage = `Open in Explorer: ${clickedSecurities.join(', ')}`;
+      const visitExplorer = () =>
+        Inertia.visit(`${window.route('securities.explorer', { add_tickers: clickedSecurities.join(',') })}`);
+
+      if (explorerToastId.current && toast.isActive(explorerToastId.current)) {
+        toast.update(explorerToastId.current, {
+          render: toastMessage,
+          onClick: visitExplorer,
+        });
+      } else {
+        explorerToastId.current = toast(toastMessage, {
+          autoClose: false,
+          onClick: visitExplorer,
+          onClose: () => {
+            setClickedSecurities([]);
+          },
+        });
+      }
+    } else {
+      if (explorerToastId.current && toast.isActive(explorerToastId.current)) toast.dismiss(explorerToastId.current);
+    }
+  }, [clickedSecurities]);
 
   const generateChartData = (rawData: any) => {
     const results: any = {
@@ -131,7 +159,11 @@ export default function MomentumTreemap({
         onTreemapClick={(data: any) => {
           const ticker = data.points[0].customdata;
           if (ticker) {
-            Inertia.visit(`${window.route('securities.explorer', { add_tickers: ticker })}`);
+            if (clickedSecurities.includes(ticker)) {
+              setClickedSecurities(clickedSecurities.filter((s: string) => s !== ticker));
+            } else {
+              setClickedSecurities(unionBy(clickedSecurities, [ticker]));
+            }
             return false;
           }
         }}
