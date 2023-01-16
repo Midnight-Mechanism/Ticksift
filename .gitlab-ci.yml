@@ -79,13 +79,13 @@ deploy_staging:
     - eval $(ssh-agent -s)
     - echo "$DEPLOY_KEY" | ssh-add -
   script:
-    - rsync -ra --exclude=.git ./ $SSH_SERVER:/web/ticksift/staging_temp/
-    - ssh $SSH_SERVER "rm -rf /web/ticksift/staging"
-    - ssh $SSH_SERVER "mv /web/ticksift/staging_temp /web/ticksift/staging"
-    - ssh $SSH_SERVER "ln -s /web/ticksift/storage_staging /web/ticksift/staging/storage"
-    - ssh $SSH_SERVER "ln -s /web/ticksift/staging/storage/app/public /web/ticksift/staging/public/storage"
-    - ssh $SSH_SERVER "php /web/ticksift/staging/artisan view:clear"
-    - ssh $SSH_SERVER "php /web/ticksift/staging/artisan migrate --force"
+    - rsync -ra --exclude=.git ./ $SSH_SERVER:/var/www/ticksift/staging_temp/
+    - ssh $SSH_SERVER "rm -rf /var/www/ticksift/staging"
+    - ssh $SSH_SERVER "mv /var/www/ticksift/staging_temp /var/www/ticksift/staging"
+    - ssh $SSH_SERVER "ln -s /var/www/ticksift/storage_staging /var/www/ticksift/staging/storage"
+    - ssh $SSH_SERVER "ln -s /var/www/ticksift/staging/storage/app/public /var/www/ticksift/staging/public/storage"
+    - ssh $SSH_SERVER "php /var/www/ticksift/staging/artisan view:clear"
+    - ssh $SSH_SERVER "php /var/www/ticksift/staging/artisan migrate --force"
   rules:
     - if: '$CI_COMMIT_BRANCH == "develop"'
 
@@ -101,12 +101,12 @@ deploy_prod:
     - eval $(ssh-agent -s)
     - echo "$DEPLOY_KEY" | ssh-add -
   script:
-    - rsync -ra --exclude=.git ./ $SSH_SERVER:/web/ticksift/prod_temp/
-    - ssh $SSH_SERVER "rm -rf /web/ticksift/prod"
-    - ssh $SSH_SERVER "mv /web/ticksift/prod_temp /web/ticksift/prod"
-    - ssh $SSH_SERVER "ln -s /web/ticksift/storage_prod /web/ticksift/prod/storage"
-    - ssh $SSH_SERVER "ln -s /web/ticksift/prod/storage/app/public /web/ticksift/prod/public/storage"
-    - ssh $SSH_SERVER "php /web/ticksift/prod/artisan view:clear"
-    - ssh $SSH_SERVER "php /web/ticksift/prod/artisan migrate --force"
+    - rsync -ra --exclude=.git ./ $SSH_SERVER:/var/www/ticksift/prod_temp/
+    - ssh $SSH_SERVER "rm -rf /var/www/ticksift/prod"
+    - ssh $SSH_SERVER "mv /var/www/ticksift/prod_temp /var/www/ticksift/prod"
+    - ssh $SSH_SERVER "ln -s /var/www/ticksift/storage_prod /var/www/ticksift/prod/storage"
+    - ssh $SSH_SERVER "ln -s /var/www/ticksift/prod/storage/app/public /var/www/ticksift/prod/public/storage"
+    - ssh $SSH_SERVER "php /var/www/ticksift/prod/artisan view:clear"
+    - ssh $SSH_SERVER "php /var/www/ticksift/prod/artisan migrate --force"
   rules:
     - if: '$CI_COMMIT_BRANCH == "main"'
