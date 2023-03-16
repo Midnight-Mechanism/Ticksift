@@ -1,4 +1,4 @@
-import { Inertia } from '@inertiajs/inertia';
+import { router } from '@inertiajs/react';
 import Color from 'color';
 import { groupBy, map, mapValues, unionBy, without } from 'lodash';
 import { useState, useEffect, useRef } from 'react';
@@ -33,7 +33,7 @@ export default function MomentumTreemap({
     if (clickedSecurities?.length) {
       const toastMessage = `Open in Explorer: ${clickedSecurities.join(', ')}`;
       const visitExplorer = () =>
-        Inertia.visit(`${window.route('securities.explorer', { add_tickers: clickedSecurities.join(',') })}`);
+        router.visit(`${route('securities.explorer', { add_tickers: clickedSecurities.join(',') })}`);
 
       if (explorerToastId.current && toast.isActive(explorerToastId.current)) {
         toast.update(explorerToastId.current, {

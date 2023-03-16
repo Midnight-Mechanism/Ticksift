@@ -1,4 +1,4 @@
-import { Head, useForm } from '@inertiajs/inertia-react';
+import { Head, useForm } from '@inertiajs/react';
 import { useEffect } from 'react';
 
 import InputError from '@/Components/InputError';
@@ -28,7 +28,7 @@ export default function ResetPassword({ token, email }: { token: string; email: 
   const submit = (e: any) => {
     e.preventDefault();
 
-    post(window.route('password.update'));
+    post(route('password.update'));
   };
 
   return (

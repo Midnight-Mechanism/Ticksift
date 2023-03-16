@@ -1,4 +1,4 @@
-import { Head } from '@inertiajs/inertia-react';
+import { Head } from '@inertiajs/react';
 import { useState, useEffect } from 'react';
 import { ReactTabulator } from 'react-tabulator';
 import 'tabulator-tables/dist/css/tabulator_midnight.css';
@@ -24,7 +24,7 @@ export default function Portfolios(props: any) {
     if (selectedDates.length && selectedSecurities.length) {
       setLoading(true);
       window.axios
-        .post(window.route('securities.momentum-results'), {
+        .post(route('securities.momentum-results'), {
           dates: selectedDates,
           security_ids: selectedSecurities?.map((s: any) => s.value),
         })

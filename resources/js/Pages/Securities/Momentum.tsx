@@ -1,4 +1,4 @@
-import { Head } from '@inertiajs/inertia-react';
+import { Head } from '@inertiajs/react';
 import { useEffect, useState } from 'react';
 
 import ChartTitle from '@/Components/ChartTitle';
@@ -22,7 +22,7 @@ export default function Momentum(props: Props) {
     if (selectedDates.length) {
       setLoading(true);
       window.axios
-        .post(window.route('securities.momentum-results'), {
+        .post(route('securities.momentum-results'), {
           dates: selectedDates,
         })
         .then((r: any) => {

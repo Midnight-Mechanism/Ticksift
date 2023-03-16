@@ -1,4 +1,5 @@
-import { Link } from '@inertiajs/inertia-react';
+import { Method } from '@inertiajs/core';
+import { Link } from '@inertiajs/react';
 import { useMatomo } from '@jonkoops/matomo-tracker-react';
 import { useState, useEffect } from 'react';
 import { ToastContainer } from 'react-toastify';
@@ -18,7 +19,7 @@ export default function Layout({ auth, header, children }: { auth?: any; header?
   type NavLinkData = {
     name: string;
     route: string;
-    method?: string;
+    method?: Method;
     as?: string;
   };
 
@@ -43,8 +44,8 @@ export default function Layout({ auth, header, children }: { auth?: any; header?
       return (
         <NavLink
           key={navLink.route}
-          href={window.route(navLink.route)}
-          active={window.route().current(navLink.route)}
+          href={route(navLink.route)}
+          active={route().current(navLink.route)}
           method={navLink.method}
           as={navLink.as}
         >
@@ -59,8 +60,8 @@ export default function Layout({ auth, header, children }: { auth?: any; header?
       return (
         <ResponsiveNavLink
           key={navLink.route}
-          href={window.route(navLink.route)}
-          active={window.route().current(navLink.route)}
+          href={route(navLink.route)}
+          active={route().current(navLink.route)}
           method={navLink.method}
           as={navLink.as}
         >

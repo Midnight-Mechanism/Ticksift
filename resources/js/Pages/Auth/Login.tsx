@@ -1,4 +1,4 @@
-import { Head, Link, useForm } from '@inertiajs/inertia-react';
+import { Head, Link, useForm } from '@inertiajs/react';
 import { useEffect } from 'react';
 
 import InputError from '@/Components/InputError';
@@ -27,7 +27,7 @@ export default function Login({ status, canResetPassword }: { status: string; ca
   const submit = (e: any) => {
     e.preventDefault();
 
-    post(window.route('login'));
+    post(route('login'));
   };
 
   return (
@@ -71,7 +71,7 @@ export default function Login({ status, canResetPassword }: { status: string; ca
 
           <div className="flex items-center justify-end mt-4">
             {canResetPassword && (
-              <Link href={window.route('password.request')} className="underline text-sm hover:text-blue-100">
+              <Link href={route('password.request')} className="underline text-sm hover:text-blue-100">
                 Forgot your password?
               </Link>
             )}

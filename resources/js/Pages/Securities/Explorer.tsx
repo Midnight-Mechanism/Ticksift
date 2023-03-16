@@ -1,4 +1,4 @@
-import { Head } from '@inertiajs/inertia-react';
+import { Head } from '@inertiajs/react';
 import pcorrtest from '@stdlib/stats/pcorrtest';
 import { AxiosResponse } from 'axios';
 import dayjs from 'dayjs';
@@ -80,7 +80,7 @@ export default function Explorer(props: Props) {
     const tickersToAdd = new URLSearchParams(document.location.search).get('add_tickers')?.split(',');
     if (tickersToAdd) {
       window.axios
-        .get(window.route('securities.find'), {
+        .get(route('securities.find'), {
           params: {
             tickers: tickersToAdd,
           },
@@ -106,7 +106,7 @@ export default function Explorer(props: Props) {
     if (selectedDates && securities) {
       setLoading(true);
       window.axios
-        .get(window.route('securities.prices'), {
+        .get(route('securities.prices'), {
           params: {
             security_ids: securities,
             dates: selectedDates,
@@ -117,7 +117,7 @@ export default function Explorer(props: Props) {
   };
 
   useEffect(() => {
-    window.axios.get(window.route('indicators.recessions')).then((res: AxiosResponse) => setRecessions(res.data));
+    window.axios.get(route('indicators.recessions')).then((res: AxiosResponse) => setRecessions(res.data));
   }, []);
 
   const generateChartData = () => {

@@ -1,4 +1,4 @@
-import { useForm } from '@inertiajs/inertia-react';
+import { useForm } from '@inertiajs/react';
 import { AxiosResponse } from 'axios';
 import { debounce } from 'lodash';
 import { useState, useEffect, useCallback } from 'react';
@@ -61,7 +61,7 @@ export default function SecurityPicker({
   const getSecurityOptions = useCallback(
     debounce((input, callback) => {
       window.axios
-        .get(window.route('securities.search'), {
+        .get(route('securities.search'), {
           params: {
             q: input,
           },
@@ -77,8 +77,8 @@ export default function SecurityPicker({
     e.preventDefault();
 
     const portfolioRoute = portfolioToUpdate
-      ? window.route('portfolios.update', portfolioToUpdate?.id)
-      : window.route('portfolios.store');
+      ? route('portfolios.update', portfolioToUpdate?.id)
+      : route('portfolios.store');
     const portfolioMethod = portfolioToUpdate ? createFormProps.put : createFormProps.post;
 
     portfolioMethod(portfolioRoute, {
@@ -95,7 +95,7 @@ export default function SecurityPicker({
   const deletePortfolio = (e: any) => {
     e.preventDefault();
 
-    deleteFormProps.delete(window.route('portfolios.destroy', portfolioToUpdate?.id), {
+    deleteFormProps.delete(route('portfolios.destroy', portfolioToUpdate?.id), {
       onSuccess: (r: any) => {
         setDeleteModalIsOpen(false);
         if (onPortfolioUpdate) {

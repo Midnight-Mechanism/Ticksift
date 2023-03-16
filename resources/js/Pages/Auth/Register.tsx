@@ -1,4 +1,4 @@
-import { Head, Link, useForm, usePage } from '@inertiajs/inertia-react';
+import { Head, Link, useForm, usePage } from '@inertiajs/react';
 import { useEffect } from 'react';
 import ReCAPTCHA from 'react-google-recaptcha';
 
@@ -32,7 +32,7 @@ export default function Register() {
   const submit = (e: any) => {
     e.preventDefault();
 
-    post(window.route('register'));
+    post(route('register'));
   };
 
   return (
@@ -131,7 +131,7 @@ export default function Register() {
             </div>
 
             <div className="mt-4">
-              <Link href={window.route('login')} className="underline text-sm hover:text-blue-100">
+              <Link href={route('login')} className="underline text-sm hover:text-blue-100">
                 Already registered?
               </Link>
 

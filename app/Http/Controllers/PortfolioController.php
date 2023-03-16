@@ -29,7 +29,6 @@ class PortfolioController extends Controller
     /**
      * Store a new resource.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
@@ -48,8 +47,6 @@ class PortfolioController extends Controller
     /**
      * Update an existing resource.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param    $id
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, $id)

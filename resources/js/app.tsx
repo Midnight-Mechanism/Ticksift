@@ -1,11 +1,10 @@
-import { createInertiaApp } from '@inertiajs/inertia-react';
-import { InertiaProgress } from '@inertiajs/progress';
+import { createInertiaApp } from '@inertiajs/react';
 import { MatomoProvider, createInstance } from '@jonkoops/matomo-tracker-react';
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import { createRoot } from 'react-dom/client';
 
-import '../css/app.css';
 import './bootstrap';
+import '../css/app.css';
 
 const appName = window.document.getElementsByTagName('title')[0]?.innerText || 'Laravel';
 
@@ -43,6 +42,7 @@ createInertiaApp({
       </MatomoProvider>
     );
   },
+  progress: {
+    color: 'gray',
+  },
 });
-
-InertiaProgress.init({ color: 'gray' });

@@ -1,4 +1,4 @@
-import { Head, useForm } from '@inertiajs/inertia-react';
+import { Head, useForm } from '@inertiajs/react';
 
 import InputError from '@/Components/InputError';
 import PrimaryButton from '@/Components/PrimaryButton';
@@ -17,7 +17,7 @@ export default function ForgotPassword({ status }: { status: any }) {
   const submit = (e: any) => {
     e.preventDefault();
 
-    post(window.route('password.email'));
+    post(route('password.email'));
   };
 
   return (

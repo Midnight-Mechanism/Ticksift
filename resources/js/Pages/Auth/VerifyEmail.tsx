@@ -1,4 +1,4 @@
-import { Head, useForm } from '@inertiajs/inertia-react';
+import { Head, useForm } from '@inertiajs/react';
 
 import PrimaryButton from '@/Components/PrimaryButton';
 import Layout from '@/Layouts/Layout';
@@ -9,7 +9,7 @@ export default function VerifyEmail({ status }: { status: string }) {
   const submit = (e: any) => {
     e.preventDefault();
 
-    post(window.route('verification.send'));
+    post(route('verification.send'));
   };
 
   return (

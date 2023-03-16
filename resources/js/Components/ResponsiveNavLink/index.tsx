@@ -1,4 +1,5 @@
-import { Link } from '@inertiajs/inertia-react';
+import { Method } from '@inertiajs/core';
+import { Link } from '@inertiajs/react';
 
 export default function ResponsiveNavLink({
   method = 'get',
@@ -7,7 +8,7 @@ export default function ResponsiveNavLink({
   active = false,
   children,
 }: {
-  method?: string;
+  method?: Method;
   as?: string;
   href: string;
   active?: boolean;
