@@ -1,6 +1,7 @@
 variables:
   SSH_SERVER: 'gitlab-runner@ticksift.com'
   REVIEW_DOMAIN: 'review.midnightmechanism.com'
+  DEPLOY_PATH: '/var/www/ticksift'
 
 image:
   name: lorisleiva/laravel-docker:8.1
@@ -25,10 +26,8 @@ build:
     paths:
       - 'public/'
 
-deploy_review:
-  stage: deploy
+.deploy:
   before_script:
-    - echo "$STAGING_ENV" | sed -E "s~^APP_URL=(.*)~APP_URL=$CI_ENVIRONMENT_URL/#/~g" > .env
     - mkdir -p ~/.ssh
     - chmod 700 ~/.ssh
     - echo "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
@@ -36,8 +35,21 @@ deploy_review:
     - eval $(ssh-agent -s)
     - echo "$DEPLOY_KEY" | ssh-add -
   script:
-    - rsync -a --exclude=.git --delete ./ gitlab-runner@$REVIEW_DOMAIN:/web/review/$CI_ENVIRONMENT_SLUG
-    - ssh gitlab-runner@$REVIEW_DOMAIN "php /web/review/$CI_ENVIRONMENT_SLUG/artisan migrate --force"
+    - rm -rf storage
+    - ssh $SSH_SERVER "rm -rf $DEPLOY_PATH/$DEPLOY_ENV"
+    - rsync -ra --exclude=.git ./ $SSH_SERVER:$DEPLOY_PATH/$DEPLOY_ENV/
+    - ssh $SSH_SERVER "ln -s $DEPLOY_PATH/storage_$DEPLOY_ENV $DEPLOY_PATH/$DEPLOY_ENV/storage"
+    - ssh $SSH_SERVER "php $DEPLOY_PATH/$DEPLOY_ENV/artisan storage:link"
+    - ssh $SSH_SERVER "php $DEPLOY_PATH/$DEPLOY_ENV/artisan migrate --force"
+
+deploy_review:
+  stage: deploy
+  before_script:
+    - echo "$STAGING_DOTENV" | sed -E "s~^APP_URL=(.*)~APP_URL=$CI_ENVIRONMENT_URL/#/~g" > .env
+    - !reference [.deploy, before_script]
+  script:
+    - rsync -a --exclude=.git --delete ./ gitlab-runner@$REVIEW_DOMAIN:/var/www/review/$CI_ENVIRONMENT_SLUG
+    - ssh gitlab-runner@$REVIEW_DOMAIN "php /var/www/review/$CI_ENVIRONMENT_SLUG/artisan migrate --force"
   environment:
     name: review/$CI_PROJECT_PATH/$CI_MERGE_REQUEST_SOURCE_BRANCH_NAME
     url: https://$CI_ENVIRONMENT_SLUG.$REVIEW_DOMAIN
@@ -48,14 +60,9 @@ deploy_review:
 stop_review:
   stage: deploy
   before_script:
-    - mkdir -p ~/.ssh
-    - chmod 700 ~/.ssh
-    - echo "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
-    - chmod 644 ~/.ssh/known_hosts
-    - eval $(ssh-agent -s)
-    - echo "$DEPLOY_KEY" | ssh-add -
+    - !reference [.deploy, before_script]
   script:
-    - ssh gitlab-runner@$REVIEW_DOMAIN "rm -rf /web/review/$CI_ENVIRONMENT_SLUG"
+    - ssh gitlab-runner@$REVIEW_DOMAIN "rm -rf /var/www/review/$CI_ENVIRONMENT_SLUG"
   variables:
     GIT_STRATEGY: none
   environment:
@@ -69,44 +76,24 @@ stop_review:
 
 deploy_staging:
   stage: deploy
+  variables:
+    DEPLOY_ENV: 'staging'
   before_script:
-    - echo "$STAGING_ENV" > .env
-    - rm -rf storage
-    - mkdir -p ~/.ssh
-    - chmod 700 ~/.ssh
-    - echo "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
-    - chmod 644 ~/.ssh/known_hosts
-    - eval $(ssh-agent -s)
-    - echo "$DEPLOY_KEY" | ssh-add -
+    - echo "$STAGING_DOTENV" > .env
+    - !reference [.deploy, before_script]
   script:
-    - rsync -ra --exclude=.git ./ $SSH_SERVER:/var/www/ticksift/staging_temp/
-    - ssh $SSH_SERVER "rm -rf /var/www/ticksift/staging"
-    - ssh $SSH_SERVER "mv /var/www/ticksift/staging_temp /var/www/ticksift/staging"
-    - ssh $SSH_SERVER "ln -s /var/www/ticksift/storage_staging /var/www/ticksift/staging/storage"
-    - ssh $SSH_SERVER "ln -s /var/www/ticksift/staging/storage/app/public /var/www/ticksift/staging/public/storage"
-    - ssh $SSH_SERVER "php /var/www/ticksift/staging/artisan view:clear"
-    - ssh $SSH_SERVER "php /var/www/ticksift/staging/artisan migrate --force"
+    - !reference [.deploy, script]
   rules:
     - if: '$CI_COMMIT_BRANCH == "develop"'
 
 deploy_prod:
   stage: deploy
+  variables:
+    DEPLOY_ENV: 'prod'
   before_script:
-    - echo "$PROD_ENV" > .env
-    - rm -rf storage
-    - mkdir -p ~/.ssh
-    - chmod 700 ~/.ssh
-    - echo "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
-    - chmod 644 ~/.ssh/known_hosts
-    - eval $(ssh-agent -s)
-    - echo "$DEPLOY_KEY" | ssh-add -
+    - echo "$PROD_DOTENV" > .env
+    - !reference [.deploy, before_script]
   script:
-    - rsync -ra --exclude=.git ./ $SSH_SERVER:/var/www/ticksift/prod_temp/
-    - ssh $SSH_SERVER "rm -rf /var/www/ticksift/prod"
-    - ssh $SSH_SERVER "mv /var/www/ticksift/prod_temp /var/www/ticksift/prod"
-    - ssh $SSH_SERVER "ln -s /var/www/ticksift/storage_prod /var/www/ticksift/prod/storage"
-    - ssh $SSH_SERVER "ln -s /var/www/ticksift/prod/storage/app/public /var/www/ticksift/prod/public/storage"
-    - ssh $SSH_SERVER "php /var/www/ticksift/prod/artisan view:clear"
-    - ssh $SSH_SERVER "php /var/www/ticksift/prod/artisan migrate --force"
+    - !reference [.deploy, script]
   rules:
     - if: '$CI_COMMIT_BRANCH == "main"'
