@@ -15,6 +15,8 @@ return new class extends Migration
     {
         Schema::table('users', function (Blueprint $table) {
             $table->timestamp('email_verified_at')->nullable();
+        });
+        Schema::table('users', function (Blueprint $table) {
             $table->dropColumn(['activated', 'token']);
         });
     }
@@ -28,6 +30,8 @@ return new class extends Migration
     {
         Schema::table('users', function (Blueprint $table) {
             $table->dropColumn('email_verified_at');
+        });
+        Schema::table('users', function (Blueprint $table) {
             $table->boolean('activated')->default(false);
             $table->string('token');
         });

@@ -15,6 +15,8 @@ class AddPriceCloseAdj extends Migration
     {
         Schema::table('prices', function (Blueprint $table) {
             $table->dropColumn('dividends');
+        });
+        Schema::table('prices', function (Blueprint $table) {
             $table->float('close_adj', 8, 2)->nullable();
         });
     }
@@ -28,6 +30,8 @@ class AddPriceCloseAdj extends Migration
     {
         Schema::table('prices', function (Blueprint $table) {
             $table->float('dividends', 8, 2)->nullable();
+        });
+        Schema::table('prices', function (Blueprint $table) {
             $table->dropColumn('close_adj');
         });
     }
