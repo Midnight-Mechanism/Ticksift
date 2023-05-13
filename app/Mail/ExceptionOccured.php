@@ -56,11 +56,11 @@ class ExceptionOccured extends Mailable
         }
 
         return $this->from($fromSender)
-                    ->to($emailsTo)
-                    ->cc($ccEmails)
-                    ->bcc($bccEmails)
-                    ->subject($subject)
-                    ->view(config('exceptions.emailExceptionView'))
-                    ->with('content', $this->content);
+            ->to($emailsTo)
+            ->cc($ccEmails)
+            ->bcc($bccEmails)
+            ->subject($subject)
+            ->view(config('exceptions.emailExceptionView'))
+            ->with('content', $this->content);
     }
 }

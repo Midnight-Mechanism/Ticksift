@@ -47,10 +47,10 @@ class SendActivationEmail extends Notification implements ShouldQueue
     {
         $message = new MailMessage();
         $message->subject('Activation Required')
-                ->greeting('Hi '.$this->user->first_name.',')
-                ->line('Thanks for registering for '.config('app.name').'!')
-                ->line('To get started, please activate your account.')
-                ->action('Activate', route('authenticated.activate', ['token' => $this->token]));
+            ->greeting('Hi '.$this->user->first_name.',')
+            ->line('Thanks for registering for '.config('app.name').'!')
+            ->line('To get started, please activate your account.')
+            ->action('Activate', route('authenticated.activate', ['token' => $this->token]));
 
         return $message;
     }

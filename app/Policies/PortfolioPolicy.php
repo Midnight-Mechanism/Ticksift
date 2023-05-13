@@ -27,8 +27,7 @@ class PortfolioPolicy
      */
     public function view(User $user, Portfolio $portfolio)
     {
-        return
-            $portfolio->users()->where('users.id', $user->id)->exists() || $portfolio->users->isEmpty();
+        return $portfolio->users()->where('users.id', $user->id)->exists() || $portfolio->users->isEmpty();
     }
 
     /**

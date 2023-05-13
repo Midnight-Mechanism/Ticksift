@@ -22,8 +22,8 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule)
     {
         $schedule->command('quandl:update')
-                 ->withoutOverlapping()
-                 ->cron('20 21-23,0-4 * * *');
+            ->withoutOverlapping()
+            ->cron('20 21-23,0-4 * * *');
     }
 
     /**

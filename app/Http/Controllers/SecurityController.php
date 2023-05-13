@@ -110,7 +110,7 @@ class SecurityController extends Controller
             'close',
             'volume'
         )->distinct('short_name')
-         ->orderBy('short_name');
+            ->orderBy('short_name');
 
         $earliest_prices = (clone $query)->oldest('date')->get();
         $latest_prices = $query->latest('date')->get();
@@ -236,31 +236,31 @@ class SecurityController extends Controller
             )
             ->orderBy('ticker')->orderBy('name')
             ->get()
-        ->map(function ($security) {
-            $security->label = $security->ticker_name;
-            unset($security->ticker_name);
+            ->map(function ($security) {
+                $security->label = $security->ticker_name;
+                unset($security->ticker_name);
 
-            return $security;
-        })->groupBy(function ($security) use ($source_tables) {
-            $source_table_id = $security->source_table_id;
-            unset($security->source_table_id);
+                return $security;
+            })->groupBy(function ($security) use ($source_tables) {
+                $source_table_id = $security->source_table_id;
+                unset($security->source_table_id);
 
-            return $source_tables->firstWhere('id', $source_table_id)->group ?? 'Misc.';
-        })->sortBy(function ($security, $type) {
-            switch($type) {
-                case 'Securities':
-                    return 1;
-                case 'Misc.':
-                    return 0;
-                default:
-                    return 2;
-            }
-        })->map(function ($securities, $type) {
-            return [
-                'label' => $type,
-                'options' => $securities,
-            ];
-        })->values();
+                return $source_tables->firstWhere('id', $source_table_id)->group ?? 'Misc.';
+            })->sortBy(function ($security, $type) {
+                switch ($type) {
+                    case 'Securities':
+                        return 1;
+                    case 'Misc.':
+                        return 0;
+                    default:
+                        return 2;
+                }
+            })->map(function ($securities, $type) {
+                return [
+                    'label' => $type,
+                    'options' => $securities,
+                ];
+            })->values();
 
         return response()->json($results);
     }
