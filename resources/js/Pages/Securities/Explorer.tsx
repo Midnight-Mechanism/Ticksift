@@ -1,4 +1,3 @@
-import { Head } from '@inertiajs/react';
 import pcorrtest from '@stdlib/stats/pcorrtest';
 import { AxiosResponse } from 'axios';
 import dayjs from 'dayjs';
@@ -653,9 +652,7 @@ export default function Explorer(props: Props) {
   }, [width]);
 
   return (
-    <Layout auth={props.auth}>
-      <Head title="Explorer" />
-
+    <Layout title="Explorer">
       <div className="mx-auto px-4 sm:px-6 lg:px-8">
         <DatePicker
           minDate={props.totalDateRange.min}

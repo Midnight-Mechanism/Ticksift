@@ -1,4 +1,4 @@
-import { Head, useForm } from '@inertiajs/react';
+import { useForm } from '@inertiajs/react';
 
 import InputError from '@/Components/InputError';
 import PrimaryButton from '@/Components/PrimaryButton';
@@ -21,9 +21,7 @@ export default function ForgotPassword({ status }: { status: any }) {
   };
 
   return (
-    <Layout>
-      <Head title="Forgot Password" />
-
+    <Layout title="Forgot Password">
       <div className="mx-auto max-w-lg px-4 sm:px-6 lg:px-8">
         <div className="mb-4 text-sm leading-normal">
           Forgot your password? No problem. Just enter your email address and we will email you a password reset link

@@ -1,4 +1,3 @@
-import { Head } from '@inertiajs/react';
 import { useEffect, useState } from 'react';
 
 import ChartTitle from '@/Components/ChartTitle';
@@ -36,9 +35,7 @@ export default function Momentum(props: Props) {
   }, [results]);
 
   return (
-    <Layout auth={props.auth}>
-      <Head title="Momentum" />
-
+    <Layout title="Momentum">
       <div className="mx-auto px-4 sm:px-6 lg:px-8">
         <DatePicker
           minDate={props.totalDateRange.min}

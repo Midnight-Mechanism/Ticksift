@@ -1,4 +1,3 @@
-import { Head } from '@inertiajs/react';
 import { useState, useEffect } from 'react';
 import { ReactTabulator } from 'react-tabulator';
 import 'tabulator-tables/dist/css/tabulator_midnight.css';
@@ -35,9 +34,7 @@ export default function Portfolios(props: any) {
   }, [selectedDates, selectedSecurities]);
 
   return (
-    <Layout auth={props.auth}>
-      <Head title="Portfolios" />
-
+    <Layout title="Portfolios">
       <div className="mx-auto px-4 sm:px-6 lg:px-8">
         <DatePicker
           minDate={props.totalDateRange.min}

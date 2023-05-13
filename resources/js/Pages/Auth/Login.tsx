@@ -31,9 +31,7 @@ export default function Login({ status, canResetPassword }: { status: string; ca
   };
 
   return (
-    <Layout>
-      <Head title="Log in" />
-
+    <Layout title="Log in">
       <div className="mx-auto max-w-lg px-4 sm:px-6 lg:px-8">
         {status && <div className="mb-4 font-medium text-sm text-green-300">{status}</div>}
 

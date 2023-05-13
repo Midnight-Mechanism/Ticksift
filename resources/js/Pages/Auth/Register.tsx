@@ -1,4 +1,4 @@
-import { Head, Link, useForm, usePage } from '@inertiajs/react';
+import { Link, useForm, usePage } from '@inertiajs/react';
 import { useEffect } from 'react';
 import ReCAPTCHA from 'react-google-recaptcha';
 
@@ -36,9 +36,7 @@ export default function Register() {
   };
 
   return (
-    <Layout>
-      <Head title="Register" />
-
+    <Layout title="Register">
       <div className="mx-auto max-w-2xl px-4 sm:px-6 lg:px-8">
         <form onSubmit={submit}>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

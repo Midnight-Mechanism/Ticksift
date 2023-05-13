@@ -1,9 +1,9 @@
 import Card from '@/Components/Card';
 import Layout from '@/Layouts/Layout';
 
-export default function Home(props: any) {
+export default function Home() {
   return (
-    <Layout auth={props.auth}>
+    <Layout title="Home">
       <div className="mx-auto px-4 sm:px-6 lg:px-8">
         <div className="p-10 grid grid-cols-1 md:grid-cols-3 gap-5 justify-items-center">
           <Card

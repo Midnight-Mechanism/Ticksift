@@ -1,5 +1,5 @@
 import { Method } from '@inertiajs/core';
-import { Link } from '@inertiajs/react';
+import { Head, Link, usePage } from '@inertiajs/react';
 import { useMatomo } from '@jonkoops/matomo-tracker-react';
 import { useState, useEffect } from 'react';
 import { ToastContainer } from 'react-toastify';
@@ -8,7 +8,8 @@ import Logo from '@/Components/Logo';
 import NavLink from '@/Components/NavLink';
 import ResponsiveNavLink from '@/Components/ResponsiveNavLink';
 
-export default function Layout({ auth, header, children }: { auth?: any; header?: any; children?: any }) {
+export default function Layout({ title, children }: { title?: string; children?: any }) {
+  const pageProps: InertiaPageProps = usePage().props;
   const [showingNavigationDropdown, setShowingNavigationDropdown] = useState(false);
   const { trackPageView } = useMatomo();
 
@@ -31,7 +32,7 @@ export default function Layout({ auth, header, children }: { auth?: any; header?
     right: [],
   };
 
-  if (auth?.user) {
+  if (pageProps.auth?.user) {
     navLinks.left.push({ name: 'Portfolios', route: 'portfolios.index' });
     navLinks.right.push({ name: 'Log Out', route: 'logout', method: 'post', as: 'button' });
   } else {
@@ -73,6 +74,7 @@ export default function Layout({ auth, header, children }: { auth?: any; header?
 
   return (
     <div className="flex flex-col min-h-screen bg-ticksift-dark text-white">
+      <Head title={title} />
       <nav className="bg-ticksift-light border-b border-gray-500">
         <div className="mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16">
@@ -118,12 +120,6 @@ export default function Layout({ auth, header, children }: { auth?: any; header?
           <div className="pt-2 pb-2 border-t border-gray-200 space-y-1">{renderResponsiveNavLinks(navLinks.right)}</div>
         </div>
       </nav>
-
-      {header && (
-        <header className="bg-white shadow">
-          <div className="mx-auto py-6 px-4 sm:px-6 lg:px-8">{header}</div>
-        </header>
-      )}
 
       <main className="grow py-12">
         {children}

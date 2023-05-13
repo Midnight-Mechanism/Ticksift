@@ -1,4 +1,4 @@
-import { Head, useForm } from '@inertiajs/react';
+import { useForm } from '@inertiajs/react';
 
 import PrimaryButton from '@/Components/PrimaryButton';
 import Layout from '@/Layouts/Layout';
@@ -13,9 +13,7 @@ export default function VerifyEmail({ status }: { status: string }) {
   };
 
   return (
-    <Layout>
-      <Head title="Email Verification" />
-
+    <Layout title="Email Verification">
       <div className="mx-auto max-w-lg px-4 sm:px-6 lg:px-8">
         <div className="mb-4 text-sm">
           Thanks for signing up! Before getting started, could you verify your email address by clicking on the link we

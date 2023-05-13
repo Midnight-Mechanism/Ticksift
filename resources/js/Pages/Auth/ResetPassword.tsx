@@ -1,4 +1,4 @@
-import { Head, useForm } from '@inertiajs/react';
+import { useForm } from '@inertiajs/react';
 import { useEffect } from 'react';
 
 import InputError from '@/Components/InputError';
@@ -32,9 +32,7 @@ export default function ResetPassword({ token, email }: { token: string; email: 
   };
 
   return (
-    <Layout>
-      <Head title="Reset Password" />
-
+    <Layout title="Reset Password">
       <div className="mx-auto max-w-lg px-4 sm:px-6 lg:px-8">
         <form onSubmit={submit}>
           <div>
