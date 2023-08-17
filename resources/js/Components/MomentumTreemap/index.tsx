@@ -100,7 +100,7 @@ export default function MomentumTreemap({
       results.values.push(0);
       results.customdata.push(null);
       Object.entries(sectorData.industries).forEach(([industry, industryData]: [string, any]) => {
-        const industryLabel = `<span style='text-transform: uppercase'>${industry}</span>`;
+        const industryLabel = `<span data-sector=${sector} style='text-transform: uppercase'>${industry}</span>`;
         results.labels.push(industryLabel);
         results.parents.push(sectorLabel);
         results.text.push(null);
@@ -111,7 +111,7 @@ export default function MomentumTreemap({
         industryData.forEach((securityData: any) => {
           results.parents.push(industryLabel);
           results.customdata.push(securityData.ticker);
-          const label = `<b><span style='font-size: 200%'>${securityData.short_name}</span></b>`;
+          const label = `<b><span data-industry=${industry} style='font-size: 200%'>${securityData.short_name}</span></b>`;
           let text = securityData.short_name == securityData.name ? '' : securityData.name;
           const absChange = Math.abs(securityData.change);
           const colorChange = Math.min(absChange * 15, 8.5);
